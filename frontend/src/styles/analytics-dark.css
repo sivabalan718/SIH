@@ -1,0 +1,166 @@
+/* M63 Deep Burgundy / Wine / Plum BI Dashboard System */
+:root {
+  --m63-bi-bg: #130B17;                /* Deep Dark Plum Shell */
+  --m63-bi-surface: #1C1022;           /* Wine Panel Surface */
+  --m63-bi-card: #25162E;              /* Compact Dark Burgundy Card */
+  --m63-bi-card-hover: #301B3B;        /* Hover Card State */
+  --m63-bi-border: #3A2346;            /* Thin Grid Separator */
+  --m63-bi-border-highlight: #523063;  /* Active Highlight Border */
+  
+  --m63-bi-text-main: #F5EDFA;         /* High Contrast Crisp White-Plum */
+  --m63-bi-text-subtle: #AFA0C2;       /* Soft Lavender Subtle Text */
+  --m63-bi-text-muted: #7E6C94;        /* Muted Label Text */
+  
+  --m63-bi-orange: #E86024;            /* M63 Terracotta Brand Accent */
+  --m63-bi-orange-subtle: rgba(232, 96, 36, 0.15);
+  
+  --m63-bi-green: #10B981;
+  --m63-bi-green-subtle: rgba(16, 185, 129, 0.15);
+  
+  --m63-bi-amber: #F59E0B;
+  --m63-bi-amber-subtle: rgba(245, 158, 11, 0.15);
+  
+  --m63-bi-red: #EF4444;
+  --m63-bi-red-subtle: rgba(239, 68, 68, 0.15);
+  
+  --m63-bi-purple: #9333EA;
+  --m63-bi-purple-subtle: rgba(147, 51, 234, 0.15);
+  
+  --m63-bi-blue: #3B82F6;
+  --m63-bi-blue-subtle: rgba(59, 130, 246, 0.15);
+}
+
+.m63-bi-workspace {
+  background-color: var(--m63-bi-bg);
+  color: var(--m63-bi-text-main);
+  min-height: 100vh;
+  padding: 20px 16px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.m63-bi-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Compact BI Panel Card */
+.m63-bi-card {
+  background-color: var(--m63-bi-card);
+  border: 1px solid var(--m63-bi-border);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.18s ease-in-out;
+}
+
+.m63-bi-card:hover {
+  border-color: var(--m63-bi-border-highlight);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Backdrop & Popup */
+.m63-bi-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(12, 6, 16, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.m63-bi-modal {
+  background-color: var(--m63-bi-card);
+  border: 1px solid var(--m63-bi-border-highlight);
+  border-radius: 14px;
+  max-width: 580px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  color: var(--m63-bi-text-main);
+}
+
+/* Compact Dashboard Badges */
+.m63-bi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.m63-bi-badge-healthy {
+  background-color: var(--m63-bi-green-subtle);
+  color: var(--m63-bi-green);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.m63-bi-badge-warning {
+  background-color: var(--m63-bi-amber-subtle);
+  color: var(--m63-bi-amber);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.m63-bi-badge-critical {
+  background-color: var(--m63-bi-red-subtle);
+  color: var(--m63-bi-red);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.m63-bi-badge-opportunity {
+  background-color: var(--m63-bi-orange-subtle);
+  color: var(--m63-bi-orange);
+  border: 1px solid rgba(232, 96, 36, 0.25);
+}
+
+.m63-bi-badge-purple {
+  background-color: var(--m63-bi-purple-subtle);
+  color: var(--m63-bi-purple);
+  border: 1px solid rgba(147, 51, 234, 0.25);
+}
+
+/* Dense Data Table */
+.m63-bi-table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.m63-bi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+}
+
+.m63-bi-table th {
+  padding: 10px 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--m63-bi-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--m63-bi-border);
+}
+
+.m63-bi-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--m63-bi-text-main);
+}
+
+.m63-bi-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.02);
+}
