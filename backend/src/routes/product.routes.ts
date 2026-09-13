@@ -8,6 +8,8 @@ import {
   handleArchiveProduct,
   handleGetProductStats,
   handleUploadImage,
+  handleEnhanceProductImage,
+  handleSelectProductImageVariant,
 } from '../controllers/product.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { validateBody } from '../middleware/validate.middleware.js';
@@ -27,5 +29,7 @@ router.patch('/:id', validateBody(updateProductSchema), handleUpdateProduct);
 router.post('/:id/publish', handlePublishProduct);
 router.post('/:id/archive', handleArchiveProduct);
 router.post('/:id/image', handleImageUpload, handleUploadImage);
+router.post('/:id/enhance-image', handleImageUpload, handleEnhanceProductImage);
+router.post('/:id/select-image-variant', handleSelectProductImageVariant);
 
 export default router;

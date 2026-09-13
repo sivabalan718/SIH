@@ -1,159 +1,209 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Package, ShoppingCart, BarChart3, User, Store, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Package,
+  ShoppingCart,
+  BarChart3,
+  User,
+  LogOut,
+  X,
+} from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext.js';
 
 interface SidebarProps {
-  mobileOpen?: boolean;
-  onCloseMobile?: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
+    onClose();
     await logout();
     navigate('/login');
   };
 
-  const navItems: Array<{ label: string; path: string; icon: any; badge?: string }> = [
+  const navItems: Array<{ label: string; path: string; icon: any }> = [
     { label: 'Dashboard', path: '/artisan/dashboard', icon: LayoutDashboard },
     { label: 'Products', path: '/artisan/products', icon: Package },
     { label: 'Orders', path: '/artisan/orders', icon: ShoppingCart },
-    { label: 'Marketplace', path: '/marketplace', icon: Store },
     { label: 'Analytics', path: '/artisan/analytics', icon: BarChart3 },
     { label: 'Profile', path: '/artisan/profile', icon: User },
   ];
 
-  return (
-    <aside
-      className={`m63-sidebar ${mobileOpen ? 'mobile-open' : ''}`}
-      style={{
-        width: '260px',
-        backgroundColor: 'var(--m63-bg-surface)',
-        borderRight: '1px solid var(--m63-border)',
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100vh',
-        position: 'sticky',
-        top: 0,
-        zIndex: 40,
-      }}
-    >
-      {/* Brand Header */}
-      <div style={{ padding: '24px 20px', borderBottom: '1px solid var(--m63-border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div
-            style={{
-              width: '38px',
-              height: '38px',
-              borderRadius: '10px',
-              backgroundColor: 'var(--m63-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFF',
-              fontWeight: 800,
-              fontSize: '1.1rem',
-            }}
-          >
-            M
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-              M63
-            </h1>
-            <span style={{ fontSize: '0.72rem', color: 'var(--m63-slate-subtle)', fontWeight: 500 }}>
-              Artisan Workspace
-            </span>
-          </div>
-        </div>
-      </div>
+  if (!isOpen) return null;
 
-      {/* Navigation List */}
-      <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={onCloseMobile}
-              className={({ isActive }) => (isActive ? 'active-nav-link' : 'nav-link')}
-              style={({ isActive }) => ({
+  return (
+    <>
+      {/* Dark Backdrop Overlay */}
+      <div
+        onClick={onClose}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(3px)',
+          zIndex: 90,
+          animation: 'fadeIn 0.2s ease-out',
+        }}
+      />
+
+      {/* Slide-out Sidebar Drawer */}
+      <aside
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: '280px',
+          backgroundColor: '#FFFFFF',
+          borderRight: '1px solid #E2E8F0',
+          display: 'flex',
+          flexDirection: 'column',
+          zIndex: 100,
+          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+          animation: 'slideInLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        }}
+      >
+        {/* Brand Header with Close Button */}
+        <div style={{ padding: '20px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'var(--m63-primary)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                padding: '10px 14px',
-                borderRadius: 'var(--m63-radius-md)',
-                color: isActive ? 'var(--m63-primary)' : 'var(--m63-slate-subtle)',
-                backgroundColor: isActive ? 'var(--m63-primary-light)' : 'transparent',
-                fontWeight: isActive ? 600 : 500,
-                fontSize: '0.95rem',
-                textDecoration: 'none',
-                transition: 'var(--m63-transition)',
-              })}
+                justifyContent: 'center',
+                color: '#FFF',
+                fontWeight: 800,
+                fontSize: '1.1rem',
+              }}
             >
-              <Icon size={20} />
-              <span style={{ flex: 1 }}>{item.label}</span>
-              {item.badge && (
-                <span
-                  style={{
-                    fontSize: '0.65rem',
-                    fontWeight: 700,
-                    padding: '2px 6px',
-                    borderRadius: '9999px',
-                    backgroundColor: 'var(--m63-primary)',
-                    color: '#FFF',
-                  }}
-                >
-                  {item.badge}
-                </span>
-              )}
-            </NavLink>
-          );
-        })}
-      </nav>
+              M
+            </div>
+            <div>
+              <h1 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', lineHeight: 1.1, margin: 0 }}>
+                M63
+              </h1>
+              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 600 }}>
+                Artisan Workspace
+              </span>
+            </div>
+          </div>
 
-      {/* User Info & Logout Footer */}
-      <div style={{ padding: '16px', borderTop: '1px solid var(--m63-border)', backgroundColor: 'var(--m63-bg-canvas)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-          <div
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close sidebar"
+            title="Close sidebar"
             style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--m63-primary-subtle)',
-              color: 'var(--m63-primary)',
+              background: '#F1F5F9',
+              border: 'none',
+              borderRadius: '8px',
+              width: '32px',
+              height: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 700,
-              fontSize: '0.9rem',
+              color: '#64748B',
+              cursor: 'pointer',
             }}
           >
-            {user?.name?.charAt(0).toUpperCase() || 'A'}
-          </div>
-          <div style={{ overflow: 'hidden' }}>
-            <p style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--m63-slate)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {user?.name}
-            </p>
-            <p style={{ fontSize: '0.75rem', color: 'var(--m63-slate-subtle)', fontFamily: 'monospace', fontWeight: 600 }}>
-              {user?.m63Id}
-            </p>
-          </div>
+            <X size={18} />
+          </button>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="m63-btn m63-btn-ghost m63-btn-sm m63-btn-full"
-          style={{ justifyContent: 'flex-start', color: 'var(--m63-error)' }}
-        >
-          <LogOut size={16} />
-          <span>Logout</span>
-        </button>
-      </div>
-    </aside>
+        {/* Nav Tabs */}
+        <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onClose} // Touch/click tab moves sidebar back inside automatically!
+                className={({ isActive }) => (isActive ? 'active-nav-link' : 'nav-link')}
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '14px',
+                  padding: '12px 16px',
+                  borderRadius: '10px',
+                  color: isActive ? '#D97706' : '#475569',
+                  backgroundColor: isActive ? '#FEF3C7' : 'transparent',
+                  fontWeight: isActive ? 700 : 600,
+                  fontSize: '0.95rem',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                })}
+              >
+                <Icon size={20} />
+                <span style={{ flex: 1 }}>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+
+        {/* User Info & Logout Footer */}
+        <div style={{ padding: '16px', borderTop: '1px solid #E2E8F0', backgroundColor: '#F8FAFC' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                backgroundColor: '#FEF3C7',
+                color: '#D97706',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+              }}
+            >
+              {user?.name?.charAt(0).toUpperCase() || 'A'}
+            </div>
+            <div style={{ overflow: 'hidden' }}>
+              <p style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0F172A', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {user?.name}
+              </p>
+              <p style={{ fontSize: '0.72rem', color: '#64748B', fontFamily: 'monospace', fontWeight: 600, margin: 0 }}>
+                {user?.m63Id}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              borderRadius: '8px',
+              border: '1px solid #FCA5A5',
+              backgroundColor: '#FEF2F2',
+              color: '#DC2626',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            <LogOut size={16} />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };

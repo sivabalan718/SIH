@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import { Product, ProductStats } from '../types/product.js';
 import { getProductStats, getProducts } from '../services/productService.js';
+import { fetchArtisanOrders, OrderRecord } from '../services/orderService.js';
 import { CopyableM63Id } from '../components/common/CopyableM63Id.js';
 import { ProductCard } from '../components/product/ProductCard.js';
 import { Button } from '../components/ui/Button.js';
@@ -14,8 +15,6 @@ import {
   Clock,
   Plus,
   Sparkles,
-  CheckCircle2,
-  Circle,
   ArrowRight,
 } from 'lucide-react';
 
@@ -25,20 +24,23 @@ export const Dashboard: React.FC = () => {
 
   const [stats, setStats] = useState<ProductStats | null>(null);
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [loadingData, setLoadingData] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadDashboardData() {
       try {
         setLoadingData(true);
-        const [statsData, productsData] = await Promise.all([
-          getProductStats(),
-          getProducts(),
+        const [statsData, productsData, ordersData] = await Promise.all([
+          getProductStats().catch(() => null),
+          getProducts().catch(() => []),
+          fetchArtisanOrders().catch(() => []),
         ]);
-        setStats(statsData);
+        if (statsData) setStats(statsData);
         setRecentProducts(productsData.slice(0, 3));
+        setOrders(ordersData);
       } catch (err) {
-        // Silently handle if network fails on first load
+        // Silently handle network errors
       } finally {
         setLoadingData(false);
       }
@@ -47,21 +49,14 @@ export const Dashboard: React.FC = () => {
     loadDashboardData();
   }, []);
 
-  const totalProducts = stats?.total ?? 0;
-  const publishedProducts = stats?.published ?? 0;
-  const draftProducts = stats?.draft ?? 0;
+  const totalProducts = stats?.total ?? recentProducts.length;
+  const publishedProducts = stats?.published ?? recentProducts.filter((p) => p.status === 'PUBLISHED').length;
+  const draftProducts = stats?.draft ?? recentProducts.filter((p) => p.status === 'DRAFT').length;
 
-  // Calculate onboarding progress step count dynamically
-  let stepsCompletedCount = 1; // Step 1: Account created (always true)
-  if (totalProducts > 0) stepsCompletedCount = 2;
-  if (publishedProducts > 0) stepsCompletedCount = 3;
-
-  const onboardingSteps = [
-    { title: 'Account created', completed: true, desc: 'Registered and M63 ID assigned' },
-    { title: 'Create your first product', completed: totalProducts > 0, desc: 'Add photos, price, and craft story' },
-    { title: 'Publish your catalogue', completed: publishedProducts > 0, desc: 'Make your products visible to buyers' },
-    { title: 'Receive your first order', completed: false, desc: 'Manage incoming orders seamlessly' },
-  ];
+  const totalOrdersCount = orders.length;
+  const pendingOrdersCount = orders.filter((o) => o.status === 'PENDING').length;
+  const activeOrders = orders.filter((o) => o.status !== 'CANCELLED');
+  const totalSales = activeOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -107,54 +102,6 @@ export const Dashboard: React.FC = () => {
         </Button>
       </div>
 
-      {/* Onboarding Progress Component */}
-      <div className="m63-card">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-          <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--m63-slate)' }}>
-              Get started with M63
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--m63-slate-subtle)' }}>
-              Follow these simple steps to build your online artisan store.
-            </p>
-          </div>
-          <span className="m63-badge m63-badge-primary">
-            Step {stepsCompletedCount} of 4 Complete
-          </span>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-          {onboardingSteps.map((step, idx) => (
-            <div
-              key={idx}
-              style={{
-                backgroundColor: step.completed ? 'var(--m63-success-bg)' : 'var(--m63-bg-canvas)',
-                border: `1px solid ${step.completed ? 'var(--m63-success-border)' : 'var(--m63-border)'}`,
-                borderRadius: 'var(--m63-radius-md)',
-                padding: '16px',
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '12px',
-              }}
-            >
-              {step.completed ? (
-                <CheckCircle2 size={22} style={{ color: 'var(--m63-success)', flexShrink: 0, marginTop: '2px' }} />
-              ) : (
-                <Circle size={22} style={{ color: 'var(--m63-border-hover)', flexShrink: 0, marginTop: '2px' }} />
-              )}
-              <div>
-                <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: step.completed ? 'var(--m63-success)' : 'var(--m63-slate)' }}>
-                  {step.title}
-                </h3>
-                <p style={{ fontSize: '0.78rem', color: 'var(--m63-slate-subtle)', marginTop: '2px' }}>
-                  {step.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Real Workspace Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
         {/* Products Card (Real Data) */}
@@ -186,7 +133,11 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Orders Card */}
-        <div className="m63-card">
+        <div
+          className="m63-card"
+          onClick={() => navigate('/artisan/orders')}
+          style={{ cursor: 'pointer' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--m63-slate-subtle)' }}>
               Orders
@@ -195,14 +146,28 @@ export const Dashboard: React.FC = () => {
               <ShoppingCart size={20} />
             </div>
           </div>
-          <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1 }}>0</p>
+          {loadingData ? (
+            <LoadingSpinner size={24} color="var(--m63-primary)" />
+          ) : (
+            <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1 }}>
+              {totalOrdersCount}
+            </p>
+          )}
           <p style={{ fontSize: '0.8rem', color: 'var(--m63-slate-subtle)', marginTop: '8px' }}>
-            Orders will appear here
+            {totalOrdersCount === 0
+              ? 'Orders will appear here'
+              : pendingOrdersCount > 0
+              ? `${pendingOrdersCount} pending confirmation`
+              : `${totalOrdersCount} total orders received`}
           </p>
         </div>
 
         {/* Sales Card */}
-        <div className="m63-card">
+        <div
+          className="m63-card"
+          onClick={() => navigate('/artisan/orders')}
+          style={{ cursor: 'pointer' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--m63-slate-subtle)' }}>
               Total Sales
@@ -211,14 +176,26 @@ export const Dashboard: React.FC = () => {
               <TrendingUp size={20} />
             </div>
           </div>
-          <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1 }}>₹0</p>
+          {loadingData ? (
+            <LoadingSpinner size={24} color="var(--m63-primary)" />
+          ) : (
+            <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1 }}>
+              ₹{totalSales.toLocaleString('en-IN')}
+            </p>
+          )}
           <p style={{ fontSize: '0.8rem', color: 'var(--m63-slate-subtle)', marginTop: '8px' }}>
-            Your sales activity will appear here
+            {totalSales === 0
+              ? 'Your sales activity will appear here'
+              : `${activeOrders.length} active sales transactions`}
           </p>
         </div>
 
-        {/* Pending Tasks Card */}
-        <div className="m63-card">
+        {/* Draft Products Card */}
+        <div
+          className="m63-card"
+          onClick={() => navigate('/artisan/products?status=DRAFT')}
+          style={{ cursor: 'pointer' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
             <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--m63-slate-subtle)' }}>
               Draft Products
@@ -227,11 +204,15 @@ export const Dashboard: React.FC = () => {
               <Clock size={20} />
             </div>
           </div>
-          <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1 }}>
-            {draftProducts}
-          </p>
+          {loadingData ? (
+            <LoadingSpinner size={24} color="var(--m63-primary)" />
+          ) : (
+            <p style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--m63-slate)', lineHeight: 1 }}>
+              {draftProducts}
+            </p>
+          )}
           <p style={{ fontSize: '0.8rem', color: 'var(--m63-slate-subtle)', marginTop: '8px' }}>
-            Drafts awaiting publish
+            {draftProducts === 0 ? 'No drafts pending' : 'Drafts awaiting publish'}
           </p>
         </div>
       </div>

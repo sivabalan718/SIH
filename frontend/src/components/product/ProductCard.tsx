@@ -2,6 +2,7 @@ import React from 'react';
 import { Product } from '../../types/product.js';
 import { ProductStatusBadge } from './ProductStatusBadge.js';
 import { Package, Calendar, Layers } from 'lucide-react';
+import { handleProductImageError } from '../../utils/imageFallback.js';
 
 export interface ProductCardProps {
   product: Product;
@@ -50,6 +51,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
           <img
             src={product.primaryImageUrl}
             alt={product.name}
+            onError={(e) => handleProductImageError(e, product.category)}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (

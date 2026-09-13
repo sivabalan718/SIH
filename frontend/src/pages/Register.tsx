@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import { Button } from '../components/ui/Button.js';
 import { Input } from '../components/ui/Input.js';
+import { CustomerFloatingEntry } from '../components/common/CustomerFloatingEntry.js';
+import { StarryBackground3D } from '../components/common/StarryBackground3D.js';
 
 export const Register: React.FC = () => {
   const { register } = useAuth();
@@ -48,7 +50,6 @@ export const Register: React.FC = () => {
     setLoading(true);
     try {
       const result = await register(formData);
-      // Navigate to dedicated success screen with state
       navigate('/register-success', {
         state: { m63Id: result.m63Id, name: formData.name },
       });
@@ -60,8 +61,22 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <div className="m63-auth-page">
-      <div className="m63-auth-card animate-fade-in">
+    <div
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        backgroundColor: '#030712',
+        overflow: 'hidden',
+      }}
+    >
+      <StarryBackground3D />
+
+      <div className="m63-auth-card-dark animate-fade-in" style={{ position: 'relative', zIndex: 10 }}>
         {/* Brand Header */}
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div
@@ -69,7 +84,7 @@ export const Register: React.FC = () => {
               width: '48px',
               height: '48px',
               borderRadius: '12px',
-              backgroundColor: 'var(--m63-primary)',
+              background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
               color: '#FFF',
               display: 'inline-flex',
               alignItems: 'center',
@@ -77,21 +92,21 @@ export const Register: React.FC = () => {
               fontWeight: 800,
               fontSize: '1.4rem',
               marginBottom: '12px',
-              boxShadow: 'var(--m63-shadow-primary)',
+              boxShadow: '0 4px 20px rgba(234, 88, 12, 0.4)',
             }}
           >
             M
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--m63-slate)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
             Welcome to M63
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--m63-slate-subtle)', marginTop: '4px' }}>
+          <p style={{ fontSize: '0.875rem', color: '#94A3B8', marginTop: '4px' }}>
             Create your digital workspace and bring your craft online.
           </p>
         </div>
 
         {serverError && (
-          <div className="m63-alert m63-alert-error" role="alert">
+          <div className="m63-alert m63-alert-error" role="alert" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#FCA5A5' }}>
             <span>{serverError}</span>
           </div>
         )}
@@ -137,19 +152,31 @@ export const Register: React.FC = () => {
           />
 
           <div style={{ marginTop: '24px' }}>
-            <Button type="submit" variant="primary" fullWidth loading={loading}>
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              loading={loading}
+              style={{
+                background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
+                border: 'none',
+                boxShadow: '0 4px 16px rgba(234, 88, 12, 0.35)',
+                fontWeight: 700,
+              }}
+            >
               Create my M63 Account
             </Button>
           </div>
         </form>
 
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: 'var(--m63-slate-subtle)' }}>
+        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: '#94A3B8' }}>
           Already have an account?{' '}
-          <Link to="/login" style={{ fontWeight: 600, color: 'var(--m63-primary)' }}>
+          <Link to="/login" style={{ fontWeight: 600, color: '#F59E0B', textDecoration: 'none' }}>
             Sign in
           </Link>
         </div>
       </div>
+      <CustomerFloatingEntry />
     </div>
   );
 };

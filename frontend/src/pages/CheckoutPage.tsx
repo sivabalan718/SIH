@@ -20,12 +20,27 @@ export const CheckoutPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Form Fields
+  // Form Fields pre-filled from customer profile
   const [name, setName] = useState<string>(user?.name || '');
-  const [phone, setPhone] = useState<string>('');
-  const [address, setAddress] = useState<string>('');
-  const [city, setCity] = useState<string>('');
-  const [postalCode, setPostalCode] = useState<string>('');
+  const [phone, setPhone] = useState<string>(user?.mobile || '');
+  const [address, setAddress] = useState<string>(
+    [user?.address, user?.locality].filter(Boolean).join(', ') || ''
+  );
+  const [city, setCity] = useState<string>(user?.city || '');
+  const [postalCode, setPostalCode] = useState<string>(user?.postalCode || '');
+
+  useEffect(() => {
+    if (user) {
+      if (!name && user.name) setName(user.name);
+      if (!phone && user.mobile) setPhone(user.mobile);
+      if (!address && user.address) {
+        const fullAddr = [user.address, user.locality].filter(Boolean).join(', ');
+        setAddress(fullAddr);
+      }
+      if (!city && user.city) setCity(user.city);
+      if (!postalCode && user.postalCode) setPostalCode(user.postalCode);
+    }
+  }, [user]);
 
   useEffect(() => {
     loadCheckoutData();

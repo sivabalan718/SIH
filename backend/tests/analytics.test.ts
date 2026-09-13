@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 import { getArtisanAnalytics } from '../src/services/analytics.service.js';
 import { generateBusinessInsights } from '../src/services/ai/business-intelligence.service.js';
 import { createProduct, publishProduct } from '../src/services/product.service.js';

@@ -1,0 +1,252 @@
+[
+  {
+    "id": "ord-1788159075437-pyqp6",
+    "m63_order_number": "M63-8878",
+    "buyer_id": "guest-user",
+    "artisan_id": "2ad0c1fd-d764-4192-9c36-10bfee6078ae",
+    "status": "DELIVERED",
+    "subtotal": 1450,
+    "delivery_charge": 0,
+    "total_amount": 1450,
+    "shipping_name": "Shabari",
+    "shipping_phone": "+918248605104",
+    "shipping_address": "348/F Ganesha Colony Mettu Street,Perambalur, LA cinemas, perambalur, 621212",
+    "items": [
+      {
+        "id": "item-1788159075438-pcp",
+        "order_id": "ord-1788159075437-pyqp6",
+        "product_id": "10000000-0000-4000-8000-000000000093",
+        "product_name_snapshot": "Handcrafted Rajasthani Wooden String Puppet (Kathputli Pair)",
+        "unit_price_snapshot": 1450,
+        "quantity": 1,
+        "subtotal": 1450,
+        "artisan_id": "fe1172bf-c684-4ef2-94db-7c2091731814",
+        "primary_image_url": "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80"
+      }
+    ],
+    "placed_at": "2026-08-31T06:51:15.437Z",
+    "updated_at": "2026-08-31T07:32:43.039Z",
+    "confirmed_at": "2026-08-31T06:52:59.384Z",
+    "processing_at": "2026-08-31T07:32:36.822Z",
+    "shipped_at": "2026-08-31T07:32:39.498Z",
+    "delivered_at": "2026-08-31T07:32:43.039Z"
+  },
+  {
+    "id": "ord-1788161274117-3z3qe",
+    "m63_order_number": "M63-1663",
+    "buyer_id": "guest-user",
+    "artisan_id": "2ad0c1fd-d764-4192-9c36-10bfee6078ae",
+    "status": "DELIVERED",
+    "subtotal": 1150,
+    "delivery_charge": 0,
+    "total_amount": 1150,
+    "shipping_name": "Shabari",
+    "shipping_phone": "+918248605104",
+    "shipping_address": "348/F Ganesha Colony Mettu Street,Perambalur, perambalur, 621212",
+    "items": [
+      {
+        "id": "item-1788161274117-kbs",
+        "order_id": "ord-1788161274117-3z3qe",
+        "product_id": "10000000-0000-4000-8000-000000000042",
+        "product_name_snapshot": "Terracotta Sun God Wall Hanging Tile",
+        "unit_price_snapshot": 1150,
+        "quantity": 1,
+        "subtotal": 1150,
+        "artisan_id": "2ad0c1fd-d764-4192-9c36-10bfee6078ae",
+        "primary_image_url": "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&q=80"
+      }
+    ],
+    "placed_at": "2026-08-31T07:27:54.117Z",
+    "updated_at": "2026-08-31T07:32:01.253Z",
+    "confirmed_at": "2026-08-31T07:31:48.795Z",
+    "processing_at": "2026-08-31T07:31:54.619Z",
+    "shipped_at": "2026-08-31T07:31:58.569Z",
+    "delivered_at": "2026-08-31T07:32:01.253Z"
+  },
+  {
+    "id": "ord-1788188243127-26l0o",
+    "m63_order_number": "M63-3034",
+    "buyer_id": "buyer-analytics-111",
+    "artisan_id": "2ad0c1fd-d764-4192-9c36-10bfee6078ae",
+    "status": "CONFIRMED",
+    "subtotal": 5500,
+    "delivery_charge": 0,
+    "total_amount": 5500,
+    "shipping_name": "Buyer A",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Test St",
+    "items": [
+      {
+        "id": "item-1788188243128-2ou",
+        "order_id": "ord-1788188243127-26l0o",
+        "product_id": "prod-1788188237732-hzwlu",
+        "product_name_snapshot": "Analytics Kanchipuram Silk Saree",
+        "unit_price_snapshot": 2500,
+        "quantity": 2,
+        "subtotal": 5000,
+        "artisan_id": "artisan-analytics-111",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      },
+      {
+        "id": "item-1788188243128-omk",
+        "order_id": "ord-1788188243127-26l0o",
+        "product_id": "prod-1788188240197-edabh",
+        "product_name_snapshot": "Analytics Clay Diya Set",
+        "unit_price_snapshot": 500,
+        "quantity": 1,
+        "subtotal": 500,
+        "artisan_id": "artisan-analytics-111",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-08-31T14:57:23.127Z",
+    "updated_at": "2026-09-13T07:08:02.532Z",
+    "confirmed_at": "2026-09-13T07:08:02.532Z"
+  },
+  {
+    "id": "ord-1788188248682-oa1hf",
+    "m63_order_number": "M63-9784",
+    "buyer_id": "buyer-iso-111",
+    "artisan_id": "artisan-iso-aaaa",
+    "status": "PENDING",
+    "subtotal": 1000,
+    "delivery_charge": 0,
+    "total_amount": 1000,
+    "shipping_name": "Buyer",
+    "shipping_phone": "123",
+    "shipping_address": "Addr",
+    "items": [
+      {
+        "id": "item-1788188248682-29r",
+        "order_id": "ord-1788188248682-oa1hf",
+        "product_id": "prod-1788188245837-06xxf",
+        "product_name_snapshot": "Artisan A Wooden Toy",
+        "unit_price_snapshot": 1000,
+        "quantity": 1,
+        "subtotal": 1000,
+        "artisan_id": "artisan-iso-aaaa",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-08-31T14:57:28.682Z",
+    "updated_at": "2026-08-31T14:57:28.682Z"
+  },
+  {
+    "id": "ord-1788188274969-7qa1w",
+    "m63_order_number": "M63-8413",
+    "buyer_id": "55555555-5555-4555-a555-555555555555",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "status": "PROCESSING",
+    "subtotal": 1300,
+    "delivery_charge": 0,
+    "total_amount": 1300,
+    "shipping_name": "Buyer Name",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Craft Lane, Madurai",
+    "items": [
+      {
+        "id": "item-1788188274969-w4a",
+        "order_id": "ord-1788188274969-7qa1w",
+        "product_id": "prod-1788188272740-q3lnu",
+        "product_name_snapshot": "Terracotta Clay Pot",
+        "unit_price_snapshot": 650,
+        "quantity": 2,
+        "subtotal": 1300,
+        "artisan_id": "44444444-4444-4444-a444-444444444444",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-08-31T14:57:54.969Z",
+    "updated_at": "2026-08-31T14:57:57.496Z",
+    "confirmed_at": "2026-08-31T14:57:57.159Z",
+    "processing_at": "2026-08-31T14:57:57.496Z"
+  },
+  {
+    "id": "ord-1788188279430-dd3by",
+    "m63_order_number": "M63-4597",
+    "buyer_id": "77777777-7777-4777-a777-777777777777",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "status": "CANCELLED",
+    "subtotal": 7500,
+    "delivery_charge": 0,
+    "total_amount": 7500,
+    "shipping_name": "Buyer",
+    "shipping_phone": "999",
+    "shipping_address": "Main St",
+    "items": [
+      {
+        "id": "item-1788188279431-agd",
+        "order_id": "ord-1788188279430-dd3by",
+        "product_id": "prod-1788188277858-2x6zp",
+        "product_name_snapshot": "Brass Lamp",
+        "unit_price_snapshot": 2500,
+        "quantity": 3,
+        "subtotal": 7500,
+        "artisan_id": "66666666-6666-4666-a666-666666666666",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-08-31T14:57:59.430Z",
+    "updated_at": "2026-08-31T14:58:02.507Z",
+    "cancelled_at": "2026-08-31T14:58:02.507Z"
+  },
+  {
+    "id": "ord-1788188298008-82f68",
+    "m63_order_number": "M63-2114",
+    "buyer_id": "55555555-5555-4555-a555-555555555555",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "status": "PROCESSING",
+    "subtotal": 1300,
+    "delivery_charge": 0,
+    "total_amount": 1300,
+    "shipping_name": "Buyer Name",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Craft Lane, Madurai",
+    "items": [
+      {
+        "id": "item-1788188298008-ysm",
+        "order_id": "ord-1788188298008-82f68",
+        "product_id": "prod-1788188296352-h5b5g",
+        "product_name_snapshot": "Terracotta Clay Pot",
+        "unit_price_snapshot": 650,
+        "quantity": 2,
+        "subtotal": 1300,
+        "artisan_id": "44444444-4444-4444-a444-444444444444",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-08-31T14:58:18.008Z",
+    "updated_at": "2026-08-31T14:58:20.705Z",
+    "confirmed_at": "2026-08-31T14:58:20.190Z",
+    "processing_at": "2026-08-31T14:58:20.705Z"
+  },
+  {
+    "id": "ord-1788188302862-z4blj",
+    "m63_order_number": "M63-8602",
+    "buyer_id": "77777777-7777-4777-a777-777777777777",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "status": "CANCELLED",
+    "subtotal": 7500,
+    "delivery_charge": 0,
+    "total_amount": 7500,
+    "shipping_name": "Buyer",
+    "shipping_phone": "999",
+    "shipping_address": "Main St",
+    "items": [
+      {
+        "id": "item-1788188302862-t03",
+        "order_id": "ord-1788188302862-z4blj",
+        "product_id": "prod-1788188301056-lrvwt",
+        "product_name_snapshot": "Brass Lamp",
+        "unit_price_snapshot": 2500,
+        "quantity": 3,
+        "subtotal": 7500,
+        "artisan_id": "66666666-6666-4666-a666-666666666666",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-08-31T14:58:22.862Z",
+    "updated_at": "2026-08-31T14:58:25.973Z",
+    "cancelled_at": "2026-08-31T14:58:25.973Z"
+  }
+]

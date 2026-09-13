@@ -335,13 +335,18 @@ export async function handleRecommendFairPrice(req: Request, res: Response, next
       return sendError(res, 'UNAUTHORIZED', 'Artisan context not found.', 401);
     }
 
-    const { input, language = 'en' } = req.body;
+    const { input, language = 'en', productId } = req.body;
     if (!input) {
       return sendError(res, 'BAD_REQUEST', 'Please provide pricing and product inputs.', 400);
     }
 
+    const payload = {
+      ...input,
+      productId: productId || input.productId || input.id || undefined,
+    };
+
     const { generateFairPriceRecommendation } = await import('../services/ai/pricing-intelligence.service.js');
-    const recommendation = await generateFairPriceRecommendation(input, language);
+    const recommendation = await generateFairPriceRecommendation(payload, language);
 
     return sendSuccess(res, recommendation, 200);
   } catch (err) {

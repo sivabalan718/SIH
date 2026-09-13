@@ -1,8 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ArtisanUser, AuthContextType, RegisterPayload, LoginPayload } from '../types/auth.js';
+import {
+  ArtisanUser,
+  CustomerProfile,
+  AuthContextType,
+  RegisterPayload,
+  CustomerRegisterPayload,
+  LoginPayload,
+  CustomerLoginPayload,
+} from '../types/auth.js';
 import {
   registerUser,
   loginUser,
+  registerCustomerUser,
+  loginCustomerUser,
+  updateCustomerProfileData,
   logoutUser,
   getCurrentUser,
   getStoredToken,
@@ -16,7 +27,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [token, setToken] = useState<string | null>(getStoredToken());
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Restore authenticated artisan state on mount or page refresh
+  // Restore authenticated user state on mount or page refresh
   useEffect(() => {
     async function initAuth() {
       const storedToken = getStoredToken();
@@ -26,11 +37,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       try {
-        const artisan = await getCurrentUser();
-        setUser(artisan);
-        setToken(storedToken);
+        const currentUser = await getCurrentUser();
+        if (currentUser) {
+          setUser(currentUser);
+          setToken(storedToken);
+        } else {
+          setStoredTokens(null, null);
+          setToken(null);
+          setUser(null);
+        }
       } catch (err) {
-        // Token invalid or expired without valid refresh token
         setStoredTokens(null, null);
         setToken(null);
         setUser(null);
@@ -45,30 +61,51 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (payload: RegisterPayload) => {
     const result = await registerUser(payload);
     if (result.artisan && result.accessToken) {
-      setUser(result.artisan);
+      setUser({ ...result.artisan, role: 'ARTISAN' });
       setToken(result.accessToken);
     }
-    return { m63Id: result.m63Id, artisan: result.artisan };
+    return { m63Id: result.m63Id, artisan: { ...result.artisan, role: 'ARTISAN' as const } };
   };
 
   const login = async (payload: LoginPayload) => {
     const artisan = await loginUser(payload);
-    setUser(artisan);
+    const userObj = { ...artisan, role: 'ARTISAN' as const };
+    setUser(userObj);
     setToken(getStoredToken());
-    return artisan;
+    return userObj;
+  };
+
+  const registerCustomer = async (payload: CustomerRegisterPayload) => {
+    const customerUser = await registerCustomerUser(payload);
+    const userObj = { ...customerUser, role: 'CUSTOMER' as const };
+    setUser(userObj);
+    setToken(getStoredToken());
+    return userObj;
+  };
+
+  const loginCustomer = async (payload: CustomerLoginPayload) => {
+    const customerUser = await loginCustomerUser(payload);
+    const userObj = { ...customerUser, role: 'CUSTOMER' as const };
+    setUser(userObj);
+    setToken(getStoredToken());
+    return userObj;
+  };
+
+  const updateCustomerProfile = async (payload: Partial<CustomerProfile>) => {
+    const updated = await updateCustomerProfileData(payload);
+    const userObj = { ...user, ...updated, role: 'CUSTOMER' as const };
+    setUser(userObj);
+    return userObj;
   };
 
   const logout = async () => {
     try {
-      // Clear all session draft keys from localStorage
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith('m63_')) {
           localStorage.removeItem(key);
         }
       });
-    } catch (e) {
-      // Ignore storage errors
-    }
+    } catch (e) {}
 
     await logoutUser();
     setUser(null);
@@ -77,11 +114,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const refreshProfile = async () => {
     try {
-      const artisan = await getCurrentUser();
-      setUser(artisan);
-    } catch (err) {
-      // Ignore
-    }
+      const currentUser = await getCurrentUser();
+      if (currentUser) setUser(currentUser);
+    } catch (err) {}
   };
 
   return (
@@ -92,6 +127,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loading,
         register,
         login,
+        registerCustomer,
+        loginCustomer,
+        updateCustomerProfile,
         logout,
         refreshProfile,
       }}

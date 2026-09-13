@@ -133,6 +133,7 @@ export class GeminiLLMProvider implements ProductUnderstandingProvider {
 
     // Candidate models to attempt in sequence (stable flash models handle LLM extraction best)
     const modelsToTry = [
+      'gemini-3.5-flash-lite',
       'gemini-3.6-flash',
       'gemini-3.5-flash',
       'gemini-flash-latest',

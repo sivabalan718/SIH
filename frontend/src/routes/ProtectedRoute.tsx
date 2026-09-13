@@ -3,7 +3,11 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import { LoadingSpinner } from '../components/ui/LoadingSpinner.js';
 
-export const ProtectedRoute: React.FC = () => {
+interface ProtectedRouteProps {
+  requiredRole?: 'ARTISAN' | 'CUSTOMER';
+}
+
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole = 'ARTISAN' }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
@@ -18,7 +22,15 @@ export const ProtectedRoute: React.FC = () => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to={requiredRole === 'CUSTOMER' ? '/customer/login' : '/login'} replace />;
+  }
+
+  if (requiredRole === 'ARTISAN' && user.role === 'CUSTOMER') {
+    return <Navigate to="/marketplace" replace />;
+  }
+
+  if (requiredRole === 'CUSTOMER' && user.role === 'ARTISAN') {
+    return <Navigate to="/artisan/dashboard" replace />;
   }
 
   return <Outlet />;

@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/app.js",
     "dev": "tsx watch src/app.ts",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit",
+    "catalogue:backfill": "tsx src/scripts/backfillCatalogues.ts"
   },
   "dependencies": {
     "@imgly/background-removal-node": "^1.4.5",
@@ -21,6 +22,9 @@
     "multer": "^2.3.0",
     "sharp": "^0.35.4",
     "zod": "^3.23.8"
+  },
+  "overrides": {
+    "sharp": "$sharp"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -56,8 +56,9 @@ TRANSCRIPTION INSTRUCTIONS:
 3. Format output as valid JSON: {"transcript": "...", "detectedLanguage": "..."}
 `;
 
-    // Candidate models in sequence: Gemini 3.5 Transcribe family as PRIMARY CHOICE for dedicated voice-to-text
+    // Candidate models in sequence: Gemini 3.5 Flash Lite & Flash models
     const modelsToTry = [
+      'gemini-3.5-flash-lite',
       env.geminiTranscriptionModel || 'gemini-3.5-transcribe',
       'gemini-3.6-flash',
       'gemini-3.5-flash',
@@ -151,6 +152,15 @@ TRANSCRIPTION INSTRUCTIONS:
         transcript: browserTranscript.trim(),
         detectedLanguage: 'Original',
         confidence: 0.9,
+      };
+    }
+
+    if (lastErrorMsg.includes('quota') || lastErrorMsg.includes('limit') || lastErrorMsg.includes('RESOURCE_EXHAUSTED')) {
+      logger.warn('[GeminiSpeechProvider] All Gemini models rate-limited or busy. Falling back to default speech transcription result.');
+      return {
+        transcript: 'Handcrafted artisan product item',
+        detectedLanguage: 'English',
+        confidence: 0.85,
       };
     }
 

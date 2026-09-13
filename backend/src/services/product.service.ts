@@ -20,6 +20,9 @@ export interface ProductRecord {
   creation_source: 'MANUAL' | 'AI_ASSISTED';
   primary_image_url: string | null;
   original_image_url: string | null;
+  enhanced_image_url?: string | null;
+  selected_background?: string | null;
+  enhanced_at?: string | null;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -117,13 +120,84 @@ export async function createProduct(
     if (!error && data) {
       localMemoryProductStore.set(data.id, data as ProductRecord);
       logger.info(`Product created: ${data.id} by artisan ${artisanId}`);
+
+      // Automatically trigger background Smart Catalogue preparation
+      triggerAutoCatalogueGeneration(data.id, artisanId, {
+        name: data.name,
+        description: data.description || undefined,
+        category: data.category || undefined,
+        subcategory: data.subcategory || undefined,
+        material: data.material || undefined,
+        color: data.color || undefined,
+        craft_type: data.craft_type || undefined,
+        features: data.features || [],
+        price: data.price,
+        stock_quantity: data.stock_quantity,
+      }).catch((e: any) => logger.warn(`[AutoCatalogue] Background generation notice for ${data.id}: ${e.message}`));
+
       return data as ProductRecord;
     }
   } catch (e) {}
 
   localMemoryProductStore.set(memoryFallbackProd.id, memoryFallbackProd);
   logger.info(`Product created (memory fallback): ${memoryFallbackProd.id} by artisan ${artisanId}`);
+
+  // Automatically trigger background Smart Catalogue preparation on fallback
+  triggerAutoCatalogueGeneration(memoryFallbackProd.id, artisanId, {
+    name: memoryFallbackProd.name,
+    description: memoryFallbackProd.description || undefined,
+    category: memoryFallbackProd.category || undefined,
+    subcategory: memoryFallbackProd.subcategory || undefined,
+    material: memoryFallbackProd.material || undefined,
+    color: memoryFallbackProd.color || undefined,
+    craft_type: memoryFallbackProd.craft_type || undefined,
+    features: memoryFallbackProd.features || [],
+    price: memoryFallbackProd.price,
+    stock_quantity: memoryFallbackProd.stock_quantity,
+  }).catch((e: any) => logger.warn(`[AutoCatalogue] Background generation notice for ${memoryFallbackProd.id}: ${e.message}`));
+
   return memoryFallbackProd;
+}
+
+/**
+ * Automatically prepares and saves Smart Catalogue content across supported languages (EN, TA, HI).
+ * Respects existing artisan manual edits.
+ */
+export async function triggerAutoCatalogueGeneration(
+  productId: string,
+  artisanId: string,
+  input: {
+    name: string;
+    description?: string;
+    category?: string;
+    subcategory?: string;
+    material?: string;
+    color?: string;
+    craft_type?: string;
+    features?: string[];
+    price?: number;
+    stock_quantity?: number;
+  }
+): Promise<void> {
+  try {
+    const { generateCatalogueContent } = await import('./ai/catalogue-generation.service.js');
+    const { saveCatalogueContent, getCatalogueContent } = await import('./catalogue.service.js');
+
+    const languages: ('en' | 'ta' | 'hi')[] = ['en', 'ta', 'hi'];
+    for (const lang of languages) {
+      const existing = await getCatalogueContent(productId, lang, artisanId);
+      if (existing && existing.generated_by === 'artisan') {
+        continue; // Preserve artisan manual edits
+      }
+
+      const generated = await generateCatalogueContent(input, lang, 'PROFESSIONAL');
+      await saveCatalogueContent(productId, artisanId, lang, generated, 'PROFESSIONAL', 'm63');
+    }
+
+    logger.info(`[AutoCatalogue] Multilingual Smart Catalogue ready for product ${productId}`);
+  } catch (err: any) {
+    logger.warn(`[AutoCatalogue] Error preparing catalogue for product ${productId}: ${err?.message}`);
+  }
 }
 
 // ─── List Products by Artisan ────────────────────────────────────────
@@ -291,6 +365,25 @@ export async function publishProduct(
     throw err;
   }
 
+  // Publishing Gate: Ensure a valid Smart Catalogue exists before publishing to Marketplace
+  const { getCatalogueContent, isCatalogueComplete } = await import('./catalogue.service.js');
+  let catalogue = await getCatalogueContent(productId, 'en', artisanId);
+  if (!catalogue || !isCatalogueComplete(catalogue)) {
+    logger.info(`[PublishGate] Product ${productId} missing complete catalogue; preparing before publication...`);
+    await triggerAutoCatalogueGeneration(productId, artisanId, {
+      name: product.name,
+      description: product.description || undefined,
+      category: product.category || undefined,
+      subcategory: product.subcategory || undefined,
+      material: product.material || undefined,
+      color: product.color || undefined,
+      craft_type: product.craft_type || undefined,
+      features: product.features,
+      price: product.price,
+      stock_quantity: product.stock_quantity,
+    });
+  }
+
   const supabase = getSupabaseAdmin();
   const now = new Date().toISOString();
   product.status = 'PUBLISHED';
@@ -356,19 +449,7 @@ export async function archiveProduct(
 // ─── Product Stats ───────────────────────────────────────────────────
 
 export async function getProductStats(artisanId: string): Promise<ProductStats> {
-  const supabase = getSupabaseAdmin();
-
-  const { data, error } = await supabase
-    .from('products')
-    .select('status')
-    .eq('artisan_id', artisanId);
-
-  if (error) {
-    logger.error('Failed to get product stats:', error.message);
-    throw new Error('Failed to retrieve product statistics.');
-  }
-
-  const products = data || [];
+  const products = await getProductsByArtisan(artisanId);
   return {
     total: products.length,
     draft: products.filter((p: any) => p.status === 'DRAFT').length,
@@ -460,3 +541,138 @@ export async function uploadProductImage(
   logger.info(`Image (${imageVariant}) saved successfully for product ${productId}`);
   return publicUrl;
 }
+
+/**
+ * Enhance an existing product's image adaptively.
+ * CRITICAL RULE: Always sources strictly from the ORIGINAL image, never from a previously enhanced output.
+ */
+export async function enhanceExistingProduct(
+  artisanId: string,
+  productId: string,
+  backgroundOption: string = 'WHITE',
+  colorHex?: string
+) {
+  const product = await getProductById(productId, artisanId);
+  if (!product) {
+    throw Object.assign(new Error('Product not found or access denied.'), { code: 'NOT_FOUND', statusCode: 404 });
+  }
+
+  // Strictly source from original image
+  const sourceImageUrl = product.original_image_url || product.primary_image_url;
+  if (!sourceImageUrl) {
+    throw Object.assign(new Error('This product does not have an image to enhance. Please upload a photo first.'), {
+      code: 'MISSING_IMAGE',
+      statusCode: 400,
+    });
+  }
+
+  // Fetch or decode original image buffer
+  let originalBuffer: Buffer;
+  let mimeType = 'image/jpeg';
+
+  if (sourceImageUrl.startsWith('data:')) {
+    const parts = sourceImageUrl.split(',');
+    const match = sourceImageUrl.match(/data:([^;]+);/);
+    if (match) mimeType = match[1];
+    originalBuffer = Buffer.from(parts[1], 'base64');
+  } else {
+    const fetchRes = await fetch(sourceImageUrl);
+    if (!fetchRes.ok) {
+      throw Object.assign(new Error('Failed to retrieve original product image for processing.'), {
+        code: 'IMAGE_FETCH_FAILED',
+        statusCode: 502,
+      });
+    }
+    const contentType = fetchRes.headers.get('content-type');
+    if (contentType) mimeType = contentType;
+    const arrayBuffer = await fetchRes.arrayBuffer();
+    originalBuffer = Buffer.from(arrayBuffer);
+  }
+
+  const { enhanceProductPhoto } = await import('./cloudinary/cloudinary-enhancement.service.js');
+  const enhancementResult = await enhanceProductPhoto(
+    originalBuffer,
+    mimeType,
+    artisanId,
+    productId,
+    backgroundOption,
+    colorHex
+  );
+
+  if (!enhancementResult.success || !enhancementResult.enhancedImageUrl) {
+    return enhancementResult;
+  }
+
+  // Persist enhanced image metadata without overwriting original_image_url
+  const supabase = getSupabaseAdmin();
+  const updatePayload: Record<string, any> = {
+    enhanced_image_url: enhancementResult.enhancedImageUrl,
+    selected_background: backgroundOption,
+    enhanced_at: new Date().toISOString(),
+  };
+
+  // Ensure original_image_url is permanently locked to the original source
+  if (!product.original_image_url) {
+    updatePayload.original_image_url = sourceImageUrl;
+  }
+
+  const { error: updateError } = await supabase
+    .from('products')
+    .update(updatePayload)
+    .eq('id', productId)
+    .eq('artisan_id', artisanId);
+
+  if (updateError) {
+    logger.warn('[ProductService] Failed to persist enhanced_image_url in database:', updateError.message);
+  }
+
+  return {
+    ...enhancementResult,
+    originalImageUrl: product.original_image_url || sourceImageUrl,
+  };
+}
+
+/**
+ * Switch the active product image between original and enhanced studio version.
+ * Both original and enhanced URLs remain stored in the database.
+ */
+export async function selectProductImageVariant(
+  artisanId: string,
+  productId: string,
+  variant: 'original' | 'enhanced'
+): Promise<ProductRecord> {
+  const product = await getProductById(productId, artisanId);
+  if (!product) {
+    throw Object.assign(new Error('Product not found or access denied.'), { code: 'NOT_FOUND', statusCode: 404 });
+  }
+
+  let targetImageUrl: string | null = null;
+  if (variant === 'enhanced') {
+    if (!product.enhanced_image_url) {
+      throw Object.assign(new Error('No enhanced studio photo available for this product.'), {
+        code: 'BAD_REQUEST',
+        statusCode: 400,
+      });
+    }
+    targetImageUrl = product.enhanced_image_url;
+  } else {
+    targetImageUrl = product.original_image_url || product.primary_image_url;
+  }
+
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from('products')
+    .update({ primary_image_url: targetImageUrl })
+    .eq('id', productId)
+    .eq('artisan_id', artisanId)
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw Object.assign(new Error('Failed to update active product image.'), { code: 'INTERNAL_ERROR', statusCode: 500 });
+  }
+
+  logger.info(`[ProductService] Active image for product ${productId} switched to ${variant} (${targetImageUrl})`);
+  return data as ProductRecord;
+}
+

@@ -4,6 +4,8 @@ import { ShoppingBag, ArrowLeft, Trash2, AlertCircle, ArrowRight } from 'lucide-
 import { Button } from '../components/ui/Button.js';
 import { fetchBuyerCart, updateBuyerCartItem, removeBuyerCartItem, clearBuyerCart, CartSummary } from '../services/cartService.js';
 
+import { handleProductImageError } from '../utils/imageFallback.js';
+
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useState<CartSummary | null>(null);
@@ -142,7 +144,12 @@ export const CartPage: React.FC = () => {
                     {/* Image */}
                     <div style={{ width: '80px', height: '80px', borderRadius: '12px', backgroundColor: '#F1F5F9', overflow: 'hidden', flexShrink: 0 }}>
                       {item.primary_image_url ? (
-                        <img src={item.primary_image_url} alt={item.product_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <img
+                          src={item.primary_image_url}
+                          alt={item.product_name}
+                          onError={(e) => handleProductImageError(e)}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
                       ) : (
                         <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: '0.7rem' }}>
                           Product

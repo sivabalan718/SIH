@@ -1,3 +1,7 @@
+import '@imgly/background-removal-node';
+import sharp from 'sharp';
+sharp.cache(false);
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -28,6 +32,7 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/v1', routes);
+app.use('/api', routes);
 
 // 404 Handler
 app.use((req, res) => {

@@ -55,6 +55,7 @@ export class ImageValidationService {
     }
 
     const modelsToTry = [
+      'gemini-3.5-flash-lite',
       env.geminiLlmModel || 'gemini-3.6-flash',
       'gemini-3.5-flash',
       'gemini-flash-latest',

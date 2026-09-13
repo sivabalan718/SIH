@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Product, ProductStatus } from '../types/product.js';
 import { getProducts } from '../services/productService.js';
 import { ProductCard } from '../components/product/ProductCard.js';
@@ -15,10 +15,14 @@ import {
 
 export const ProductList: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialStatus = (searchParams.get('status')?.toUpperCase() as ProductStatus) || 'ALL';
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'ALL' | ProductStatus>('ALL');
+  const [activeTab, setActiveTab] = useState<'ALL' | ProductStatus>(
+    ['ALL', 'DRAFT', 'PUBLISHED', 'ARCHIVED'].includes(initialStatus) ? initialStatus : 'ALL'
+  );
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {

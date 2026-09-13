@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext.js';
 import { Button } from '../components/ui/Button.js';
 import { Input } from '../components/ui/Input.js';
+import { CustomerFloatingEntry } from '../components/common/CustomerFloatingEntry.js';
+import { StarryBackground3D } from '../components/common/StarryBackground3D.js';
+import { WelcomeSplashIntro } from '../components/common/WelcomeSplashIntro.js';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -12,6 +15,8 @@ export const Login: React.FC = () => {
     identifier: '',
     password: '',
   });
+
+  const [showSplash, setShowSplash] = useState(true);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -48,8 +53,27 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="m63-auth-page">
-      <div className="m63-auth-card animate-fade-in">
+    <div
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px',
+        backgroundColor: '#030712',
+        overflow: 'hidden',
+      }}
+    >
+      {/* 3D Cosmic Animated Starfield & Shooting Stars Canvas */}
+      <StarryBackground3D />
+
+      {/* 3-Second Welcome Splash Screen */}
+      {showSplash && <WelcomeSplashIntro onComplete={() => setShowSplash(false)} />}
+
+      {/* Login Dark Glass Card */}
+      <div className="m63-auth-card-dark animate-fade-in" style={{ position: 'relative', zIndex: 10 }}>
         {/* Brand Header */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div
@@ -57,7 +81,7 @@ export const Login: React.FC = () => {
               width: '48px',
               height: '48px',
               borderRadius: '12px',
-              backgroundColor: 'var(--m63-primary)',
+              background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
               color: '#FFF',
               display: 'inline-flex',
               alignItems: 'center',
@@ -65,27 +89,27 @@ export const Login: React.FC = () => {
               fontWeight: 800,
               fontSize: '1.4rem',
               marginBottom: '12px',
-              boxShadow: 'var(--m63-shadow-primary)',
+              boxShadow: '0 4px 20px rgba(234, 88, 12, 0.4)',
             }}
           >
             M
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--m63-slate)', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
             M63
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--m63-slate-subtle)', marginTop: '4px' }}>
+          <p style={{ fontSize: '0.875rem', color: '#94A3B8', marginTop: '4px' }}>
             Welcome back to your artisan workspace
           </p>
         </div>
 
         {serverError && (
-          <div className="m63-alert m63-alert-error" role="alert">
+          <div className="m63-alert m63-alert-error" role="alert" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#FCA5A5' }}>
             <span>{serverError}</span>
           </div>
         )}
 
         {forgotMsg && (
-          <div className="m63-alert m63-alert-success" role="alert">
+          <div className="m63-alert m63-alert-success" role="alert" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#6EE7B7' }}>
             <span>Password recovery instructions can be requested via M63 Support or your registered email address.</span>
           </div>
         )}
@@ -115,24 +139,37 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => setForgotMsg(true)}
-              style={{ background: 'none', border: 'none', color: 'var(--m63-primary)', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}
+              style={{ background: 'none', border: 'none', color: '#F59E0B', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}
             >
               Forgot password?
             </button>
           </div>
 
-          <Button type="submit" variant="primary" fullWidth loading={loading}>
+          <Button
+            type="submit"
+            variant="primary"
+            fullWidth
+            loading={loading}
+            style={{
+              background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
+              border: 'none',
+              boxShadow: '0 4px 16px rgba(234, 88, 12, 0.35)',
+              fontWeight: 700,
+            }}
+          >
             Sign In to M63
           </Button>
         </form>
 
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: 'var(--m63-slate-subtle)' }}>
+        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: '#94A3B8' }}>
           Don't have an M63 account yet?{' '}
-          <Link to="/register" style={{ fontWeight: 600, color: 'var(--m63-primary)' }}>
+          <Link to="/register" style={{ fontWeight: 600, color: '#F59E0B', textDecoration: 'none' }}>
             Create M63 account
           </Link>
         </div>
       </div>
+      <CustomerFloatingEntry />
     </div>
   );
 };
+

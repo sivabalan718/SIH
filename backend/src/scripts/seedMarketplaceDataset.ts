@@ -2627,6 +2627,7 @@ export async function seedMarketplaceDataset() {
           price_range_str: `₹${minFair} - ₹${maxFair}`,
           seasonal_signal: 'PEAK_SEASON',
           demand_signal: 'HIGH_DEMAND',
+          source_label: 'Internal M63 Marketplace',
         },
         data_availability: {
           production_cost: 'VERIFIED',

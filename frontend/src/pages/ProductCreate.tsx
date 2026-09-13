@@ -1299,6 +1299,7 @@ export const ProductCreate: React.FC = () => {
             <ImageEnhanceComparison
               originalUrl={imagePreviewUrl}
               enhancedUrl={enhancedImageBase64}
+              activeVariant={currentImageUrl === enhancedImageBase64 ? 'enhanced' : 'original'}
               onSelectOriginal={handleSelectOriginal}
               onSelectEnhanced={handleSelectEnhanced}
               onTryAgain={handleOpenStudioSettings}

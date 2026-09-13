@@ -89,6 +89,11 @@ export const SmartCatalogueSection: React.FC<SmartCatalogueSectionProps> = ({
       });
       if (hasContent) {
         setIsExpanded(true);
+        setEditedByArtisan({
+          en: initialCatalogues.en?.generatedBy === 'artisan',
+          ta: initialCatalogues.ta?.generatedBy === 'artisan',
+          hi: initialCatalogues.hi?.generatedBy === 'artisan',
+        });
       }
     } else {
       setCatalogues({ en: null, ta: null, hi: null });

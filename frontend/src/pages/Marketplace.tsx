@@ -1,18 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ShoppingBag, ArrowUpDown, MapPin, Sparkles, AlertCircle, ShoppingCart } from 'lucide-react';
+import { Search, ShoppingBag, ArrowUpDown, MapPin, Sparkles, AlertCircle, ShoppingCart, User, LogIn, Globe, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/Button.js';
 import { fetchMarketplaceProducts, MarketplaceProductItem, MarketplaceFilterQuery } from '../services/marketplaceService.js';
 import { addToBuyerCart, fetchBuyerCart } from '../services/cartService.js';
+import { useAuth } from '../contexts/AuthContext.js';
+import { SupportedLang, translations, translateProductName, translateCategoryName, translateProductDescription } from '../utils/marketplaceI18n.js';
+import { handleProductImageError } from '../utils/imageFallback.js';
 
 const CATEGORIES = ['All', 'Textiles', 'Pottery', 'Jewellery', 'Home Decor', 'Handicrafts', 'Apparel & Textiles', 'Wood Craft', 'Paintings', 'Other'];
 
 export const Marketplace: React.FC = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [products, setProducts] = useState<MarketplaceProductItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleExit = async () => {
+    if (user?.role === 'ARTISAN') {
+      navigate('/artisan/dashboard');
+    } else {
+      await logout();
+      navigate('/login');
+    }
+  };
+
+  // Preferred Language State
+  const [selectedLang, setSelectedLang] = useState<SupportedLang>(() => {
+    const saved = localStorage.getItem('m63_marketplace_lang');
+    if (saved === 'ta' || saved === 'hi' || saved === 'en') return saved;
+    if (user?.preferredLanguage === 'ta' || user?.preferredLanguage === 'hi') return user.preferredLanguage;
+    return 'en';
+  });
+
+  const handleLanguageChange = (lang: SupportedLang) => {
+    setSelectedLang(lang);
+    localStorage.setItem('m63_marketplace_lang', lang);
+  };
+
+  const t = translations[selectedLang];
 
   // Filter States
   const [search, setSearch] = useState<string>('');
@@ -83,24 +111,103 @@ export const Marketplace: React.FC = () => {
         }}
       >
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          {/* Preferred Language & Exit Bar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255, 255, 255, 0.08)', borderRadius: '14px', padding: '10px 18px', marginBottom: '24px', flexWrap: 'wrap', gap: '12px', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
+            {/* Exit to M63 Home Button */}
+            <button
+              type="button"
+              onClick={handleExit}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '20px',
+                padding: '6px 14px',
+                color: '#FFFFFF',
+                fontWeight: 700,
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+              }}
+              title="Exit Marketplace and go to M63 Artisan Landing Page"
+            >
+              <ArrowLeft size={16} />
+              <span>{t.exitToHome}</span>
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.82rem', fontWeight: 700, color: '#F1F5F9' }}>
+                <Globe size={16} style={{ color: '#F59E0B' }} />
+                <span>Language / மொழி / भाषा:</span>
+              </div>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                {(['en', 'ta', 'hi'] as const).map((l) => (
+                  <button
+                    key={l}
+                    type="button"
+                    onClick={() => handleLanguageChange(l)}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: '8px',
+                      border: selectedLang === l ? '1.5px solid #F59E0B' : '1px solid rgba(255, 255, 255, 0.2)',
+                      backgroundColor: selectedLang === l ? '#F59E0B' : 'rgba(255, 255, 255, 0.1)',
+                      color: selectedLang === l ? '#78350F' : '#FFFFFF',
+                      fontWeight: selectedLang === l ? 800 : 600,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: selectedLang === l ? '0 2px 8px rgba(245, 158, 11, 0.3)' : 'none',
+                    }}
+                  >
+                    {l === 'en' ? '🇬🇧 English' : l === 'ta' ? '🇮🇳 தமிழ்' : '🇮🇳 हिन्दी'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                 <span style={{ backgroundColor: '#F59E0B', color: '#78350F', fontSize: '0.75rem', fontWeight: 800, padding: '3px 10px', borderRadius: '12px' }}>
-                  DIRECT FROM ARTISANS
+                  {t.badge}
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600 }}>M63 Commerce Platform</span>
+                <span style={{ fontSize: '0.85rem', color: '#94A3B8', fontWeight: 600 }}>{t.platform}</span>
               </div>
               <h1 style={{ fontSize: '2.2rem', fontWeight: 900, letterSpacing: '-0.03em', margin: 0 }}>
-                M63 Artisan Marketplace
+                {t.title}
               </h1>
               <p style={{ fontSize: '0.95rem', color: '#CBD5E1', marginTop: '6px', maxWidth: '600px' }}>
-                Discover authentic handwoven textiles, pottery, jewellery, and crafts. Purchased directly from verified Indian master artisans.
+                {t.subtitle}
               </p>
             </div>
 
-            {/* Cart & Orders Quick Access */}
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            {/* Profile, Orders & Cart Quick Access */}
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {user ? (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  icon={<User size={18} />}
+                  onClick={() => navigate(user.role === 'CUSTOMER' ? '/marketplace/profile' : '/artisan/profile')}
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', border: '1px solid rgba(255, 255, 255, 0.25)', fontWeight: 600 }}
+                  title="View Profile"
+                >
+                  👤 {user.name ? user.name.split(' ')[0] : t.profile}
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  icon={<LogIn size={18} />}
+                  onClick={() => navigate('/customer/login')}
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', border: '1px solid rgba(255, 255, 255, 0.25)', fontWeight: 600 }}
+                >
+                  {t.signIn}
+                </Button>
+              )}
               <Button
                 variant="secondary"
                 size="md"
@@ -108,7 +215,7 @@ export const Marketplace: React.FC = () => {
                 onClick={() => navigate('/marketplace/orders')}
                 style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', color: '#FFFFFF', border: '1px solid rgba(255, 255, 255, 0.2)' }}
               >
-                My Orders
+                {t.myOrders}
               </Button>
               <Button
                 variant="primary"
@@ -117,7 +224,7 @@ export const Marketplace: React.FC = () => {
                 onClick={() => navigate('/marketplace/cart')}
                 style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', border: 'none', color: '#FFFFFF', fontWeight: 700 }}
               >
-                Cart ({cartCount})
+                {t.cart} ({cartCount})
               </Button>
             </div>
           </div>
@@ -129,7 +236,7 @@ export const Marketplace: React.FC = () => {
                 <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }} />
                 <input
                   type="text"
-                  placeholder="Search products by name, craft, material, or category..."
+                  placeholder={t.searchPlaceholder}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   style={{
@@ -145,7 +252,7 @@ export const Marketplace: React.FC = () => {
                 />
               </div>
               <Button type="submit" variant="primary" size="md">
-                Search
+                {t.searchBtn}
               </Button>
             </form>
 
@@ -165,10 +272,10 @@ export const Marketplace: React.FC = () => {
                   outline: 'none',
                 }}
               >
-                <option value="recommended">Sort: Recommended</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="newest">Newest Additions</option>
+                <option value="recommended">{t.sortRecommended}</option>
+                <option value="price_asc">{t.sortPriceAsc}</option>
+                <option value="price_desc">{t.sortPriceDesc}</option>
+                <option value="newest">{t.sortNewest}</option>
               </select>
             </div>
           </div>
@@ -196,7 +303,7 @@ export const Marketplace: React.FC = () => {
                 transition: 'all 0.15s ease',
               }}
             >
-              {cat}
+              {translateCategoryName(cat, selectedLang)}
             </button>
           ))}
         </div>
@@ -205,7 +312,7 @@ export const Marketplace: React.FC = () => {
         {loading && (
           <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--m63-slate-subtle)' }}>
             <div className="animate-spin" style={{ display: 'inline-block', width: '32px', height: '32px', border: '3px solid #F59E0B', borderTopColor: 'transparent', borderRadius: '50%', marginBottom: '12px' }} />
-            <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>Loading marketplace products...</p>
+            <p style={{ fontSize: '0.95rem', fontWeight: 600 }}>{t.loadingProducts}</p>
           </div>
         )}
 
@@ -215,7 +322,7 @@ export const Marketplace: React.FC = () => {
             <AlertCircle size={24} style={{ display: 'block', margin: '0 auto 8px auto' }} />
             <p style={{ fontWeight: 700, margin: 0 }}>{error}</p>
             <Button size="sm" variant="secondary" onClick={loadProducts} style={{ marginTop: '12px' }}>
-              Retry
+              {t.retry}
             </Button>
           </div>
         )}
@@ -224,12 +331,12 @@ export const Marketplace: React.FC = () => {
         {!loading && !error && products.length === 0 && (
           <div style={{ backgroundColor: 'var(--m63-bg-surface)', border: '1px border var(--m63-border)', borderRadius: '16px', padding: '60px 24px', textAlign: 'center' }}>
             <ShoppingBag size={48} className="text-amber-500" style={{ display: 'block', margin: '0 auto 12px auto' }} />
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--m63-slate)' }}>No products found</h3>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--m63-slate)' }}>{t.noProductsTitle}</h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--m63-slate-subtle)', marginTop: '4px', maxWidth: '400px', margin: '4px auto 16px auto' }}>
-              We couldn't find any published products matching "{search || activeCategory}". Try selecting another category or clearing your search filter.
+              {t.noProductsSub}
             </p>
             <Button variant="secondary" onClick={() => { setSearch(''); setActiveCategory('All'); }}>
-              Reset Filters
+              {t.resetFilters}
             </Button>
           </div>
         )}
@@ -239,7 +346,7 @@ export const Marketplace: React.FC = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ fontSize: '0.85rem', color: 'var(--m63-slate-subtle)', fontWeight: 600 }}>
-                Showing {products.length} of {totalCount} verified artisan products
+                {t.showingProducts(products.length, totalCount)}
               </span>
             </div>
 
@@ -273,6 +380,7 @@ export const Marketplace: React.FC = () => {
                       <img
                         src={product.primary_image_url}
                         alt={product.name}
+                        onError={(e) => handleProductImageError(e, product.category || product.craft_type)}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     ) : (
@@ -293,7 +401,7 @@ export const Marketplace: React.FC = () => {
                           color: product.is_in_stock ? '#065F46' : '#991B1B',
                         }}
                       >
-                        {product.is_in_stock ? `✓ In Stock (${product.stock_quantity})` : 'OUT OF STOCK'}
+                        {product.is_in_stock ? t.inStock(product.stock_quantity) : t.outOfStock}
                       </span>
                     </div>
                   </div>
@@ -303,28 +411,28 @@ export const Marketplace: React.FC = () => {
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '4px' }}>
                         <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#D97706', textTransform: 'uppercase' }}>
-                          {product.craft_type || product.category}
+                          {translateCategoryName(product.craft_type || product.category, selectedLang)}
                         </span>
                       </div>
 
                       <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--m63-slate)', margin: '0 0 6px 0', lineHeight: 1.3 }}>
-                        {product.name}
+                        {translateProductName(product.name, selectedLang)}
                       </h3>
 
                       <p style={{ fontSize: '0.82rem', color: 'var(--m63-slate-subtle)', margin: '0 0 14px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.4 }}>
-                        {product.short_description}
+                        {translateProductDescription(product.short_description, selectedLang)}
                       </p>
                     </div>
 
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#64748B', marginBottom: '12px' }}>
                         <MapPin size={14} className="text-amber-600 shrink-0" />
-                        <span style={{ fontWeight: 600 }}>By {product.artisan_name} • {product.artisan_location}</span>
+                        <span style={{ fontWeight: 600 }}>{t.byArtisanLabel(product.artisan_name, product.artisan_location)}</span>
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '12px', borderTop: '1px solid var(--m63-border)' }}>
                         <div>
-                          <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block', fontWeight: 600 }}>SELLING PRICE</span>
+                          <span style={{ fontSize: '0.7rem', color: '#64748B', display: 'block', fontWeight: 600 }}>{t.sellingPrice}</span>
                           <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#059669' }}>
                             ₹{product.price.toLocaleString('en-IN')}
                           </span>
@@ -338,11 +446,11 @@ export const Marketplace: React.FC = () => {
                               icon={<ShoppingCart size={14} />}
                               onClick={(e) => handleAddToCart(e, product.id)}
                               loading={addingId === product.id}
-                              title="Add to Cart"
+                              title={t.addToCart}
                             />
                           )}
                           <Button size="sm" variant="primary">
-                            View Product
+                            {t.viewDetails}
                           </Button>
                         </div>
                       </div>

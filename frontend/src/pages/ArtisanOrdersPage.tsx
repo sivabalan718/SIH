@@ -12,7 +12,18 @@ export const ArtisanOrdersPage: React.FC = () => {
 
   useEffect(() => {
     loadOrders();
+    const timer = setInterval(() => {
+      loadOrdersSilent();
+    }, 4000);
+    return () => clearInterval(timer);
   }, []);
+
+  const loadOrdersSilent = async () => {
+    try {
+      const data = await fetchArtisanOrders();
+      setOrders(data);
+    } catch (e) {}
+  };
 
   const loadOrders = async () => {
     try {

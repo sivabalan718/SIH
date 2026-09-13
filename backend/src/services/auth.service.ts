@@ -5,6 +5,13 @@ import {
   createArtisanWithUniqueM63Id,
   ArtisanRecord,
 } from './artisan.service.js';
+import {
+  createCustomerProfile,
+  getCustomerProfile,
+  updateCustomerProfile,
+  CustomerRecord,
+  CreateCustomerInput,
+} from './customer.service.js';
 import { isValidM63IdFormat } from './m63Id.service.js';
 import { logger } from '../utils/logger.js';
 
@@ -55,14 +62,44 @@ export async function registerArtisan(
     user_metadata: { name: name.trim(), role: 'ARTISAN' },
   });
 
-  if (authError || !authData.user) {
-    logger.error('Supabase auth createUser error:', authError?.message);
-    const error: any = new Error(authError?.message || 'Unable to create user account.');
-    error.code = 'AUTH_CREATION_FAILED';
-    throw error;
-  }
+  let supabaseUserId: string;
 
-  const supabaseUserId = authData.user.id;
+  if (authError || !authData?.user) {
+    const msg = authError?.message || '';
+    const isAlreadyExists = msg.toLowerCase().includes('already') && (msg.toLowerCase().includes('registered') || msg.toLowerCase().includes('exists'));
+
+    if (isAlreadyExists) {
+      // User is already registered in Supabase Auth (e.g. as a customer).
+      const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+      const existingUser = listData?.users?.find(u => u.email?.toLowerCase() === normalizedEmail);
+
+      if (existingUser) {
+        supabaseUserId = existingUser.id;
+        logger.info(`[AuthService] Re-using existing Auth user ${supabaseUserId} (${normalizedEmail}) for artisan role`);
+
+        await supabaseAdmin.auth.admin.updateUserById(supabaseUserId, {
+          password,
+          user_metadata: {
+            ...existingUser.user_metadata,
+            has_artisan_account: true,
+          },
+        });
+      } else {
+        const error: any = new Error('An account with this email address already exists. Please log in.');
+        error.code = 'EMAIL_ALREADY_EXISTS';
+        error.statusCode = 409;
+        throw error;
+      }
+    } else {
+      logger.error('Supabase auth createUser error:', authError?.message);
+      const error: any = new Error(authError?.message || 'Unable to create user account.');
+      error.code = 'AUTH_CREATION_FAILED';
+      error.statusCode = 400;
+      throw error;
+    }
+  } else {
+    supabaseUserId = authData.user.id;
+  }
 
   // 2. Create Artisan record with unique M63 ID
   try {
@@ -208,3 +245,146 @@ export async function refreshArtisanSession(refreshToken: string): Promise<Login
     artisan: artisan as ArtisanRecord,
   };
 }
+
+export interface CustomerRegisterResult {
+  customer: CustomerRecord;
+  session?: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+}
+
+export interface CustomerLoginResult {
+  session: {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+  };
+  customer: CustomerRecord;
+}
+
+/**
+ * Register a new customer account
+ */
+export async function registerCustomer(input: CreateCustomerInput & { password: string }): Promise<CustomerRegisterResult> {
+  const normalizedEmail = input.email.trim().toLowerCase();
+  const supabaseAdmin = getSupabaseAdmin();
+
+  // 1. Create Auth user in Supabase
+  const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+    email: normalizedEmail,
+    password: input.password,
+    email_confirm: true,
+    user_metadata: { name: input.name.trim(), role: 'CUSTOMER' },
+  });
+
+  let supabaseUserId: string;
+
+  if (authError || !authData?.user) {
+    const msg = authError?.message || '';
+    const isAlreadyExists = msg.toLowerCase().includes('already') && (msg.toLowerCase().includes('registered') || msg.toLowerCase().includes('exists'));
+
+    if (isAlreadyExists) {
+      // User is already registered in Supabase Auth (e.g. as an artisan).
+      // Retrieve the existing Supabase auth user to attach their customer profile.
+      const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
+      const existingUser = listData?.users?.find(u => u.email?.toLowerCase() === normalizedEmail);
+
+      if (existingUser) {
+        supabaseUserId = existingUser.id;
+        logger.info(`[AuthService] Re-using existing Auth user ${supabaseUserId} (${normalizedEmail}) for customer role`);
+
+        // Synchronize password & grant customer metadata flag
+        await supabaseAdmin.auth.admin.updateUserById(supabaseUserId, {
+          password: input.password,
+          user_metadata: {
+            ...existingUser.user_metadata,
+            has_customer_account: true,
+          },
+        });
+      } else {
+        const error: any = new Error('An account with this email address already exists. Please log in.');
+        error.code = 'EMAIL_ALREADY_EXISTS';
+        error.statusCode = 409;
+        throw error;
+      }
+    } else {
+      logger.error('Supabase auth createUser for customer error:', authError?.message);
+      const error: any = new Error(authError?.message || 'Unable to create customer account.');
+      error.code = 'AUTH_CREATION_FAILED';
+      error.statusCode = 400;
+      throw error;
+    }
+  } else {
+    supabaseUserId = authData.user.id;
+  }
+
+  // 2. Create Customer Profile Record
+  const customerRecord = await createCustomerProfile(supabaseUserId, {
+    name: input.name,
+    email: normalizedEmail,
+    mobile: input.mobile,
+    address: input.address,
+    locality: input.locality,
+    city: input.city,
+    district: input.district,
+    state: input.state,
+    postal_code: input.postal_code,
+    preferred_language: input.preferred_language,
+  });
+
+  // 3. Auto-login for session tokens
+  let sessionData;
+  try {
+    const loginRes = await loginCustomer(normalizedEmail, input.password);
+    sessionData = loginRes.session;
+  } catch (e) {
+    logger.warn('Auto-login for customer deferred; login manually.');
+  }
+
+  return {
+    customer: customerRecord,
+    session: sessionData,
+  };
+}
+
+/**
+ * Login Customer account
+ */
+export async function loginCustomer(email: string, password: string): Promise<CustomerLoginResult> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const supabaseAnon = getSupabaseAnon();
+
+  const authRes = await supabaseAnon.auth.signInWithPassword({
+    email: normalizedEmail,
+    password,
+  });
+
+  if (authRes.error || !authRes.data.session || !authRes.data.user) {
+    const customError: any = new Error('Invalid email or password.');
+    customError.code = 'INVALID_CREDENTIALS';
+    throw customError;
+  }
+
+  const userId = authRes.data.user.id;
+  let customerRecord = await getCustomerProfile(userId);
+
+  if (!customerRecord) {
+    const nameFromMeta = authRes.data.user.user_metadata?.name || 'M63 Customer';
+    customerRecord = await createCustomerProfile(userId, {
+      name: nameFromMeta,
+      email: normalizedEmail,
+    });
+  }
+
+  return {
+    session: {
+      accessToken: authRes.data.session.access_token,
+      refreshToken: authRes.data.session.refresh_token,
+      expiresIn: authRes.data.session.expires_in,
+    },
+    customer: customerRecord,
+  };
+}
+

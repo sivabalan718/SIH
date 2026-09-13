@@ -11,6 +11,7 @@ export interface GeneratedCatalogueContent {
   specifications: Record<string, string>;
   careInstructions: string;
   tags: string[];
+  generatedBy?: 'm63' | 'artisan';
 }
 
 export interface GenerateCatalogueResponse {
@@ -97,6 +98,7 @@ export async function getCatalogue(productId: string): Promise<GetCatalogueResul
         specifications: res.catalogues.en.specifications || {},
         careInstructions: res.catalogues.en.care_instructions || '',
         tags: res.catalogues.en.tags || [],
+        generatedBy: res.catalogues.en.generated_by || 'm63',
       };
       if (res.catalogues.en.tone_style) detectedStyle = res.catalogues.en.tone_style as CatalogueStyle;
     }
@@ -109,6 +111,7 @@ export async function getCatalogue(productId: string): Promise<GetCatalogueResul
         specifications: res.catalogues.ta.specifications || {},
         careInstructions: res.catalogues.ta.care_instructions || '',
         tags: res.catalogues.ta.tags || [],
+        generatedBy: res.catalogues.ta.generated_by || 'm63',
       };
       if (res.catalogues.ta.tone_style) detectedStyle = res.catalogues.ta.tone_style as CatalogueStyle;
     }
@@ -121,6 +124,7 @@ export async function getCatalogue(productId: string): Promise<GetCatalogueResul
         specifications: res.catalogues.hi.specifications || {},
         careInstructions: res.catalogues.hi.care_instructions || '',
         tags: res.catalogues.hi.tags || [],
+        generatedBy: res.catalogues.hi.generated_by || 'm63',
       };
       if (res.catalogues.hi.tone_style) detectedStyle = res.catalogues.hi.tone_style as CatalogueStyle;
     }

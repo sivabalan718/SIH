@@ -8,6 +8,8 @@ import {
   archiveProduct,
   getProductStats,
   uploadProductImage,
+  enhanceExistingProduct,
+  selectProductImageVariant,
 } from '../services/product.service.js';
 import { sendSuccess, sendError } from '../utils/response.js';
 
@@ -153,3 +155,58 @@ export async function handleUploadImage(req: Request, res: Response, next: NextF
     next(err);
   }
 }
+
+export async function handleEnhanceProductImage(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artisan = req.artisan;
+    if (!artisan) {
+      return sendError(res, 'UNAUTHORIZED', 'Artisan context not found.', 401);
+    }
+
+    const productId = req.params.id;
+    const backgroundOption = (req.body.backgroundOption || req.body.background_option || 'WHITE') as string;
+    const colorHex = (req.body.colorHex || req.body.color_hex) as string | undefined;
+
+    const result = await enhanceExistingProduct(artisan.id, productId, backgroundOption, colorHex);
+
+    if (!result.success) {
+      return sendError(res, 'ENHANCEMENT_FAILED', result.message || 'Image enhancement could not be completed safely. Your original image is unchanged.', 422);
+    }
+
+    return sendSuccess(res, {
+      message: result.message || 'Product photo enhanced successfully.',
+      enhancedImageUrl: result.enhancedImageUrl,
+      enhancedImageBase64: result.enhancedImageBase64,
+      originalImageUrl: result.originalImageUrl,
+      background: backgroundOption,
+      improvementsApplied: result.improvementsApplied,
+      adaptiveDetails: (result as any).adaptiveDetails,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function handleSelectProductImageVariant(req: Request, res: Response, next: NextFunction) {
+  try {
+    const artisan = req.artisan;
+    if (!artisan) {
+      return sendError(res, 'UNAUTHORIZED', 'Artisan context not found.', 401);
+    }
+
+    const productId = req.params.id;
+    const variant = req.body.variant === 'enhanced' ? 'enhanced' : 'original';
+
+    const updatedProduct = await selectProductImageVariant(artisan.id, productId, variant);
+
+    return sendSuccess(res, {
+      message: `Active product photo set to ${variant} image.`,
+      product: updatedProduct,
+      activeImageUrl: updatedProduct.primary_image_url,
+      variant,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+

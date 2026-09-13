@@ -18,6 +18,8 @@ export interface Product {
   creationSource: CreationSource;
   primaryImageUrl: string | null;
   originalImageUrl: string | null;
+  enhancedImageUrl?: string | null;
+  selectedBackground?: string | null;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;

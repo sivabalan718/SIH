@@ -3,6 +3,9 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Login } from '../pages/Login.js';
 import { Register } from '../pages/Register.js';
 import { RegisterSuccess } from '../pages/RegisterSuccess.js';
+import { CustomerLogin } from '../pages/CustomerLogin.js';
+import { CustomerRegister } from '../pages/CustomerRegister.js';
+import { CustomerProfilePage } from '../pages/CustomerProfilePage.js';
 import { ProtectedRoute } from './ProtectedRoute.js';
 import { ProtectedLayout } from '../components/layout/ProtectedLayout.js';
 import { Dashboard } from '../pages/Dashboard.js';
@@ -32,8 +35,19 @@ export const AppRoutes: React.FC = () => {
       <Route path="/marketplace/checkout" element={<CheckoutPage />} />
       <Route path="/marketplace/order-success/:orderId" element={<OrderSuccessPage />} />
       <Route path="/marketplace/orders" element={<BuyerOrdersPage />} />
+      <Route path="/marketplace/profile" element={<CustomerProfilePage />} />
 
-      {/* Public Auth Routes */}
+      {/* Customer Dedicated Authentication Routes */}
+      <Route
+        path="/customer/login"
+        element={user?.role === 'CUSTOMER' ? <Navigate to="/marketplace" replace /> : <CustomerLogin />}
+      />
+      <Route
+        path="/customer/register"
+        element={user?.role === 'CUSTOMER' ? <Navigate to="/marketplace" replace /> : <CustomerRegister />}
+      />
+
+      {/* Artisan Public Auth Routes */}
       <Route
         path="/login"
         element={user ? <Navigate to={user.role === 'ARTISAN' ? '/artisan/dashboard' : '/marketplace'} replace /> : <Login />}
@@ -57,18 +71,14 @@ export const AppRoutes: React.FC = () => {
       />
 
       {/* Authenticated Artisan Routes */}
-      <Route element={<ProtectedRoute />}>
+      <Route element={<ProtectedRoute requiredRole="ARTISAN" />}>
         <Route path="/artisan" element={<ProtectedLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="products" element={<ProductList />} />
           <Route path="products/new" element={<ProductCreate />} />
           <Route path="products/:productId" element={<ProductDetail />} />
-
-          {/* Phase 7: Order Workspace */}
           <Route path="orders" element={<ArtisanOrdersPage />} />
-
-          {/* Phase 8: Business Intelligence Workspace */}
           <Route path="analytics" element={<AnalyticsPage />} />
         </Route>
       </Route>

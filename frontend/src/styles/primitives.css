@@ -27,6 +27,43 @@
   padding: var(--m63-space-8);
 }
 
+.m63-auth-card-dark {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--m63-radius-xl);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.12);
+  padding: var(--m63-space-8);
+  color: #F8FAFC;
+}
+
+.m63-auth-card-dark .m63-label {
+  color: #E2E8F0;
+}
+
+.m63-auth-card-dark .m63-input {
+  background-color: rgba(30, 41, 59, 0.65);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #F8FAFC;
+}
+
+.m63-auth-card-dark .m63-input::placeholder {
+  color: #64748B;
+}
+
+.m63-auth-card-dark .m63-input:focus {
+  border-color: #F59E0B;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+  background-color: rgba(30, 41, 59, 0.85);
+}
+
+.m63-auth-card-dark .m63-helper-text {
+  color: #94A3B8;
+}
+
 /* Card Primitives */
 .m63-card {
   background: var(--m63-bg-surface);

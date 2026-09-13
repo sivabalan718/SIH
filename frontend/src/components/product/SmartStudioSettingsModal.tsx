@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, Palette, Check, X } from 'lucide-react';
 import { Button } from '../ui/Button.js';
 
-export type CatalogueBackgroundOption = 'ORIGINAL' | 'WHITE' | 'BEIGE' | 'GREY' | 'CREAM' | 'CUSTOM';
+export type CatalogueBackgroundOption = 'ORIGINAL' | 'WHITE' | 'BEIGE' | 'GREY' | 'CREAM' | 'TRANSPARENT' | 'CUSTOM';
 
 export interface SmartStudioSettingsModalProps {
   isOpen: boolean;
@@ -13,10 +13,11 @@ export interface SmartStudioSettingsModalProps {
 
 const PRESET_BACKGROUNDS: { id: CatalogueBackgroundOption; label: string; hex: string; desc: string }[] = [
   { id: 'ORIGINAL', label: 'Original Background', hex: 'transparent', desc: 'Preserve natural background' },
-  { id: 'WHITE', label: 'Clean White', hex: '#FFFFFF', desc: 'Classic crisp white (#FFFFFF)' },
+  { id: 'WHITE', label: 'Clean White', hex: '#FFFFFF', desc: 'Classic crisp studio white' },
   { id: 'BEIGE', label: 'Warm Beige', hex: '#F5F0EB', desc: 'Soft organic beige (#F5F0EB)' },
   { id: 'GREY', label: 'Light Grey', hex: '#F3F4F6', desc: 'Modern studio grey (#F3F4F6)' },
   { id: 'CREAM', label: 'Soft Cream', hex: '#FFFDF7', desc: 'Warm elegant cream (#FFFDF7)' },
+  { id: 'TRANSPARENT', label: 'Transparent Cutout', hex: 'rgba(0,0,0,0.06)', desc: 'Clean PNG with no background' },
   { id: 'CUSTOM', label: 'Custom Colour', hex: '#E2E8F0', desc: 'Choose your own hex shade' },
 ];
 

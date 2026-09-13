@@ -25,6 +25,8 @@ function mapProduct(raw: any): Product {
     creationSource: raw.creation_source,
     primaryImageUrl: raw.primary_image_url,
     originalImageUrl: raw.original_image_url,
+    enhancedImageUrl: raw.enhanced_image_url,
+    selectedBackground: raw.selected_background,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
     publishedAt: raw.published_at,
@@ -109,3 +111,44 @@ export async function uploadProductImage(
 
   return json.data.imageUrl;
 }
+
+export interface ProductEnhanceResponse {
+  enhancedImageUrl: string;
+  originalImageUrl: string;
+  background: string;
+  improvementsApplied: string[];
+}
+
+export async function enhanceExistingProductPhoto(
+  productId: string,
+  backgroundOption: string = 'WHITE',
+  colorHex?: string
+): Promise<ProductEnhanceResponse> {
+  const data = await apiRequest<ProductEnhanceResponse>(`/products/${productId}/enhance-image`, {
+    method: 'POST',
+    body: JSON.stringify({
+      backgroundOption,
+      colorHex,
+    }),
+  });
+  return data;
+}
+
+export async function selectProductImageVariant(
+  productId: string,
+  variant: 'original' | 'enhanced'
+): Promise<{ product: Product; activeImageUrl: string; variant: string }> {
+  const data = await apiRequest<{ message: string; product: any; activeImageUrl: string; variant: string }>(
+    `/products/${productId}/select-image-variant`,
+    {
+      method: 'POST',
+      body: JSON.stringify({ variant }),
+    }
+  );
+  return {
+    product: mapProduct(data.product),
+    activeImageUrl: data.activeImageUrl,
+    variant: data.variant,
+  };
+}
+

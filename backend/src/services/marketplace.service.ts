@@ -1,6 +1,6 @@
 import { getSupabaseAdmin } from '../config/supabase.js';
 import { logger } from '../utils/logger.js';
-import { getCatalogueContent } from './catalogue.service.js';
+import { getCatalogueContent, getBatchCatalogueContent } from './catalogue.service.js';
 import { ProductRecord, getProductsByArtisan, getProductById } from './product.service.js';
 
 export interface MarketplaceProductItem {
@@ -122,45 +122,71 @@ export async function getMarketplaceProducts(
 
   let productsList: any[] = Array.from(combinedMap.values());
 
-  const items: MarketplaceProductItem[] = await Promise.all(
-    productsList.map(async (prod) => {
-      const catalogue = await getCatalogueContent(prod.id, language);
+  // Batch-fetch all catalogues in a single database/memory pass
+  const productIds = productsList.map((p) => p.id);
+  const cataloguesMap = await getBatchCatalogueContent(productIds, language);
 
-      const artisanInfo = prod.artisans || {};
-      const artisanName = artisanInfo.name || 'Master Artisan';
-      const locationParts = [artisanInfo.locality, artisanInfo.district, artisanInfo.state].filter(Boolean);
-      const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : 'Tamil Nadu, India';
+  const items: MarketplaceProductItem[] = productsList.map((prod) => {
+    const catalogue = cataloguesMap.get(prod.id);
 
-      const shortDesc =
-        catalogue?.short_description ||
-        prod.description ||
-        `Handcrafted ${prod.craft_type || prod.category || 'artisan creation'} made from ${prod.material || 'traditional materials'}.`;
+    const artisanInfo = prod.artisans || {};
+    const artisanName = artisanInfo.name || 'Master Artisan';
+    const locationParts = [artisanInfo.locality, artisanInfo.district, artisanInfo.state].filter(Boolean);
+    const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : 'Tamil Nadu, India';
 
-      return {
-        id: prod.id,
-        artisan_id: prod.artisan_id || 'artisan-default',
-        artisan_name: artisanName,
-        artisan_location: artisanLocation,
-        name: prod.name,
-        category: prod.category || 'Handicrafts',
-        subcategory: prod.subcategory || null,
-        material: prod.material || null,
-        craft_type: prod.craft_type || null,
-        price: prod.price || 0,
-        stock_quantity: prod.stock_quantity || 0,
-        is_in_stock: (prod.stock_quantity || 0) > 0,
-        primary_image_url: prod.primary_image_url || prod.original_image_url || null,
-        short_description: shortDesc,
-        full_description: catalogue?.description || shortDesc,
-        highlights: catalogue?.highlights || prod.features || [],
-        specifications: catalogue?.specifications || { Material: prod.material || 'Artisan grade', Category: prod.category || 'Handicraft' },
-        craft_information: catalogue?.description || '',
-        care_instructions: catalogue?.care_instructions || '',
-        available_languages: catalogue ? [catalogue.language] : ['en'],
-        created_at: prod.created_at || new Date().toISOString(),
-      };
-    })
-  );
+    // Canonical Smart Catalogue presentation priority
+    const displayName = catalogue?.title || prod.name;
+    const shortDesc =
+      catalogue?.short_description ||
+      prod.description ||
+      `Handcrafted ${prod.craft_type || prod.category || 'artisan creation'} made from ${prod.material || 'traditional materials'}.`;
+    const fullDesc = catalogue?.description || prod.description || shortDesc;
+
+    // Filter out internal/debug flags such as DEMO_SEED_DATASET
+    const rawHighlights = catalogue?.highlights && catalogue.highlights.length > 0
+      ? catalogue.highlights
+      : (prod.features || []);
+    const cleanHighlights = rawHighlights.filter(
+      (h: string) => h && !h.includes('DEMO_SEED_DATASET') && !h.includes('__DEBUG__')
+    );
+
+    const cleanSpecs: Record<string, string> = {};
+    if (catalogue?.specifications && Object.keys(catalogue.specifications).length > 0) {
+      for (const [k, v] of Object.entries(catalogue.specifications)) {
+        if (v && v !== 'None' && !v.includes('DEMO_SEED_DATASET')) {
+          cleanSpecs[k] = v;
+        }
+      }
+    } else {
+      if (prod.material) cleanSpecs['Material'] = prod.material;
+      if (prod.craft_type) cleanSpecs['Craft Technique'] = prod.craft_type;
+      if (prod.category) cleanSpecs['Category'] = prod.category;
+    }
+
+    return {
+      id: prod.id,
+      artisan_id: prod.artisan_id || 'artisan-default',
+      artisan_name: artisanName,
+      artisan_location: artisanLocation,
+      name: displayName,
+      category: prod.category || 'Handicrafts',
+      subcategory: prod.subcategory || null,
+      material: prod.material || null,
+      craft_type: prod.craft_type || null,
+      price: prod.price || 0,
+      stock_quantity: prod.stock_quantity || 0,
+      is_in_stock: (prod.stock_quantity || 0) > 0,
+      primary_image_url: prod.primary_image_url || prod.original_image_url || null,
+      short_description: shortDesc,
+      full_description: fullDesc,
+      highlights: cleanHighlights,
+      specifications: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Material: prod.material || 'Artisan grade', Category: prod.category || 'Handicraft' },
+      craft_information: catalogue?.description || '',
+      care_instructions: catalogue?.care_instructions || '',
+      available_languages: ['en', 'ta', 'hi'],
+      created_at: prod.created_at || new Date().toISOString(),
+    };
+  });
 
   return {
     products: items,
@@ -169,7 +195,8 @@ export async function getMarketplaceProducts(
 }
 
 /**
- * Retrieve single marketplace product with full saved Smart Catalogue
+ * Retrieve single marketplace product with full canonical Smart Catalogue.
+ * Strictly guarantees catalogue.product_id === product.id.
  */
 export async function getMarketplaceProductById(
   productId: string,
@@ -200,6 +227,7 @@ export async function getMarketplaceProductById(
     return null;
   }
 
+  // Retrieve canonical catalogue for this exact product and requested language
   const catalogue = await getCatalogueContent(productId, language);
 
   const artisanInfo = prod.artisans || {};
@@ -207,17 +235,41 @@ export async function getMarketplaceProductById(
   const locationParts = [artisanInfo.locality, artisanInfo.district, artisanInfo.state].filter(Boolean);
   const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : 'Tamil Nadu, India';
 
+  // Canonical Smart Catalogue presentation priority
+  const displayName = catalogue?.title || prod.name;
   const shortDesc =
     catalogue?.short_description ||
     prod.description ||
     `Handcrafted ${prod.craft_type || prod.category || 'artisan creation'} made from ${prod.material || 'traditional materials'}.`;
+  const fullDesc = catalogue?.description || prod.description || shortDesc;
+
+  // Filter out internal/debug flags such as DEMO_SEED_DATASET
+  const rawHighlights = catalogue?.highlights && catalogue.highlights.length > 0
+    ? catalogue.highlights
+    : (prod.features || []);
+  const cleanHighlights = rawHighlights.filter(
+    (h: string) => h && !h.includes('DEMO_SEED_DATASET') && !h.includes('__DEBUG__')
+  );
+
+  const cleanSpecs: Record<string, string> = {};
+  if (catalogue?.specifications && Object.keys(catalogue.specifications).length > 0) {
+    for (const [k, v] of Object.entries(catalogue.specifications)) {
+      if (v && v !== 'None' && !v.includes('DEMO_SEED_DATASET')) {
+        cleanSpecs[k] = v;
+      }
+    }
+  } else {
+    if (prod.material) cleanSpecs['Material'] = prod.material;
+    if (prod.craft_type) cleanSpecs['Craft Technique'] = prod.craft_type;
+    if (prod.category) cleanSpecs['Category'] = prod.category;
+  }
 
   return {
     id: prod.id,
     artisan_id: prod.artisan_id || 'artisan-default',
     artisan_name: artisanName,
     artisan_location: artisanLocation,
-    name: prod.name,
+    name: displayName,
     category: prod.category || 'Handicrafts',
     subcategory: prod.subcategory || null,
     material: prod.material || null,
@@ -227,12 +279,12 @@ export async function getMarketplaceProductById(
     is_in_stock: (prod.stock_quantity || 0) > 0,
     primary_image_url: prod.primary_image_url || prod.original_image_url || null,
     short_description: shortDesc,
-    full_description: catalogue?.description || shortDesc,
-    highlights: catalogue?.highlights || prod.features || [],
-    specifications: catalogue?.specifications || { Material: prod.material || 'Artisan grade', Category: prod.category || 'Handicraft' },
+    full_description: fullDesc,
+    highlights: cleanHighlights,
+    specifications: Object.keys(cleanSpecs).length > 0 ? cleanSpecs : { Material: prod.material || 'Artisan grade', Category: prod.category || 'Handicraft' },
     craft_information: catalogue?.description || '',
     care_instructions: catalogue?.care_instructions || '',
-    available_languages: catalogue ? [catalogue.language] : ['en'],
+    available_languages: ['en', 'ta', 'hi'],
     created_at: prod.created_at || new Date().toISOString(),
   };
 }

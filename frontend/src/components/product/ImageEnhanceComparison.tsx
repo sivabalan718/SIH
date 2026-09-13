@@ -11,6 +11,7 @@ interface ImageEnhanceComparisonProps {
   isLoading?: boolean;
   improvementsApplied?: string[];
   backgroundColorLabel?: string;
+  activeVariant?: 'original' | 'enhanced';
 }
 
 export const ImageEnhanceComparison: React.FC<ImageEnhanceComparisonProps> = ({
@@ -22,6 +23,7 @@ export const ImageEnhanceComparison: React.FC<ImageEnhanceComparisonProps> = ({
   isLoading = false,
   improvementsApplied = [],
   backgroundColorLabel,
+  activeVariant = 'enhanced',
 }) => {
   const displayImprovements =
     improvementsApplied.length > 0
@@ -68,14 +70,23 @@ export const ImageEnhanceComparison: React.FC<ImageEnhanceComparisonProps> = ({
       {/* Comparison Side-by-Side Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '16px' }}>
         {/* Original Image Card */}
-        <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'var(--m63-bg-canvas)', border: '1px solid var(--m63-border)', borderRadius: '10px', padding: '12px' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: activeVariant === 'original' ? '#F8FAFC' : 'var(--m63-bg-canvas)',
+            border: activeVariant === 'original' ? '2px solid #3B82F6' : '1px solid var(--m63-border)',
+            borderRadius: '10px',
+            padding: '12px',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', gap: '8px' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--m63-slate-subtle)', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <ImageIcon size={14} />
               Original Photo
             </span>
-            <span style={{ fontSize: '0.7rem', backgroundColor: 'var(--m63-border)', color: 'var(--m63-slate)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
-              Unmodified
+            <span style={{ fontSize: '0.7rem', backgroundColor: activeVariant === 'original' ? '#DBEAFE' : 'var(--m63-border)', color: activeVariant === 'original' ? '#1D4ED8' : 'var(--m63-slate)', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+              {activeVariant === 'original' ? '✓ Currently Active' : 'Unmodified Original'}
             </span>
           </div>
           <div style={{ position: 'relative', width: '100%', height: '230px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -97,14 +108,24 @@ export const ImageEnhanceComparison: React.FC<ImageEnhanceComparisonProps> = ({
         </div>
 
         {/* Enhanced Studio Image Card */}
-        <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: '10px', padding: '12px', position: 'relative' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: activeVariant === 'enhanced' ? '#FFFBEB' : 'var(--m63-bg-canvas)',
+            border: activeVariant === 'enhanced' ? '2px solid #F59E0B' : '1px solid var(--m63-border)',
+            borderRadius: '10px',
+            padding: '12px',
+            position: 'relative',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', gap: '8px' }}>
             <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#B45309', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Sparkles size={14} />
               M63 Studio Enhanced
             </span>
             <span style={{ fontSize: '0.7rem', backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
-              M63 Smart Studio
+              {activeVariant === 'enhanced' ? '✓ Currently Active' : 'M63 Smart Studio'}
             </span>
           </div>
           <div style={{ position: 'relative', width: '100%', height: '230px', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

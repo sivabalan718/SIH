@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 import { getMarketplaceProducts, getMarketplaceProductById } from '../src/services/marketplace.service.js';
 import { addItemToCart, getBuyerCart } from '../src/services/cart.service.js';
 import { createOrder, updateOrderStatus, cancelOrder } from '../src/services/order.service.js';

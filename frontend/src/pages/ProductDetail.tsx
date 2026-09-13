@@ -8,7 +8,11 @@ import {
   publishProduct,
   archiveProduct,
   uploadProductImage,
+  enhanceExistingProductPhoto,
+  selectProductImageVariant,
 } from '../services/productService.js';
+import { SmartStudioSettingsModal, CatalogueBackgroundOption } from '../components/product/SmartStudioSettingsModal.js';
+import { ImageEnhanceComparison } from '../components/product/ImageEnhanceComparison.js';
 import { ProductStatusBadge } from '../components/product/ProductStatusBadge.js';
 import { Input } from '../components/ui/Input.js';
 import { Textarea } from '../components/ui/Textarea.js';
@@ -35,6 +39,7 @@ import {
   Archive,
   AlertCircle,
   CheckCircle2,
+  X,
 } from 'lucide-react';
 
 export const ProductDetail: React.FC = () => {
@@ -74,6 +79,14 @@ export const ProductDetail: React.FC = () => {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  // Phase 7: Adaptive Smart Studio Image Enhancer States
+  const [showStudioSettingsModal, setShowStudioSettingsModal] = useState<boolean>(false);
+  const [showEnhanceModal, setShowEnhanceModal] = useState<boolean>(false);
+  const [isImprovingPhoto, setIsImprovingPhoto] = useState<boolean>(false);
+  const [enhancedImageUrl, setEnhancedImageUrl] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [improvementsApplied, setImprovementsApplied] = useState<string[]>([]);
+
   // Action States
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -95,6 +108,8 @@ export const ProductDetail: React.FC = () => {
       setError(null);
       const data = await getProduct(id);
       setProduct(data);
+      setEnhancedImageUrl(data.enhancedImageUrl || null);
+      setOriginalImageUrl(data.originalImageUrl || data.primaryImageUrl || null);
       setFormData({
         name: data.name || '',
         description: data.description || '',
@@ -204,11 +219,66 @@ export const ProductDetail: React.FC = () => {
       }
 
       setProduct(updated);
-      setSuccessMsg('Product details, Smart Catalogue, and Pricing Intelligence saved successfully.');
+      setSuccessMsg('Product details updated successfully.');
+      setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
-      setError(err.message || 'We couldn’t save changes to your product. Please try again.');
+      setError(err.message || 'Could not update product details.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Adaptive Studio Enhancer Handlers
+  const handleOpenStudioSettings = () => {
+    if (!product?.primaryImageUrl && !selectedFile) {
+      setError('Please upload a product photo first.');
+      return;
+    }
+    setShowStudioSettingsModal(true);
+  };
+
+  const handleImprovePhoto = async (bgOption: CatalogueBackgroundOption, colorHex?: string) => {
+    if (!productId) return;
+    try {
+      setIsImprovingPhoto(true);
+      setError(null);
+      const res = await enhanceExistingProductPhoto(productId, bgOption, colorHex);
+      setEnhancedImageUrl(res.enhancedImageUrl);
+      setOriginalImageUrl(res.originalImageUrl);
+      setImprovementsApplied(res.improvementsApplied || []);
+      setShowStudioSettingsModal(false);
+      setShowEnhanceModal(true);
+    } catch (err: any) {
+      setShowStudioSettingsModal(false);
+      setError(err.message || 'Image enhancement could not be completed safely. Your original photo is unchanged.');
+    } finally {
+      setIsImprovingPhoto(false);
+    }
+  };
+
+  const handleSelectEnhanced = async () => {
+    if (!productId) return;
+    try {
+      const res = await selectProductImageVariant(productId, 'enhanced');
+      setProduct(res.product);
+      setShowEnhanceModal(false);
+      setSuccessMsg('✨ Enhanced studio photo set as active product image.');
+      setTimeout(() => setSuccessMsg(null), 3500);
+    } catch (err: any) {
+      setError(err.message || 'Failed to select enhanced photo.');
+    }
+  };
+
+  const handleSelectOriginal = async () => {
+    if (!productId) return;
+    try {
+      const res = await selectProductImageVariant(productId, 'original');
+      setProduct(res.product);
+      setShowEnhanceModal(false);
+      setSuccessMsg('Original product photo restored as active image.');
+      setTimeout(() => setSuccessMsg(null), 3500);
+    } catch (err: any) {
+      setError(err.message || 'Failed to restore original photo.');
     }
   };
 
@@ -358,12 +428,14 @@ export const ProductDetail: React.FC = () => {
 
       {/* Main Edit Form */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
-        {/* Image Card */}
+        {/* Image Card with Adaptive Smart Studio Integration */}
         <div className="m63-card">
           <ImageUpload
             currentImageUrl={product.primaryImageUrl}
             selectedFile={selectedFile}
             onFileSelect={(file) => setSelectedFile(file)}
+            onImprovePhoto={handleOpenStudioSettings}
+            isImprovingPhoto={isImprovingPhoto}
           />
         </div>
 
@@ -545,6 +617,81 @@ export const ProductDetail: React.FC = () => {
         variant="danger"
         loading={isArchiving}
       />
+
+      {/* Smart Studio Background & Settings Selection Modal */}
+      <SmartStudioSettingsModal
+        isOpen={showStudioSettingsModal}
+        onClose={() => setShowStudioSettingsModal(false)}
+        onApply={(bgOption, colorHex) => handleImprovePhoto(bgOption, colorHex)}
+        isProcessing={isImprovingPhoto}
+      />
+
+      {/* Before / After Photo Enhancement Comparison Modal */}
+      {showEnhanceModal && enhancedImageUrl && (originalImageUrl || product.primaryImageUrl) && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setShowEnhanceModal(false)}
+        >
+          <div
+            className="animate-fade-in"
+            style={{
+              backgroundColor: 'var(--m63-bg-surface)',
+              borderRadius: '16px',
+              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.2), 0 10px 10px -5px rgba(0,0,0,0.1)',
+              border: '1px solid var(--m63-border)',
+              width: '100%',
+              maxWidth: '640px',
+              padding: '20px',
+              position: 'relative',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowEnhanceModal(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--m63-slate-subtle)',
+                padding: '4px',
+                borderRadius: '6px',
+                zIndex: 10,
+              }}
+              aria-label="Close modal"
+            >
+              <X size={20} />
+            </button>
+            <ImageEnhanceComparison
+              originalUrl={originalImageUrl || product.primaryImageUrl || ''}
+              enhancedUrl={enhancedImageUrl}
+              activeVariant={product.primaryImageUrl === enhancedImageUrl ? 'enhanced' : 'original'}
+              onSelectOriginal={handleSelectOriginal}
+              onSelectEnhanced={handleSelectEnhanced}
+              onTryAgain={handleOpenStudioSettings}
+              isLoading={isImprovingPhoto}
+              improvementsApplied={improvementsApplied}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

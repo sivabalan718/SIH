@@ -4,6 +4,7 @@ import { ArrowLeft, ShoppingCart, Zap, MapPin, Sparkles, AlertCircle } from 'luc
 import { Button } from '../components/ui/Button.js';
 import { fetchMarketplaceProductById, MarketplaceProductItem } from '../services/marketplaceService.js';
 import { addToBuyerCart } from '../services/cartService.js';
+import { handleProductImageError } from '../utils/imageFallback.js';
 
 export const MarketplaceProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -13,7 +14,11 @@ export const MarketplaceProductDetail: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [activeLanguage, setActiveLanguage] = useState<'en' | 'ta' | 'hi'>('en');
+  const [activeLanguage, setActiveLanguage] = useState<'en' | 'ta' | 'hi'>(() => {
+    const saved = localStorage.getItem('m63_marketplace_lang');
+    if (saved === 'ta' || saved === 'hi' || saved === 'en') return saved;
+    return 'en';
+  });
   const [quantity, setQuantity] = useState<number>(1);
   const [activeTab, setActiveTab] = useState<'description' | 'highlights' | 'specifications' | 'craft' | 'care'>('description');
   const [addingToCart, setAddingToCart] = useState<boolean>(false);
@@ -119,7 +124,12 @@ export const MarketplaceProductDetail: React.FC = () => {
           <div>
             <div style={{ backgroundColor: '#F8FAFC', borderRadius: '20px', border: '1px solid var(--m63-border)', overflow: 'hidden', height: '420px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {product.primary_image_url ? (
-                <img src={product.primary_image_url} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img
+                  src={product.primary_image_url}
+                  alt={product.name}
+                  onError={(e) => handleProductImageError(e, product.category || product.craft_type)}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
               ) : (
                 <div style={{ textAlign: 'center', color: '#94A3B8' }}>
                   <Sparkles size={48} style={{ display: 'block', margin: '0 auto 8px auto' }} />
@@ -142,7 +152,10 @@ export const MarketplaceProductDetail: React.FC = () => {
                   {(['en', 'ta', 'hi'] as const).map((lang) => (
                     <button
                       key={lang}
-                      onClick={() => setActiveLanguage(lang)}
+                      onClick={() => {
+                        setActiveLanguage(lang);
+                        localStorage.setItem('m63_marketplace_lang', lang);
+                      }}
                       style={{
                         padding: '3px 8px',
                         borderRadius: '6px',
