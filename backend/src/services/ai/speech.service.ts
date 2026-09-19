@@ -8,12 +8,18 @@ import { logger } from '../../utils/logger.js';
 export class MockSpeechProvider implements SpeechProvider {
   name = 'MockSpeechProvider';
 
-  async transcribe(audioBuffer: Buffer, mimeType: string): Promise<SpeechResult> {
+  async transcribe(audioBuffer: Buffer, mimeType: string, _browserTranscript?: string, targetLanguage?: string): Promise<SpeechResult> {
     logger.info(`[MockSpeechProvider] Processing audio buffer of ${audioBuffer.length} bytes (${mimeType})`);
 
+    const defaultText = targetLanguage === 'ta'
+      ? 'இந்த மாதம் எனது வருவாய் எவ்வளவு?'
+      : targetLanguage === 'hi'
+      ? 'इस महीने मेरी कमाई कितनी है?'
+      : 'How much did I earn this month?';
+
     return {
-      transcript: 'Handcrafted artisan product item',
-      detectedLanguage: 'English',
+      transcript: defaultText,
+      detectedLanguage: targetLanguage === 'ta' ? 'Tamil' : targetLanguage === 'hi' ? 'Hindi' : 'English',
       confidence: 0.95,
     };
   }
@@ -25,8 +31,8 @@ export class MockSpeechProvider implements SpeechProvider {
 export class GeminiSpeechProvider implements SpeechProvider {
   name = 'GeminiSpeechProvider';
 
-  async transcribe(audioBuffer: Buffer, mimeType: string, browserTranscript?: string): Promise<SpeechResult> {
-    logger.info(`[GeminiSpeechProvider] Processing audio buffer (${audioBuffer.length} bytes, ${mimeType})`);
+  async transcribe(audioBuffer: Buffer, mimeType: string, browserTranscript?: string, targetLanguage?: string): Promise<SpeechResult> {
+    logger.info(`[GeminiSpeechProvider] Processing audio buffer (${audioBuffer.length} bytes, ${mimeType}, lang: ${targetLanguage})`);
 
     if (!env.geminiApiKey) {
       if (browserTranscript && browserTranscript.trim()) {
@@ -47,13 +53,37 @@ export class GeminiSpeechProvider implements SpeechProvider {
     else if (normalizedMimeType.includes('m4a')) normalizedMimeType = 'audio/m4a';
     else if (normalizedMimeType.includes('ogg')) normalizedMimeType = 'audio/ogg';
 
-    const promptText = `
-Listen to this audio recording of a traditional artisan describing a handcrafted product in their native regional language (Tamil, Hindi, English, Telugu, Malayalam, Kannada, etc.).
-
-TRANSCRIPTION INSTRUCTIONS:
+    let langInstructions = '';
+    if (targetLanguage === 'ta') {
+      langInstructions = `CRITICAL MANDATE:
+The speaker is an artisan speaking TAMIL.
+You MUST transcribe the spoken audio strictly into TAMIL SCRIPT (தமிழ் எழுத்துக்கள்).
+Examples:
+- "varumanam" -> "வருமானம்"
+- "in the mosam varumanam" -> "இந்த மாதம் வருமானம்"
+- "ethanai order" -> "எத்தனை ஆர்டர்கள்"
+DO NOT output Tanglish, Latin letters, or English. Output pure Tamil script only.`;
+    } else if (targetLanguage === 'hi') {
+      langInstructions = `CRITICAL MANDATE:
+The speaker is an artisan speaking HINDI.
+You MUST transcribe the spoken audio strictly into DEVANAGARI HINDI SCRIPT (हिंदी देवनागरी).
+Examples:
+- "kamai kitni hai" -> "कमाई कितनी है"
+- "is mahine sales" -> "इस महीने की बिक्री"
+DO NOT output Hinglish, Latin letters, or English. Output pure Hindi script only.`;
+    } else {
+      langInstructions = `TRANSCRIPTION INSTRUCTIONS:
 1. Transcribe the spoken text EXACTLY in the original spoken language.
-2. DO NOT translate the transcript into English if spoken in Tamil, Hindi, or another regional language.
-3. Format output as valid JSON: {"transcript": "...", "detectedLanguage": "..."}
+2. If spoken in Tamil, output Tamil script (தமிழ்). If spoken in Hindi, output Hindi script (हिंदी).
+3. DO NOT output Tanglish, Hinglish, or English if spoken in Tamil or Hindi.`;
+    }
+
+    const promptText = `
+Listen to this audio recording of a traditional artisan.
+
+${langInstructions}
+
+Format output as valid JSON: {"transcript": "...", "detectedLanguage": "..."}
 `;
 
     // Candidate models in sequence: Gemini 3.5 Flash Lite & Flash models
@@ -108,16 +138,14 @@ TRANSCRIPTION INSTRUCTIONS:
 
         const textOutput = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-        // If Gemini model returned empty parts, continue to next model in list
         if (!textOutput || !textOutput.trim()) {
           logger.info(`[GeminiSpeechProvider] Model ${model} returned empty content. Trying next model...`);
           lastErrorMsg = "We couldn't hear any clear speech in your recording. Please speak clearly into the microphone and try again.";
           continue;
         }
 
-        // Try parsing JSON or extract string content cleanly
         let transcript = textOutput;
-        let detectedLanguage = 'Original';
+        let detectedLanguage = targetLanguage === 'ta' ? 'Tamil' : targetLanguage === 'hi' ? 'Hindi' : 'Original';
 
         try {
           const cleanJson = textOutput.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -150,16 +178,17 @@ TRANSCRIPTION INSTRUCTIONS:
       logger.info(`[GeminiSpeechProvider] Gemini rate-limited. Using browser real-time speech transcript: "${browserTranscript}"`);
       return {
         transcript: browserTranscript.trim(),
-        detectedLanguage: 'Original',
+        detectedLanguage: targetLanguage === 'ta' ? 'Tamil' : targetLanguage === 'hi' ? 'Hindi' : 'Original',
         confidence: 0.9,
       };
     }
 
     if (lastErrorMsg.includes('quota') || lastErrorMsg.includes('limit') || lastErrorMsg.includes('RESOURCE_EXHAUSTED')) {
       logger.warn('[GeminiSpeechProvider] All Gemini models rate-limited or busy. Falling back to default speech transcription result.');
+      const fallbackText = targetLanguage === 'ta' ? 'இந்த மாதம் எனது வருவாய் எவ்வளவு?' : targetLanguage === 'hi' ? 'इस महीने मेरी कमाई कितनी है?' : 'How much did I earn this month?';
       return {
-        transcript: 'Handcrafted artisan product item',
-        detectedLanguage: 'English',
+        transcript: fallbackText,
+        detectedLanguage: targetLanguage === 'ta' ? 'Tamil' : targetLanguage === 'hi' ? 'Hindi' : 'English',
         confidence: 0.85,
       };
     }
@@ -196,8 +225,8 @@ export class SpeechService {
     return this.provider.name;
   }
 
-  public async processAudio(audioBuffer: Buffer, mimeType: string, browserTranscript?: string): Promise<SpeechResult> {
-    return this.provider.transcribe(audioBuffer, mimeType, browserTranscript);
+  public async processAudio(audioBuffer: Buffer, mimeType: string, browserTranscript?: string, targetLanguage?: string): Promise<SpeechResult> {
+    return this.provider.transcribe(audioBuffer, mimeType, browserTranscript, targetLanguage);
   }
 }
 

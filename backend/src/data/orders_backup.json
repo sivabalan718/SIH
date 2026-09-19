@@ -277,5 +277,257 @@
     "placed_at": "2026-09-19T09:50:14.768Z",
     "updated_at": "2026-09-19T09:50:28.879Z",
     "cancelled_at": "2026-09-19T09:50:28.879Z"
+  },
+  {
+    "id": "ord-1789833538351-9ami6",
+    "m63_order_number": "M63-5644",
+    "buyer_id": "buyer-analytics-111",
+    "artisan_id": "artisan-analytics-111",
+    "status": "PENDING",
+    "subtotal": 5500,
+    "delivery_charge": 0,
+    "total_amount": 5500,
+    "shipping_name": "Buyer A",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Test St",
+    "items": [
+      {
+        "id": "item-1789833538351-uu7",
+        "order_id": "ord-1789833538351-9ami6",
+        "product_id": "prod-1789833509628-19pj2",
+        "product_name_snapshot": "Analytics Kanchipuram Silk Saree",
+        "unit_price_snapshot": 2500,
+        "quantity": 2,
+        "subtotal": 5000,
+        "artisan_id": "artisan-analytics-111",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      },
+      {
+        "id": "item-1789833538351-uco",
+        "order_id": "ord-1789833538351-9ami6",
+        "product_id": "prod-1789833522373-081zk",
+        "product_name_snapshot": "Analytics Clay Diya Set",
+        "unit_price_snapshot": 500,
+        "quantity": 1,
+        "subtotal": 500,
+        "artisan_id": "artisan-analytics-111",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T15:58:58.351Z",
+    "updated_at": "2026-09-19T15:58:58.351Z"
+  },
+  {
+    "id": "ord-1789833650996-ocdfx",
+    "m63_order_number": "M63-7074",
+    "buyer_id": "buyer-iso-111",
+    "artisan_id": "artisan-iso-aaaa",
+    "status": "PENDING",
+    "subtotal": 1000,
+    "delivery_charge": 0,
+    "total_amount": 1000,
+    "shipping_name": "Buyer",
+    "shipping_phone": "123",
+    "shipping_address": "Addr",
+    "items": [
+      {
+        "id": "item-1789833650996-kvp",
+        "order_id": "ord-1789833650996-ocdfx",
+        "product_id": "prod-1789833534665-pdepz",
+        "product_name_snapshot": "Artisan A Wooden Toy",
+        "unit_price_snapshot": 1000,
+        "quantity": 1,
+        "subtotal": 1000,
+        "artisan_id": "artisan-iso-aaaa",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T16:00:50.996Z",
+    "updated_at": "2026-09-19T16:00:50.996Z"
+  },
+  {
+    "id": "ord-1789833786224-n0k3n",
+    "m63_order_number": "M63-1210",
+    "buyer_id": "55555555-5555-4555-a555-555555555555",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "status": "PROCESSING",
+    "subtotal": 1300,
+    "delivery_charge": 0,
+    "total_amount": 1300,
+    "shipping_name": "Buyer Name",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Craft Lane, Madurai",
+    "items": [
+      {
+        "id": "item-1789833786225-ni7",
+        "order_id": "ord-1789833786224-n0k3n",
+        "product_id": "prod-1789833772221-x94gb",
+        "product_name_snapshot": "Terracotta Clay Pot",
+        "unit_price_snapshot": 650,
+        "quantity": 2,
+        "subtotal": 1300,
+        "artisan_id": "44444444-4444-4444-a444-444444444444",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T16:03:06.224Z",
+    "updated_at": "2026-09-19T16:03:09.024Z",
+    "confirmed_at": "2026-09-19T16:03:08.578Z",
+    "processing_at": "2026-09-19T16:03:09.024Z"
+  },
+  {
+    "id": "ord-1789833802546-hy0jz",
+    "m63_order_number": "M63-3940",
+    "buyer_id": "77777777-7777-4777-a777-777777777777",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "status": "CANCELLED",
+    "subtotal": 7500,
+    "delivery_charge": 0,
+    "total_amount": 7500,
+    "shipping_name": "Buyer",
+    "shipping_phone": "999",
+    "shipping_address": "Main St",
+    "items": [
+      {
+        "id": "item-1789833802546-l1q",
+        "order_id": "ord-1789833802546-hy0jz",
+        "product_id": "prod-1789833789413-80lc4",
+        "product_name_snapshot": "Handcrafted Traditional Brass Lamp",
+        "unit_price_snapshot": 2500,
+        "quantity": 3,
+        "subtotal": 7500,
+        "artisan_id": "66666666-6666-4666-a666-666666666666",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T16:03:22.546Z",
+    "updated_at": "2026-09-19T16:03:25.748Z",
+    "cancelled_at": "2026-09-19T16:03:25.748Z"
+  },
+  {
+    "id": "ord-1789843039840-7ob67",
+    "m63_order_number": "M63-7480",
+    "buyer_id": "buyer-analytics-111",
+    "artisan_id": "artisan-analytics-111",
+    "status": "PENDING",
+    "subtotal": 5500,
+    "delivery_charge": 0,
+    "total_amount": 5500,
+    "shipping_name": "Buyer A",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Test St",
+    "items": [
+      {
+        "id": "item-1789843039841-hi4",
+        "order_id": "ord-1789843039840-7ob67",
+        "product_id": "prod-1789843007357-ynsma",
+        "product_name_snapshot": "Analytics Kanchipuram Silk Saree",
+        "unit_price_snapshot": 2500,
+        "quantity": 2,
+        "subtotal": 5000,
+        "artisan_id": "artisan-analytics-111",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      },
+      {
+        "id": "item-1789843039841-4vh",
+        "order_id": "ord-1789843039840-7ob67",
+        "product_id": "prod-1789843027225-hxwzu",
+        "product_name_snapshot": "Analytics Clay Diya Set",
+        "unit_price_snapshot": 500,
+        "quantity": 1,
+        "subtotal": 500,
+        "artisan_id": "artisan-analytics-111",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T18:37:19.840Z",
+    "updated_at": "2026-09-19T18:37:19.840Z"
+  },
+  {
+    "id": "ord-1789843062611-zum11",
+    "m63_order_number": "M63-4425",
+    "buyer_id": "buyer-iso-111",
+    "artisan_id": "artisan-iso-aaaa",
+    "status": "PENDING",
+    "subtotal": 1000,
+    "delivery_charge": 0,
+    "total_amount": 1000,
+    "shipping_name": "Buyer",
+    "shipping_phone": "123",
+    "shipping_address": "Addr",
+    "items": [
+      {
+        "id": "item-1789843062612-t7u",
+        "order_id": "ord-1789843062611-zum11",
+        "product_id": "prod-1789843032388-6ukdn",
+        "product_name_snapshot": "Artisan A Wooden Toy",
+        "unit_price_snapshot": 1000,
+        "quantity": 1,
+        "subtotal": 1000,
+        "artisan_id": "artisan-iso-aaaa",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T18:37:42.611Z",
+    "updated_at": "2026-09-19T18:37:42.611Z"
+  },
+  {
+    "id": "ord-1789843192617-4z1se",
+    "m63_order_number": "M63-1877",
+    "buyer_id": "55555555-5555-4555-a555-555555555555",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "status": "PROCESSING",
+    "subtotal": 1300,
+    "delivery_charge": 0,
+    "total_amount": 1300,
+    "shipping_name": "Buyer Name",
+    "shipping_phone": "9876543210",
+    "shipping_address": "123 Craft Lane, Madurai",
+    "items": [
+      {
+        "id": "item-1789843192618-47r",
+        "order_id": "ord-1789843192617-4z1se",
+        "product_id": "prod-1789843175776-cz5ev",
+        "product_name_snapshot": "Handcrafted Terracotta Clay Pot",
+        "unit_price_snapshot": 650,
+        "quantity": 2,
+        "subtotal": 1300,
+        "artisan_id": "44444444-4444-4444-a444-444444444444",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T18:39:52.617Z",
+    "updated_at": "2026-09-19T18:39:55.157Z",
+    "confirmed_at": "2026-09-19T18:39:54.801Z",
+    "processing_at": "2026-09-19T18:39:55.157Z"
+  },
+  {
+    "id": "ord-1789843207414-smsxi",
+    "m63_order_number": "M63-5641",
+    "buyer_id": "77777777-7777-4777-a777-777777777777",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "status": "CANCELLED",
+    "subtotal": 7500,
+    "delivery_charge": 0,
+    "total_amount": 7500,
+    "shipping_name": "Buyer",
+    "shipping_phone": "999",
+    "shipping_address": "Main St",
+    "items": [
+      {
+        "id": "item-1789843207414-5qp",
+        "order_id": "ord-1789843207414-smsxi",
+        "product_id": "prod-1789843195497-c3s1d",
+        "product_name_snapshot": "Handcrafted Traditional Brass Lamp",
+        "unit_price_snapshot": 2500,
+        "quantity": 3,
+        "subtotal": 7500,
+        "artisan_id": "66666666-6666-4666-a666-666666666666",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T18:40:07.414Z",
+    "updated_at": "2026-09-19T18:40:11.912Z",
+    "cancelled_at": "2026-09-19T18:40:11.912Z"
   }
 ]

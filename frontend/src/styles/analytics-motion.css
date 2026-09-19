@@ -1,0 +1,411 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+
+/*
+  analytics-motion.css
+  Presentation layer only. Uses your existing --m63-bi-* tokens with fallbacks,
+  so it follows whatever is defined in analytics-dark.css.
+  Import AFTER analytics-dark.css.
+*/
+
+.m63x-stage {
+  --x-accent: var(--m63-bi-orange, #e8792b);
+  --x-accent-2: #f2b84b;
+  --x-line: var(--m63-bi-border, rgba(128, 128, 128, 0.28));
+  --x-text: var(--m63-bi-text-main, inherit);
+  --x-subtle: var(--m63-bi-text-subtle, rgba(128, 128, 128, 0.9));
+  --x-ease: cubic-bezier(0.2, 0.7, 0.1, 1);
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+}
+
+/* ---------- ambient light: two slow, very quiet glows ---------- */
+.m63x-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.m63x-aurora::before,
+.m63x-aurora::after {
+  content: '';
+  position: absolute;
+  width: 55vmax;
+  height: 55vmax;
+  border-radius: 50%;
+  filter: blur(100px);
+}
+.m63x-aurora::before {
+  background: var(--x-accent);
+  opacity: 0.13;
+  top: -24vmax;
+  right: -14vmax;
+  animation: m63x-drift 46s ease-in-out infinite alternate;
+}
+.m63x-aurora::after {
+  background: #1f8a8a;
+  opacity: 0.09;
+  bottom: -26vmax;
+  left: -18vmax;
+  animation: m63x-drift 58s ease-in-out infinite alternate-reverse;
+}
+@keyframes m63x-drift {
+  to {
+    transform: translate3d(-6vmax, 5vmax, 0) scale(1.08);
+  }
+}
+
+/* ---------- hero: the one orchestrated moment ---------- */
+.m63x-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(220px, 1fr);
+  gap: clamp(20px, 4vw, 56px);
+  align-items: end;
+  padding: clamp(10px, 2vw, 24px) 0 clamp(26px, 4vw, 44px);
+}
+.m63x-hero-period {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--x-subtle);
+  animation: m63x-fade 0.7s var(--x-ease) both;
+}
+.m63x-hero-figure {
+  font-family: 'Fraunces', Georgia, 'Noto Serif', serif;
+  font-weight: 700;
+  font-size: clamp(2.8rem, 8vw, 5.6rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--x-text);
+  font-variant-numeric: tabular-nums lining-nums;
+  overflow-wrap: anywhere;
+}
+.m63x-num {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* two strands drawn left to right, like a weft being pulled through */
+.m63x-weave {
+  display: block;
+  width: 100%;
+  height: 34px;
+  margin: 10px 0 8px;
+  overflow: visible;
+}
+.m63x-weave path {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.m63x-weave-a {
+  stroke: var(--x-accent);
+  stroke-width: 3;
+  animation: m63x-draw 1.7s var(--x-ease) 0.15s forwards;
+}
+.m63x-weave-b {
+  stroke: var(--x-accent-2);
+  stroke-width: 2;
+  opacity: 0.75;
+  animation: m63x-draw 1.9s var(--x-ease) 0.35s forwards;
+}
+@keyframes m63x-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.m63x-hero-label {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--x-subtle);
+  animation: m63x-fade 0.8s var(--x-ease) 0.6s both;
+}
+
+.m63x-hero-side {
+  display: grid;
+  gap: 20px;
+  padding-left: clamp(16px, 2.5vw, 32px);
+  border-left: 2px solid var(--x-line);
+}
+.m63x-hero-stat {
+  display: grid;
+  gap: 2px;
+  animation: m63x-rise 0.9s var(--x-ease) both;
+}
+.m63x-hero-stat:nth-child(1) {
+  animation-delay: 0.7s;
+}
+.m63x-hero-stat:nth-child(2) {
+  animation-delay: 0.9s;
+}
+.m63x-hero-stat-value {
+  font-family: 'Fraunces', Georgia, 'Noto Serif', serif;
+  font-weight: 600;
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  line-height: 1.1;
+  color: var(--x-text);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.m63x-hero-stat-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--x-subtle);
+}
+@keyframes m63x-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes m63x-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ---------- chapters: numbered stops joined by one thread ---------- */
+.m63x-chapters {
+  display: block;
+}
+.m63x-chapter {
+  position: relative;
+  margin-bottom: 36px;
+}
+.m63x-chapter-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 30px;
+  margin-bottom: 14px;
+}
+.m63x-node {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--x-subtle);
+  background: var(--m63-bi-bg, Canvas);
+  border: 2px solid var(--x-line);
+  transition: background 0.5s var(--x-ease), border-color 0.5s var(--x-ease), color 0.5s var(--x-ease);
+}
+.m63x-chapter-title {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--x-text);
+}
+.m63x-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--x-line);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1s var(--x-ease) 0.2s;
+}
+.m63x-chapter-body {
+  clip-path: inset(-24px -24px 100% -24px);
+  transition: clip-path 0.95s var(--x-ease);
+}
+
+.m63x-chapter.is-in .m63x-node {
+  background: var(--x-accent);
+  border-color: var(--x-accent);
+  color: #fff;
+  animation: m63x-ping 1s ease-out 1;
+}
+.m63x-chapter.is-in .m63x-rule {
+  transform: scaleX(1);
+}
+.m63x-chapter.is-in .m63x-chapter-body {
+  clip-path: inset(-24px);
+}
+@keyframes m63x-ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--x-accent) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 14px transparent;
+  }
+}
+
+/* the thread itself: desktop only, drawn down as each stop is reached */
+@media (min-width: 900px) {
+  .m63x-chapter {
+    padding-left: 48px;
+  }
+  .m63x-node {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .m63x-chapter::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 30px;
+    bottom: -36px;
+    width: 2px;
+    border-radius: 2px;
+    background: linear-gradient(var(--x-accent), var(--x-accent-2));
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 1.2s var(--x-ease) 0.35s;
+  }
+  .m63x-chapter.is-in::before {
+    transform: scaleY(1);
+  }
+  .m63x-chapter:last-child::before {
+    display: none;
+  }
+}
+
+/* ---------- responsive grids for the rows ---------- */
+.m63x-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 16px;
+}
+.m63x-shelf {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+}
+.m63x-pair > *,
+.m63x-shelf > * {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .m63x-shelf {
+    grid-template-columns: 1fr;
+  }
+  .m63x-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .m63x-hero-side {
+    grid-template-columns: 1fr 1fr;
+    border-left: 0;
+    border-top: 2px solid var(--x-line);
+    padding-left: 0;
+    padding-top: 16px;
+  }
+}
+
+/* ---------- loading: a loom ---------- */
+.m63x-loom {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  padding: 72px 0;
+  text-align: center;
+}
+.m63x-warp {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 64px;
+}
+.m63x-warp span {
+  width: 4px;
+  height: 64px;
+  border-radius: 4px;
+  background: linear-gradient(var(--x-accent), var(--x-accent-2));
+  transform-origin: center;
+  animation: m63x-wave 1.3s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.09s);
+}
+@keyframes m63x-wave {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+.m63x-loom-text {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--x-subtle);
+}
+
+/* ---------- error: a single shake to say something broke ---------- */
+.m63x-error {
+  animation: m63x-shake 0.5s ease-in-out 1;
+}
+@keyframes m63x-shake {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+.m63x-retry {
+  margin-top: 14px;
+  padding: 9px 18px;
+  background: var(--x-accent);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.m63x-retry:hover svg {
+  transform: rotate(180deg);
+}
+.m63x-retry svg {
+  transition: transform 0.5s var(--x-ease);
+}
+.m63x-retry:focus-visible {
+  outline: 3px solid var(--x-accent-2);
+  outline-offset: 3px;
+}
+
+/* ---------- reduced motion: everything lands in its final state ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .m63x-aurora::before,
+  .m63x-aurora::after,
+  .m63x-warp span,
+  .m63x-error,
+  .m63x-node {
+    animation: none !important;
+  }
+  .m63x-hero-period,
+  .m63x-hero-label,
+  .m63x-hero-stat {
+    animation: none !important;
+  }
+  .m63x-weave path {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+  .m63x-chapter-body {
+    clip-path: none;
+    transition: none;
+  }
+  .m63x-rule {
+    transform: none;
+    transition: none;
+  }
+  .m63x-chapter::before {
+    transform: scaleY(1);
+    transition: none;
+  }
+}

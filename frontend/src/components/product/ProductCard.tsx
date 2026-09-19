@@ -32,6 +32,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.04)',
+        border: '1px solid rgba(255, 255, 255, 0.09)',
+        borderRadius: '16px',
+        transition: 'transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease',
       }}
     >
       {/* Product Image Banner */}
@@ -39,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
         style={{
           width: '100%',
           height: '180px',
-          backgroundColor: 'var(--m63-bg-muted)',
+          backgroundColor: '#0F1715',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
@@ -55,7 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--m63-slate-subtle)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: '#9CA6A2' }}>
             <Package size={36} />
             <span style={{ fontSize: '0.78rem', fontWeight: 500 }}>No image uploaded</span>
           </div>
@@ -72,17 +76,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
         <div>
           {/* Category Tag */}
           {product.category && (
-            <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--m63-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#FF8A3D', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               {product.category} {product.subcategory ? `• ${product.subcategory}` : ''}
             </span>
           )}
 
-          {/* Product Name */}
+          {/* Product Name (Bright Orange) */}
           <h3
             style={{
-              fontSize: '1rem',
-              fontWeight: 700,
-              color: product.name?.trim() ? 'var(--m63-slate)' : 'var(--m63-slate-subtle)',
+              fontSize: '1.05rem',
+              fontWeight: 800,
+              color: '#FF8A3D',
               fontStyle: product.name?.trim() ? 'normal' : 'italic',
               marginTop: '4px',
               marginBottom: '6px',
@@ -101,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
             <p
               style={{
                 fontSize: '0.82rem',
-                color: 'var(--m63-slate-subtle)',
+                color: 'rgba(243, 239, 231, 0.78)',
                 lineHeight: 1.4,
                 marginBottom: '12px',
                 display: '-webkit-box',
@@ -116,20 +120,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
         </div>
 
         {/* Footer Meta: Price, Stock, Date */}
-        <div style={{ borderTop: '1px solid var(--m63-border)', paddingTop: '12px', marginTop: '12px' }}>
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '12px', marginTop: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--m63-slate)' }}>
+            {/* Price (Bright Orange/Gold) */}
+            <span style={{ fontSize: '1.15rem', fontWeight: 900, color: '#FF8A3D' }}>
               {product.price > 0 ? formattedPrice : 'Price Pending'}
             </span>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: 'var(--m63-slate-subtle)', fontWeight: 600 }}>
-              <Layers size={14} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: 'rgba(243, 239, 231, 0.75)', fontWeight: 600 }}>
+              <Layers size={14} style={{ color: '#FF8A3D' }} />
               <span>{product.stockQuantity} in stock</span>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: 'var(--m63-slate-subtle)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.72rem', color: 'rgba(243, 239, 231, 0.55)' }}>
               <Calendar size={12} />
               <span>Updated {formattedDate}</span>
             </div>
@@ -139,10 +144,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
                 style={{
                   fontSize: '0.75rem',
                   fontWeight: 700,
-                  color: 'var(--m63-primary)',
-                  backgroundColor: 'var(--m63-primary-light)',
+                  color: '#FF8A3D',
+                  backgroundColor: 'rgba(255, 138, 61, 0.14)',
                   padding: '3px 8px',
-                  borderRadius: 'var(--m63-radius-md)',
+                  borderRadius: '6px',
+                  border: '1px solid rgba(255, 138, 61, 0.3)',
                 }}
               >
                 Continue Editing →

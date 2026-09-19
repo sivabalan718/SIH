@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Zap, MapPin, Sparkles, AlertCircle } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Zap, MapPin, Sparkles, AlertCircle, Star, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button.js';
 import { fetchMarketplaceProductById, MarketplaceProductItem } from '../services/marketplaceService.js';
 import { addToBuyerCart } from '../services/cartService.js';
 import { handleProductImageError } from '../utils/imageFallback.js';
+import { getProductReviews, DeterministicReviewStats } from '../services/reviewService.js';
 
 export const MarketplaceProductDetail: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -13,6 +14,7 @@ export const MarketplaceProductDetail: React.FC = () => {
   const [product, setProduct] = useState<MarketplaceProductItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviewStats, setReviewStats] = useState<DeterministicReviewStats | null>(null);
 
   const [activeLanguage, setActiveLanguage] = useState<'en' | 'ta' | 'hi'>(() => {
     const saved = localStorage.getItem('m63_marketplace_lang');
@@ -26,8 +28,18 @@ export const MarketplaceProductDetail: React.FC = () => {
   useEffect(() => {
     if (productId) {
       loadProduct(productId, activeLanguage);
+      loadReviews(productId);
     }
   }, [productId, activeLanguage]);
+
+  const loadReviews = async (id: string) => {
+    try {
+      const stats = await getProductReviews(id);
+      setReviewStats(stats);
+    } catch (e) {
+      // ignore silent review loading failure
+    }
+  };
 
   const loadProduct = async (id: string, lang: 'en' | 'ta' | 'hi') => {
     try {
@@ -359,6 +371,107 @@ export const MarketplaceProductDetail: React.FC = () => {
               {product.care_instructions}
             </div>
           )}
+        </div>
+
+        {/* Public Customer Ratings & Reviews Card */}
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: '20px', border: '1px solid var(--m63-border)', padding: '28px', marginBottom: '40px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--m63-slate)', margin: 0 }}>
+              Customer Ratings & Reviews
+            </h2>
+            <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#047857', backgroundColor: '#D1FAE5', padding: '4px 10px', borderRadius: '12px' }}>
+              ✓ VERIFIED PURCHASES ONLY
+            </span>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '28px' }}>
+            {/* Average Rating Block */}
+            <div style={{ backgroundColor: '#F8FAFC', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#D97706' }}>
+                {reviewStats && reviewStats.average_rating > 0 ? reviewStats.average_rating.toFixed(1) : 'N/A'}
+              </span>
+              <div style={{ display: 'flex', gap: '4px', margin: '8px 0' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    size={20}
+                    fill={reviewStats && star <= Math.round(reviewStats.average_rating) ? '#F59E0B' : 'none'}
+                    color={reviewStats && star <= Math.round(reviewStats.average_rating) ? '#F59E0B' : '#CBD5E1'}
+                  />
+                ))}
+              </div>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>
+                {reviewStats ? `${reviewStats.total_reviews} verified rating${reviewStats.total_reviews === 1 ? '' : 's'}` : 'No feedback yet'}
+              </span>
+            </div>
+
+            {/* Star Distribution Bars */}
+            <div style={{ backgroundColor: '#F8FAFC', padding: '20px', borderRadius: '16px', border: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center' }}>
+              {[5, 4, 3, 2, 1].map((starCount) => {
+                const count = reviewStats?.rating_distribution?.[starCount as 1 | 2 | 3 | 4 | 5] ?? 0;
+                const total = reviewStats?.total_reviews ?? 0;
+                const pct = total > 0 ? (count / total) * 100 : 0;
+
+                return (
+                  <div key={starCount} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.8rem' }}>
+                    <span style={{ width: '40px', fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                      {starCount} <Star size={12} fill="#F59E0B" color="#F59E0B" />
+                    </span>
+                    <div style={{ flex: 1, height: '8px', backgroundColor: '#E2E8F0', borderRadius: '4px', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', backgroundColor: '#F59E0B', borderRadius: '4px', transition: 'width 0.3s ease' }} />
+                    </div>
+                    <span style={{ width: '32px', textAlign: 'right', color: '#64748B', fontWeight: 600 }}>{count}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Public Reviews List */}
+          <div>
+            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '16px' }}>
+              Recent Customer Reviews
+            </h3>
+
+            {!reviewStats || reviewStats.recent_reviews.length === 0 ? (
+              <p style={{ fontSize: '0.88rem', color: '#64748B', fontStyle: 'italic', margin: 0 }}>
+                No customer feedback written yet for this product.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {reviewStats.recent_reviews.map((rev) => (
+                  <div key={rev.id} style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <Star
+                            key={s}
+                            size={14}
+                            fill={s <= rev.rating ? '#F59E0B' : 'none'}
+                            color={s <= rev.rating ? '#F59E0B' : '#CBD5E1'}
+                          />
+                        ))}
+                      </div>
+                      <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>
+                        {new Date(rev.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    {rev.review_text && (
+                      <p style={{ fontSize: '0.88rem', color: '#1E293B', margin: '0 0 10px 0', lineHeight: 1.5 }}>
+                        "{rev.review_text}"
+                      </p>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#047857', fontWeight: 700 }}>
+                      <CheckCircle size={14} />
+                      <span>{rev.customer_name || 'Verified Customer'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

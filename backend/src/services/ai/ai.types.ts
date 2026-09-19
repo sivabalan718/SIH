@@ -26,7 +26,7 @@ export interface ExtractedProductData {
 
 export interface SpeechProvider {
   name: string;
-  transcribe(audioBuffer: Buffer, mimeType: string, browserTranscript?: string): Promise<SpeechResult>;
+  transcribe(audioBuffer: Buffer, mimeType: string, browserTranscript?: string, targetLanguage?: string): Promise<SpeechResult>;
 }
 
 export interface ProductUnderstandingProvider {

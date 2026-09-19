@@ -1,0 +1,1224 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+/* =====================================================================
+   M63 analytics v2 — "indigo, turmeric and madder"
+   Palette is the natural dye shelf of Indian textile craft.
+   ===================================================================== */
+
+.ix-root {
+  --ix-ink: #0d1130;
+  --ix-ink-2: #161b4a;
+  --ix-cream: #f4ebd9;
+  --ix-sub: rgba(244, 235, 217, 0.62);
+  --ix-faint: rgba(244, 235, 217, 0.1);
+  --ix-turmeric: #f2a900;
+  --ix-madder: #e0525f;
+  --ix-peacock: #2ec4b6;
+  --ix-lilac: #8c96ff;
+  --ix-marigold: #ff8a3d;
+  --ix-ease: cubic-bezier(0.2, 0.75, 0.15, 1);
+  --ix-font: 'Bricolage Grotesque', 'Noto Sans Tamil', 'Noto Sans Devanagari', system-ui, sans-serif;
+
+  /* re-skin any legacy m63 components rendered inside this page */
+  --m63-bi-orange: var(--ix-turmeric);
+  --m63-bi-red: var(--ix-madder);
+  --m63-bi-text-main: var(--ix-cream);
+  --m63-bi-text-subtle: var(--ix-sub);
+  --m63-bi-border: var(--ix-faint);
+  --m63-bi-bg: var(--ix-ink);
+
+  min-height: 100%;
+  padding: clamp(14px, 2.4vw, 34px);
+  color: var(--ix-cream);
+  font-family: var(--ix-font);
+  background:
+    radial-gradient(1100px 560px at 88% -8%, rgba(140, 150, 255, 0.2), transparent 60%),
+    radial-gradient(900px 520px at -8% 108%, rgba(46, 196, 182, 0.11), transparent 60%),
+    repeating-linear-gradient(45deg, rgba(244, 235, 217, 0.018) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(-45deg, rgba(244, 235, 217, 0.018) 0 1px, transparent 1px 7px),
+    var(--ix-ink);
+}
+.ix-root *,
+.ix-root *::before,
+.ix-root *::after {
+  box-sizing: border-box;
+}
+.ix-wrap {
+  max-width: 1480px;
+  margin: 0 auto;
+}
+.ix-num,
+.ix-hero-num,
+.ix-tile-value,
+.ix-donut-center b,
+.ix-gauge-center b {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ============================== header ============================== */
+.ix-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px 32px;
+  margin-bottom: 22px;
+}
+.ix-head-left {
+  min-width: 0;
+  flex: 1 1 420px;
+}
+.ix-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.ix-brand svg {
+  width: 26px;
+  height: 26px;
+  animation: ix-spin-in 1.2s var(--ix-ease) both;
+}
+.ix-brand-a {
+  fill: var(--ix-turmeric);
+}
+.ix-brand-b {
+  fill: var(--ix-ink);
+}
+.ix-brand-c {
+  fill: var(--ix-madder);
+}
+@keyframes ix-spin-in {
+  from {
+    transform: rotate(-135deg) scale(0.3);
+    opacity: 0;
+  }
+}
+.ix-title {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.4vw, 3.3rem);
+  font-weight: 800;
+  font-stretch: 82%;
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  animation: ix-title-in 1s var(--ix-ease) 0.1s both;
+}
+@keyframes ix-title-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.06em;
+    filter: blur(6px);
+  }
+}
+.ix-story {
+  margin: 12px 0 0;
+  max-width: 62ch;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--ix-sub);
+}
+.ix-word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(6px);
+  animation: ix-word-in 0.6s var(--ix-ease) calc(0.5s + var(--i) * 45ms) forwards;
+}
+@keyframes ix-word-in {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+.ix-head-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.ix-seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), minmax(52px, auto));
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ix-faint);
+}
+.ix-seg-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--n));
+  border-radius: 999px;
+  background: var(--ix-turmeric);
+  transform: translateX(calc(var(--k) * 100%));
+  transition: transform 0.45s var(--ix-ease);
+}
+.ix-seg button {
+  position: relative;
+  z-index: 1;
+  padding: 7px 14px;
+  border: 0;
+  background: none;
+  color: var(--ix-sub);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.ix-seg button.is-on {
+  color: #1a1400;
+}
+.ix-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--ix-faint);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ix-cream);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s;
+}
+.ix-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(244, 235, 217, 0.3);
+}
+.ix-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.ix-btn:focus-visible,
+.ix-seg button:focus-visible,
+.ix-legend li:focus-visible {
+  outline: 2px solid var(--ix-turmeric);
+  outline-offset: 2px;
+}
+.is-spin {
+  animation: ix-rotate 0.9s linear infinite;
+}
+@keyframes ix-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================== bento grid ============================== */
+.ix-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+  grid-auto-flow: dense;
+  align-items: stretch;
+}
+.ix-c-mom {
+  grid-column: span 8;
+}
+.ix-c-rail {
+  grid-column: span 4;
+}
+.ix-c-prod {
+  grid-column: span 7;
+}
+.ix-c-cat {
+  grid-column: span 5;
+}
+.ix-c-stock {
+  grid-column: span 5;
+}
+.ix-c-ful {
+  grid-column: span 7;
+}
+.ix-c-ins,
+.ix-c-legacy {
+  grid-column: 1 / -1;
+}
+@media (max-width: 1100px) {
+  .ix-c-mom,
+  .ix-c-rail,
+  .ix-c-prod,
+  .ix-c-cat {
+    grid-column: 1 / -1;
+  }
+  .ix-c-stock,
+  .ix-c-ful {
+    grid-column: span 6;
+  }
+}
+@media (max-width: 760px) {
+  .ix-c-stock,
+  .ix-c-ful {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ============================== panels ============================== */
+.ix-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(16px, 1.8vw, 24px);
+  border-radius: 24px;
+  border: 1px solid var(--ix-faint);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025));
+  /* ink bloom: each panel spreads open from its top-left corner */
+  clip-path: circle(0% at 0% 0%);
+  transition: clip-path 1.15s var(--ix-ease) var(--d, 0ms);
+}
+.ix-panel.is-in {
+  clip-path: circle(150% at 0% 0%);
+}
+.ix-pb {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ix-ph {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.ix-ph h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.ix-ph-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ix-sub);
+}
+.ix-kicker {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ix-sub);
+}
+.ix-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  color: var(--ix-sub);
+  font-weight: 600;
+  text-align: center;
+}
+.ix-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+.ix-dot--rev {
+  background: var(--ix-turmeric);
+}
+.ix-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ix-sub);
+}
+.ix-chip b {
+  color: var(--ix-cream);
+}
+.ix-chip--up {
+  background: rgba(46, 196, 182, 0.16);
+  color: var(--ix-peacock);
+}
+.ix-chip--down {
+  background: rgba(224, 82, 95, 0.16);
+  color: #ff8b95;
+}
+.ix-hero-num {
+  font-weight: 800;
+  font-stretch: 78%;
+  font-size: clamp(2.6rem, 6.2vw, 4.8rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.ix-hero-num--md {
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+}
+
+/* ============================== momentum ============================== */
+.ix-mom-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px 20px;
+}
+.ix-mom-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ix-chart {
+  position: relative;
+  flex: 1;
+  min-height: 300px;
+  margin-top: 6px;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+.ix-svg {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.ix-grid-line {
+  stroke: var(--ix-faint);
+  stroke-dasharray: 3 5;
+}
+.ix-axis {
+  fill: rgba(244, 235, 217, 0.45);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--ix-font);
+}
+.ix-line {
+  fill: none;
+  stroke: var(--ix-turmeric);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 8px rgba(242, 169, 0, 0.55));
+}
+.is-in .ix-line {
+  animation: ix-draw 2s var(--ix-ease) calc(var(--d) + 350ms) forwards;
+}
+@keyframes ix-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.ix-area-g {
+  opacity: 0;
+}
+.is-in .ix-area-g {
+  animation: ix-fade 1.4s ease calc(var(--d) + 1.1s) forwards;
+}
+@keyframes ix-fade {
+  to {
+    opacity: 1;
+  }
+}
+.ix-bar {
+  fill: var(--ix-peacock);
+  opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transform: scaleY(0);
+  transition: opacity 0.2s;
+}
+.is-in .ix-bar {
+  animation: ix-rise 0.8s var(--ix-ease) calc(var(--d) + 500ms + var(--i) * (600ms / var(--n))) forwards;
+}
+.ix-bar.is-active {
+  opacity: 1;
+}
+@keyframes ix-rise {
+  to {
+    transform: scaleY(1);
+  }
+}
+.ix-cross {
+  stroke: rgba(244, 235, 217, 0.45);
+  stroke-dasharray: 3 4;
+}
+.ix-scrub-halo {
+  fill: rgba(242, 169, 0, 0.25);
+}
+.ix-scrub-dot {
+  fill: var(--ix-cream);
+  stroke: var(--ix-turmeric);
+  stroke-width: 3;
+}
+.ix-flag {
+  opacity: 0;
+}
+.is-in .ix-flag {
+  animation: ix-fade 0.6s ease calc(var(--d) + 2.1s) forwards;
+}
+.ix-flag-dot {
+  fill: var(--ix-cream);
+  stroke: var(--ix-turmeric);
+  stroke-width: 2.5;
+}
+.ix-flag-text {
+  fill: var(--ix-cream);
+  font-size: 11.5px;
+  font-weight: 700;
+  font-family: var(--ix-font);
+}
+.ix-pulse {
+  fill: none;
+  stroke: var(--ix-cream);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ix-ping 2.2s ease-out infinite;
+}
+@keyframes ix-ping {
+  from {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(4.2);
+    opacity: 0;
+  }
+}
+
+/* ============================== KPI rail ============================== */
+.ix-tiles {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+}
+.ix-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 150px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(13, 17, 48, 0.55);
+  border: 1px solid var(--ix-faint);
+  overflow: hidden;
+}
+.ix-tile-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ix-tile-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ix-sub);
+}
+.ix-tile-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ix-turmeric);
+}
+.ix-tile-value {
+  font-weight: 800;
+  font-stretch: 80%;
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+.ix-spark {
+  flex: 1;
+  width: 100%;
+  min-height: 34px;
+  margin-top: 4px;
+  overflow: visible;
+}
+.ix-spark-line {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+.is-in .ix-spark-line {
+  animation: ix-draw 1.6s var(--ix-ease) calc(var(--d) + 700ms) forwards;
+}
+.ix-tile-deco {
+  flex: 1;
+  min-height: 34px;
+  margin-top: 4px;
+  border-radius: 10px;
+  background: radial-gradient(circle, rgba(244, 235, 217, 0.22) 1.2px, transparent 1.6px) 0 0 / 10px 10px;
+  mask-image: linear-gradient(90deg, transparent, #000 70%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 70%);
+}
+.ix-meter {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: 34px;
+}
+.ix-meter span {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ix-marigold), var(--ix-turmeric));
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.is-in .ix-meter span {
+  animation: ix-grow 1.2s var(--ix-ease) calc(var(--d) + 700ms) forwards;
+}
+@keyframes ix-grow {
+  to {
+    transform: scaleX(var(--w, 1));
+  }
+}
+@media (max-width: 1100px) {
+  .ix-tiles {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto;
+  }
+}
+@media (max-width: 640px) {
+  .ix-tiles {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ============================== top products ============================== */
+.ix-plist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ix-prow {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 4px;
+  border-radius: 14px;
+  transition: background 0.25s;
+}
+.ix-prow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.ix-rank {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--ix-sub);
+}
+.ix-prow.is-top .ix-rank {
+  background: var(--ix-turmeric);
+  color: #1a1400;
+}
+.ix-prow-main {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+.ix-pname {
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ix-track {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+.ix-track--thin {
+  height: 6px;
+}
+.ix-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ix-lilac), var(--ix-peacock));
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.ix-prow.is-top .ix-fill {
+  background: linear-gradient(90deg, var(--ix-marigold), var(--ix-turmeric));
+}
+.ix-fill--warn {
+  background: var(--ix-turmeric);
+}
+.is-in .ix-fill {
+  animation: ix-grow 1.2s var(--ix-ease) calc(var(--d) + 350ms + var(--i) * 80ms) forwards;
+}
+.ix-prow-nums {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+  text-align: right;
+}
+.ix-prow-nums b {
+  font-size: 0.98rem;
+  font-variant-numeric: tabular-nums;
+}
+.ix-prow-nums span {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--ix-sub);
+}
+
+/* ============================== categories ============================== */
+.ix-cat {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px 28px;
+}
+.ix-donut {
+  position: relative;
+  width: min(210px, 100%);
+  aspect-ratio: 1;
+  flex: none;
+}
+.ix-donut svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ix-donut-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 13;
+}
+.ix-arc {
+  fill: none;
+  stroke-width: 13;
+  stroke-dasharray: 0 100;
+  transition: stroke-width 0.25s, opacity 0.25s;
+}
+.is-in .ix-arc {
+  animation: ix-sweep 1.3s var(--ix-ease) calc(var(--d) + 300ms + var(--i) * 140ms) forwards;
+}
+@keyframes ix-sweep {
+  to {
+    stroke-dasharray: var(--len) var(--rest);
+  }
+}
+.ix-arc.is-active {
+  stroke-width: 17;
+}
+.ix-arc.is-dim {
+  opacity: 0.3;
+}
+.ix-donut-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+  padding: 26%;
+}
+.ix-donut-center b {
+  font-size: clamp(1.05rem, 2vw, 1.45rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+.ix-donut-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ix-sub);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ix-donut-sub {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ix-turmeric);
+}
+.ix-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1 1 170px;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+.ix-legend li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  cursor: default;
+  transition: background 0.25s, transform 0.25s var(--ix-ease);
+}
+.ix-legend li.is-active,
+.ix-legend li:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+.ix-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.ix-legend-name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================== stock + fulfilment ============================== */
+.ix-stock-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.ix-seg-bar {
+  display: flex;
+  gap: 3px;
+  height: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  clip-path: inset(0 100% 0 0 round 10px);
+  margin-bottom: 16px;
+}
+.ix-seg-bar span {
+  min-width: 6px;
+  border-radius: 4px;
+}
+.is-in .ix-seg-bar {
+  animation: ix-wipe 1.3s var(--ix-ease) calc(var(--d) + 350ms) forwards;
+}
+@keyframes ix-wipe {
+  to {
+    clip-path: inset(0 0 0 0 round 10px);
+  }
+}
+.ix-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 8px;
+}
+.ix-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.ix-row-label {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+.ix-extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.ix-watch {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--ix-faint);
+}
+.ix-watch-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+.ix-watch-row span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ix-ful {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.8fr) minmax(0, 1.2fr);
+  gap: 22px;
+  align-items: center;
+}
+@media (max-width: 1250px) {
+  .ix-ful {
+    grid-template-columns: 1fr;
+  }
+}
+.ix-gauge {
+  position: relative;
+  width: min(280px, 100%);
+  margin: 0 auto;
+}
+.ix-gauge svg {
+  width: 100%;
+  display: block;
+  overflow: visible;
+}
+.ix-gauge-track,
+.ix-gauge-fill {
+  fill: none;
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.ix-gauge-track {
+  stroke: rgba(255, 255, 255, 0.07);
+}
+.ix-gauge-fill {
+  stroke-dasharray: 0 100;
+  filter: drop-shadow(0 0 6px currentColor);
+}
+.is-in .ix-gauge-fill {
+  animation: ix-gauge 1.6s var(--ix-ease) calc(var(--d) + 400ms) forwards;
+}
+@keyframes ix-gauge {
+  to {
+    stroke-dasharray: var(--len) 100;
+  }
+}
+.ix-gauge-center {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+}
+.ix-gauge-center b {
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 800;
+  font-stretch: 80%;
+  line-height: 1;
+}
+.ix-gauge-center span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ix-sub);
+}
+.ix-rows--bars {
+  justify-content: center;
+  gap: 14px;
+}
+.ix-frow {
+  display: grid;
+  gap: 7px;
+}
+.ix-frow-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* ============================== insights ============================== */
+.ix-ai-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ix-turmeric);
+}
+.ix-ai-sub svg {
+  animation: ix-twinkle 2.6s ease-in-out infinite;
+}
+@keyframes ix-twinkle {
+  50% {
+    transform: scale(1.35) rotate(20deg);
+    opacity: 0.7;
+  }
+}
+.ix-ins-grid {
+  columns: 300px 3;
+  column-gap: 14px;
+}
+.ix-ins {
+  --tone: var(--ix-lilac);
+  break-inside: avoid;
+  margin: 0 0 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background: rgba(13, 17, 48, 0.55);
+  border: 1px solid var(--ix-faint);
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(18px) scale(0.98);
+  transition: border-color 0.3s, transform 0.35s var(--ix-ease);
+}
+.ix-ins::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: var(--tone);
+}
+.is-in .ix-ins {
+  animation: ix-card-in 0.8s var(--ix-ease) calc(var(--d) + 500ms + var(--i) * 110ms) forwards;
+}
+@keyframes ix-card-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.ix-ins:hover {
+  border-color: var(--tone);
+  transform: translateY(-3px);
+}
+.ix-ins--good {
+  --tone: var(--ix-peacock);
+}
+.ix-ins--warn {
+  --tone: var(--ix-turmeric);
+}
+.ix-ins--risk {
+  --tone: var(--ix-madder);
+}
+.ix-ins-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ix-ins-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+}
+.ix-ins-tag {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--tone);
+}
+.ix-ins h4 {
+  margin: 0 0 6px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.ix-ins p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ix-sub);
+}
+.ix-ins-action {
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--tone) 12%, transparent);
+}
+
+/* ============================== legacy pieces ============================== */
+.ix-legacy-title {
+  margin: 4px 0 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.ix-c-legacy {
+  display: grid;
+  gap: 16px;
+}
+.ix-c-legacy .m63-bi-card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.025)) !important;
+  border-color: var(--ix-faint) !important;
+  border-radius: 24px !important;
+  color: var(--ix-cream);
+}
+
+/* ============================== loading + error ============================== */
+.ix-skel-msg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  font-weight: 600;
+  color: var(--ix-sub);
+}
+.ix-skel-dots {
+  display: inline-flex;
+  gap: 5px;
+}
+.ix-skel-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ix-turmeric);
+  animation: ix-bounce 1s ease-in-out infinite;
+}
+.ix-skel-dots i:nth-child(2) {
+  background: var(--ix-madder);
+  animation-delay: 0.15s;
+}
+.ix-skel-dots i:nth-child(3) {
+  background: var(--ix-peacock);
+  animation-delay: 0.3s;
+}
+@keyframes ix-bounce {
+  50% {
+    transform: translateY(-7px);
+  }
+}
+.ix-skel {
+  position: relative;
+  border-radius: 24px;
+  border: 1px solid var(--ix-faint);
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+.ix-skel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(244, 235, 217, 0.1) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: ix-shimmer 1.7s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 120ms);
+}
+@keyframes ix-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+.ix-error {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 44px 20px;
+  text-align: center;
+  border-radius: 24px;
+  border: 1px solid rgba(224, 82, 95, 0.55);
+  background: rgba(224, 82, 95, 0.08);
+  animation: ix-shake 0.5s ease-in-out 1;
+}
+.ix-error h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.ix-error svg {
+  color: var(--ix-madder);
+}
+.ix-error .ix-btn {
+  background: var(--ix-turmeric);
+  color: #1a1400;
+  border-color: transparent;
+}
+@keyframes ix-shake {
+  20%,
+  60% {
+    transform: translateX(-6px);
+  }
+  40%,
+  80% {
+    transform: translateX(6px);
+  }
+}
+
+/* ============================== reduced motion ============================== */
+@media (prefers-reduced-motion: reduce) {
+  .ix-panel {
+    clip-path: none;
+    transition: none;
+  }
+  .ix-root *,
+  .ix-root *::before,
+  .ix-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .ix-word,
+  .ix-ins {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .ix-line,
+  .ix-spark-line {
+    stroke-dashoffset: 0;
+  }
+  .ix-fill,
+  .ix-meter span {
+    transform: scaleX(var(--w, 1));
+  }
+  .ix-bar {
+    transform: none;
+  }
+  .ix-area-g,
+  .ix-flag {
+    opacity: 1;
+  }
+  .ix-seg-bar {
+    clip-path: none;
+  }
+  .ix-arc {
+    stroke-dasharray: var(--len) var(--rest);
+  }
+  .ix-gauge-fill {
+    stroke-dasharray: var(--len) 100;
+  }
+}

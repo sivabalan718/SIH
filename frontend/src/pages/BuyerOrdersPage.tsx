@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Package, ShoppingBag, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button.js';
 import { fetchBuyerOrders, cancelOrder, OrderRecord, OrderStatus } from '../services/orderService.js';
+import { checkReviewEligibility, ReviewEligibilityResult } from '../services/reviewService.js';
+import { ReviewModal } from '../components/reviews/ReviewModal.js';
 
 export const BuyerOrdersPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +12,15 @@ export const BuyerOrdersPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+
+  // Review modal state & item eligibility cache map (key: order_item_id)
+  const [eligibilityMap, setEligibilityMap] = useState<Record<string, ReviewEligibilityResult>>({});
+  const [activeReviewItem, setActiveReviewItem] = useState<{
+    orderItemId: string;
+    orderId: string;
+    productId: string;
+    productName: string;
+  } | null>(null);
 
   useEffect(() => {
     loadOrders();
@@ -19,10 +30,30 @@ export const BuyerOrdersPage: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const checkItemEligibilities = async (ordersList: OrderRecord[]) => {
+    const map: Record<string, ReviewEligibilityResult> = {};
+    for (const ord of ordersList) {
+      if (ord.status === 'DELIVERED' || (ord.status as string) === 'COMPLETED') {
+        for (const item of ord.items) {
+          if (item.id) {
+            try {
+              const res = await checkReviewEligibility(item.product_id, item.id);
+              map[item.id] = res;
+            } catch (e) {
+              // ignore silent failure for eligibility check
+            }
+          }
+        }
+      }
+    }
+    setEligibilityMap(map);
+  };
+
   const loadOrdersSilent = async () => {
     try {
       const data = await fetchBuyerOrders();
       setOrders(data);
+      checkItemEligibilities(data);
     } catch (e) {}
   };
 
@@ -32,6 +63,7 @@ export const BuyerOrdersPage: React.FC = () => {
       setError(null);
       const data = await fetchBuyerOrders();
       setOrders(data);
+      await checkItemEligibilities(data);
     } catch (err: any) {
       setError('Unable to load your orders.');
     } finally {
@@ -201,20 +233,49 @@ export const BuyerOrdersPage: React.FC = () => {
 
                   {/* Order Items */}
                   <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {order.items.map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <Package size={16} className="text-amber-600 shrink-0" />
-                          <div>
-                            <span style={{ fontWeight: 800, color: 'var(--m63-slate)' }}>{item.product_name_snapshot}</span>
-                            <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block' }}>
-                              ₹{item.unit_price_snapshot.toLocaleString('en-IN')} × {item.quantity}
-                            </span>
+                    {order.items.map((item, idx) => {
+                      const itemId = item.id || '';
+                      const itemElig = itemId ? eligibilityMap[itemId] : undefined;
+                      return (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.88rem', padding: '8px 0', borderBottom: idx < order.items.length - 1 ? '1px dashed #F1F5F9' : 'none' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Package size={16} className="text-amber-600 shrink-0" />
+                            <div>
+                              <span style={{ fontWeight: 800, color: 'var(--m63-slate)' }}>{item.product_name_snapshot}</span>
+                              <span style={{ fontSize: '0.75rem', color: '#64748B', display: 'block' }}>
+                                ₹{item.unit_price_snapshot.toLocaleString('en-IN')} × {item.quantity}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <span style={{ fontWeight: 800, color: '#059669' }}>₹{item.subtotal.toLocaleString('en-IN')}</span>
+                            
+                            {itemElig?.is_already_reviewed ? (
+                              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#047857', backgroundColor: '#D1FAE5', padding: '4px 10px', borderRadius: '8px', border: '1px solid #A7F3D0' }}>
+                                Reviewed ✓
+                              </span>
+                            ) : itemElig?.can_review ? (
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() =>
+                                  setActiveReviewItem({
+                                    orderItemId: itemId,
+                                    orderId: order.id,
+                                    productId: item.product_id,
+                                    productName: item.product_name_snapshot,
+                                  })
+                                }
+                                style={{ borderColor: '#F59E0B', color: '#B45309' }}
+                              >
+                                Rate & Review
+                              </Button>
+                            ) : null}
                           </div>
                         </div>
-                        <span style={{ fontWeight: 800, color: '#059669' }}>₹{item.subtotal.toLocaleString('en-IN')}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {/* Actions Area */}
@@ -237,6 +298,19 @@ export const BuyerOrdersPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {activeReviewItem && (
+        <ReviewModal
+          isOpen={!!activeReviewItem}
+          onClose={() => setActiveReviewItem(null)}
+          onSuccess={() => {
+            loadOrders();
+          }}
+          orderItemId={activeReviewItem.orderItemId}
+          orderId={activeReviewItem.orderId}
+          productName={activeReviewItem.productName}
+        />
+      )}
     </div>
   );
 };

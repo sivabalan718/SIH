@@ -651,5 +651,1661 @@
     "generated_by": "m63",
     "created_at": "2026-09-19T09:50:12.758Z",
     "updated_at": "2026-09-19T09:50:28.682Z"
+  },
+  {
+    "id": "cat-1789833506953-6h1w8",
+    "product_id": "prod-isolation-1789833505979",
+    "artisan_id": "artisan-account-A",
+    "language": "en",
+    "title": "Blue Saree",
+    "short_description": "Short summary for A",
+    "description": "Account A description",
+    "highlights": [
+      "A item"
+    ],
+    "specifications": {
+      "Material": "Cotton"
+    },
+    "care_instructions": "Care info",
+    "tags": [
+      "saree"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "artisan",
+    "created_at": "2026-09-19T15:58:25.980Z",
+    "updated_at": "2026-09-19T15:58:25.980Z"
+  },
+  {
+    "id": "cat-1789833513758-3l28y",
+    "product_id": "prod-1789833509628-19pj2",
+    "artisan_id": "artisan-analytics-111",
+    "language": "en",
+    "title": "Analytics Kanchipuram Silk Saree",
+    "short_description": "A handcrafted traditional silk saree featuring elegant gold zari work. Designed for a classic and sophisticated look.",
+    "description": "Experience the timeless elegance of the Analytics Kanchipuram Silk Saree. This handcrafted traditional silk saree is meticulously created with intricate gold zari work, showcasing classic artisanal skill. Perfect for special occasions and traditional gatherings, this garment brings together traditional textile artistry and refined design.",
+    "highlights": [
+      "Handcrafted traditional silk saree",
+      "Detailed gold zari work",
+      "Traditional textile design"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handcrafted with gold zari work"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Kanchipuram saree",
+      "silk saree",
+      "handcrafted saree",
+      "gold zari saree",
+      "traditional wear"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:33.343Z",
+    "updated_at": "2026-09-19T15:58:33.572Z"
+  },
+  {
+    "id": "cat-1789833517503-ll4ag",
+    "product_id": "prod-1789833509628-19pj2",
+    "artisan_id": "artisan-analytics-111",
+    "language": "ta",
+    "title": "Analytics Kanchipuram Silk Saree",
+    "short_description": "பாரம்பரிய முறையில் கைவினைப்பொருளாக உருவாக்கப்பட்ட அனலிட்டிக்ஸ் காஞ்சிபுரம் பட்டுச் சேலை. இதில் அழகிய தங்கம் போன்ற ஜரி வேலைப்பாடுகள் செய்யப்பட்டுள்ளன.",
+    "description": "இந்த அனலிட்டிக்ஸ் காஞ்சிபுரம் பட்டுச் சேலை பாரம்பரிய முறையில் மிக நேர்த்தியாக கைவினைப்பொருளாக உருவாக்கப்பட்டுள்ளது. இதன் சிறப்பம்சமாக இதில் தங்கம் போன்ற ஜரி வேலைப்பாடுகள் செய்யப்பட்டுள்ளன, இது இந்த சேலைக்கு ஒரு தனித்துவமான அழகைத் தருகிறது. விழாக்களுக்கும் சிறப்பு நிகழ்வுகளுக்கும் உகந்த ஒரு சிறந்த பாரம்பரிய ஆடை.",
+    "highlights": [
+      "பாரம்பரிய முறையில் கைவினைப்பொருளாக தயாரிக்கப்பட்டது",
+      "அழகிய தங்கம் போன்ற ஜரி வேலைப்பாடு",
+      "பிரத்தியேக காஞ்சிபுரம் பட்டுச் சேலை"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handcrafted with gold zari work"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Kanchipuram Silk Saree",
+      "Silk Saree",
+      "Traditional Saree",
+      "Zari Work Saree",
+      "Handcrafted Saree"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:37.038Z",
+    "updated_at": "2026-09-19T15:58:37.902Z"
+  },
+  {
+    "id": "cat-1789833522210-emxpm",
+    "product_id": "prod-1789833509628-19pj2",
+    "artisan_id": "artisan-analytics-111",
+    "language": "hi",
+    "title": "Analytics Kanchipuram Silk Saree",
+    "short_description": "हस्तनिर्मित पारंपरिक सिल्क साड़ी जिसमें आकर्षक गोल्ड जरी का काम किया गया है। यह साड़ी किसी भी विशेष अवसर के लिए एक बेहतरीन विकल्प है।",
+    "description": "यह Analytics Kanchipuram Silk Saree एक सुंदर और पारंपरिक हस्तनिर्मित सिल्क साड़ी है। इसे पारंपरिक शिल्प कौशल के साथ तैयार किया गया है और इसकी खूबसूरती को बढ़ाने के लिए इसमें आकर्षक गोल्ड जरी का काम किया गया है। इसका क्लासिक डिज़ाइन और बेहतरीन फिनिश इसे हर पारंपरिक उत्सव और समारोह के लिए उपयुक्त बनाते हैं।",
+    "highlights": [
+      "हस्तनिर्मित पारंपरिक सिल्क साड़ी",
+      "आकर्षक गोल्ड जरी का काम",
+      "विस्तृत और पारंपरिक कारीगरी",
+      "विशेष अवसरों के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "सिल्क",
+      "Craft Technique": "हस्तनिर्मित (Handcrafted) और गोल्ड जरी वर्क"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Kanchipuram Silk Saree",
+      "Silk Saree",
+      "Traditional Saree",
+      "Gold Zari Saree",
+      "Handcrafted Saree"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:41.853Z",
+    "updated_at": "2026-09-19T15:58:42.170Z"
+  },
+  {
+    "id": "cat-1789833526722-bunmw",
+    "product_id": "prod-1789833522373-081zk",
+    "artisan_id": "artisan-analytics-111",
+    "language": "en",
+    "title": "Analytics Clay Diya Set",
+    "short_description": "A terracotta handpainted clay diya set designed for festive lighting. Perfect for traditional celebrations and decor.",
+    "description": "Enhance your festive lighting with the Analytics Clay Diya Set. Expertly crafted from terracotta, each diya in this set features handpainted details that bring a vibrant touch to traditional celebrations. Designed specifically for festive lighting, this pottery piece adds an authentic, handcrafted element to your home decor.",
+    "highlights": [
+      "Terracotta clay construction",
+      "Handpainted festive design",
+      "Ideal for festive lighting",
+      "Classic pottery item"
+    ],
+    "specifications": {
+      "Material": "Terracotta clay",
+      "Craft Technique": "Handpainted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "clay diya",
+      "terracotta diya",
+      "festive lighting",
+      "handpainted diya",
+      "pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:46.298Z",
+    "updated_at": "2026-09-19T15:58:47.248Z"
+  },
+  {
+    "id": "cat-1789833530647-jodun",
+    "product_id": "prod-1789833522373-081zk",
+    "artisan_id": "artisan-analytics-111",
+    "language": "ta",
+    "title": "Analytics Clay Diya Set",
+    "short_description": "பாரம்பரிய விழா அலங்கார விளக்குகளுக்காக பிரத்யேகமாக உருவாக்கப்பட்ட டெரக்கோட்டா கைவினை களிமண் தீபத் தொகுப்பு.",
+    "description": "இந்த அனலிட்டிக்ஸ் களிமண் தீபத் தொகுப்பு (Analytics Clay Diya Set) பண்டிகைக் கால விளக்கொளி அலங்காரத்திற்காக டெரக்கோட்டா முறையில் கைவண்ணத்தில் வடிக்கப்பட்டுள்ளது. வீடுகளுக்கு பாரம்பரியமான மற்றும் அழகிய தோற்றத்தை வழங்கக்கூடிய வகையில் இந்த கைவினைப் பொருட்கள் தயாரிக்கப்பட்டுள்ளன.",
+    "highlights": [
+      "பாரம்பரிய விழா அலங்கார விளக்குகளுக்கான தீபத் தொகுப்பு",
+      "டெரக்கோட்டா கைவண்ணத்தில் உருவாக்கப்பட்டது",
+      "பண்டிகைக் கால பயன்பாட்டிற்கு ஏற்றது"
+    ],
+    "specifications": {
+      "Material": "டெரக்கோட்டா களிமண்",
+      "Craft Technique": "கைவண்ணம்"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Clay Diya",
+      "Terracotta Diya",
+      "Festive Lighting",
+      "Pottery",
+      "Handpainted Diya"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:50.293Z",
+    "updated_at": "2026-09-19T15:58:51.683Z"
+  },
+  {
+    "id": "cat-1789833534534-lksv4",
+    "product_id": "prod-1789833522373-081zk",
+    "artisan_id": "artisan-analytics-111",
+    "language": "hi",
+    "title": "Analytics Clay Diya Set - Terracotta Handpainted Festive Lighting",
+    "short_description": "यह एनालिटिक्स क्ले दीया सेट आपके त्योहारी उत्सवों और रोशनी के लिए टेराकोटा और हैंडपेंटेड डिज़ाइन के साथ तैयार किया गया है।",
+    "description": "एनालिटिक्स क्ले दीया सेट को पारंपरिक त्योहारी रोशनी के लिए विशेष रूप से टेराकोटा से बनाया गया है। इस सेट में हैंडपेंटेड कलाकारी की गई है जो इसे आपके घर की सजावट और उत्सवों के लिए एक बेहतरीन विकल्प बनाती है। यह उत्पाद आपकी हर विशेष अवसर की रोशनी और सजावट की आवश्यकताओं को पूरा करने के लिए उपयुक्त है।",
+    "highlights": [
+      "टेराकोटा सामग्री से निर्मित",
+      "हैंडपेंटेड डिज़ाइन",
+      "त्योहारी रोशनी और सजावट के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "Terracotta",
+      "Craft Technique": "Handpainted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Diya Set",
+      "Terracotta Diya",
+      "Handpainted Diya",
+      "Festive Lighting",
+      "Pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:54.145Z",
+    "updated_at": "2026-09-19T15:58:55.520Z"
+  },
+  {
+    "id": "cat-1789833538730-80z51",
+    "product_id": "prod-1789833534665-pdepz",
+    "artisan_id": "artisan-iso-aaaa",
+    "language": "en",
+    "title": "Artisan A Wooden Toy",
+    "short_description": "Discover the Artisan A Wooden Toy, carefully handcrafted from wood and finished with natural organic vegetable dyes for a traditional play experience.",
+    "description": "The Artisan A Wooden Toy is a meticulously handcrafted wooden play item designed to showcase traditional artisanal skill. Created using natural organic vegetable dyes, this piece emphasizes careful craftsmanship and attention to detail. Built from quality wood, it offers a timeless aesthetic suitable for collectors and everyday appreciation.",
+    "highlights": [
+      "Handcrafted wooden toy design",
+      "Finished with natural organic vegetable dyes",
+      "Crafted from wood"
+    ],
+    "specifications": {
+      "Material": "Wood",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "wooden toy",
+      "handcrafted toy",
+      "natural dyes",
+      "wood craft",
+      "artisan toy"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:58:58.356Z",
+    "updated_at": "2026-09-19T15:58:58.377Z"
+  },
+  {
+    "id": "cat-1789833542257-cop8i",
+    "product_id": "prod-1789833534665-pdepz",
+    "artisan_id": "artisan-iso-aaaa",
+    "language": "ta",
+    "title": "Artisan A Wooden Toy",
+    "short_description": "Handcrafted wooden toy made with natural organic vegetable dyes. Designed for quality and traditional play value.",
+    "description": "Discover the Artisan A Wooden Toy, a carefully handcrafted wooden play item. This product is made using natural organic vegetable dyes, reflecting traditional artisan skills. Each piece is crafted to offer a safe and engaging experience, highlighting the natural texture and beauty of wood.",
+    "highlights": [
+      "Handcrafted wooden toy",
+      "Made with natural organic vegetable dyes",
+      "Priced at ₹1000"
+    ],
+    "specifications": {
+      "Material": "Wood",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Wooden Toy",
+      "Handcrafted Toy",
+      "Wood Craft",
+      "Organic Dyes Toy"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:59:01.921Z",
+    "updated_at": "2026-09-19T15:59:01.950Z"
+  },
+  {
+    "id": "cat-1789833545654-6ycre",
+    "product_id": "prod-1789833534665-pdepz",
+    "artisan_id": "artisan-iso-aaaa",
+    "language": "hi",
+    "title": "Artisan A Wooden Toy",
+    "short_description": "Discover the Artisan A Wooden Toy, carefully handcrafted from wood and finished with natural organic vegetable dyes for a safe and traditional playtime experience.",
+    "description": "Bring home the Artisan A Wooden Toy, a beautifully handcrafted piece designed to delight. Skillfully made from wood, this toy is colored using natural organic vegetable dyes, reflecting traditional craftsmanship. Every piece showcases the dedication of the artisan, making it a wonderful addition to any collection.",
+    "highlights": [
+      "Handcrafted wooden toy",
+      "Colored with natural organic vegetable dyes",
+      "Priced at ₹1000",
+      "Belongs to the Wood Craft category"
+    ],
+    "specifications": {
+      "Material": "Wood",
+      "Craft Technique": "Handcrafted with natural organic vegetable dyes"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Wooden Toy",
+      "Handcrafted Toy",
+      "Wood Craft",
+      "Organic Dyes Toy",
+      "Artisan Toy"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:59:05.331Z",
+    "updated_at": "2026-09-19T15:59:05.747Z"
+  },
+  {
+    "id": "cat-1789833549570-09n6n",
+    "product_id": "prod-1789833546250-whhws",
+    "artisan_id": "artisan-iso-bbbb",
+    "language": "en",
+    "title": "Artisan B Silver Necklace",
+    "short_description": "A traditional silver necklace meticulously handcrafted by artisan B. Designed for elegance and everyday wear in the jewellery category.",
+    "description": "Discover the Artisan B Silver Necklace, a traditional piece of jewellery skillfully handcrafted by artisan B. This necklace reflects classic design sensibilities and artisan craftsmanship, making it a distinctive addition to any jewellery collection.",
+    "highlights": [
+      "Traditional silver necklace design",
+      "Handcrafted by artisan B",
+      "Belongs to the jewellery category"
+    ],
+    "specifications": {
+      "Material": "Silver",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "silver necklace",
+      "handmade jewellery",
+      "artisan crafted",
+      "traditional necklace",
+      "artisan b"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:59:09.198Z",
+    "updated_at": "2026-09-19T15:59:09.408Z"
+  },
+  {
+    "id": "cat-1789833553179-cxz7o",
+    "product_id": "prod-1789833546250-whhws",
+    "artisan_id": "artisan-iso-bbbb",
+    "language": "ta",
+    "title": "ஆர்டிஜன் பி வெள்ளி நெக்லஸ் - Artisan B Silver Necklace",
+    "short_description": "ஆர்டிஜன் பி அவர்களால் பாரம்பரிய முறையில் கைவினைப்பொருளாக உருவாக்கப்பட்ட வெள்ளி நெக்லஸ். இது நேர்த்தியான வடிவமைப்புடன் விற்பனைக்குக் கிடைக்கிறது.",
+    "description": "இந்த ஆர்டிஜன் பி வெள்ளி நெக்லஸ் பாரம்பரிய கைவினைத் திறனுடன் தயாரிக்கப்பட்ட ஒரு அழகான நகையாகும். ஆர்டிஜன் பி அவர்களின் கைவண்ணத்தில் உருவான இந்த நெக்லஸ், பாரம்பரிய மற்றும் நவீன உடைகளுக்கு ஏற்ற ஒரு சிறந்த தேர்வாகும். தரமான வெள்ளிப் பொருட்களால் உருவாக்கப்பட்டு, வாடிக்கையாளர்களின் தேவையைப் பூர்த்தி செய்யும் வகையில் வடிவமைக்கப்பட்டுள்ளது.",
+    "highlights": [
+      "பாரம்பரிய முறையில் கைவினைப்பொருளாக தயாரிக்கப்பட்டது",
+      "ஆர்டிஜன் பி அவர்களின் கைவண்ணத்தில் உருவானது",
+      "நேர்த்தியான வெள்ளி நெக்லஸ்"
+    ],
+    "specifications": {
+      "Material": "வெள்ளி",
+      "Craft Technique": "கைவினை"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Silver Necklace",
+      "Artisan Jewellery",
+      "Handcrafted Necklace",
+      "வெள்ளி நெக்லஸ்",
+      "கைவினை நகை"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T15:59:12.776Z",
+    "updated_at": "2026-09-19T15:59:13.407Z"
+  },
+  {
+    "id": "cat-1789833648901-gzw1u",
+    "product_id": "prod-1789833546250-whhws",
+    "artisan_id": "artisan-iso-bbbb",
+    "language": "hi",
+    "title": "Artisan B Silver Necklace",
+    "short_description": "उच्च गुणवत्ता वाला Artisan B Silver Necklace। मार्केटप्लेस के लिए उपयुक्त।",
+    "description": "यह Artisan B Silver Necklace बाजार के उच्च मानकों के अनुसार तैयार किया गया है।   टिकाऊ और आकर्षक डिजाइन।",
+    "highlights": [
+      "उत्कृष्ट शिल्प",
+      "गुणवत्ता सामग्री",
+      "व्यावसायिक गुणवत्ता"
+    ],
+    "specifications": {
+      "श्रेणी": "Jewellery"
+    },
+    "care_instructions": "सुखाने के लिए सीधी धूप से बचाएं।",
+    "tags": [
+      "Artisan B Silver Necklace",
+      "Jewellery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:00:46.747Z",
+    "updated_at": "2026-09-19T16:00:46.669Z"
+  },
+  {
+    "id": "cat-1789833745654-9t9lm",
+    "product_id": "prod-1789833741132-usnb4",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "en",
+    "title": "Published Silk Stole",
+    "short_description": "A handcrafted traditional silk stole expertly woven by master artisans. Designed as a timeless accessory for versatile wear.",
+    "description": "Discover the elegance of the Published Silk Stole, a handcrafted traditional silk stole created by skilled master artisans. This piece reflects traditional weaving dedication, bringing together refined textile craftsmanship and classic style. Perfect for complementing various outfits, this artisan-made silk stole offers a touch of authentic craftsmanship to your wardrobe.",
+    "highlights": [
+      "Handcrafted traditional silk stole",
+      "Woven by master artisans",
+      "Versatile textile accessory"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handwoven"
+    },
+    "care_instructions": "",
+    "tags": [
+      "silk stole",
+      "handcrafted stole",
+      "silk accessory",
+      "artisanal textile",
+      "traditional stole"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:25.310Z",
+    "updated_at": "2026-09-19T16:02:25.324Z"
+  },
+  {
+    "id": "cat-1789833745857-719kq",
+    "product_id": "prod-1789833740896-pd0hw",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "en",
+    "title": "Draft Pottery Bowl",
+    "short_description": "A handcrafted traditional pottery bowl originating from Madurai. Carefully shaped by skilled artisans for everyday use.",
+    "description": "Discover the rustic charm of the Draft Pottery Bowl, a traditional handcrafted piece originating from Madurai. This bowl reflects authentic pottery techniques, meticulously shaped to bring a touch of heritage and artisanal craftsmanship to your home. Designed for versatility and aesthetic appeal, it stands as a testament to traditional pottery making.",
+    "highlights": [
+      "Handcrafted traditional pottery bowl",
+      "Originates from Madurai",
+      "Made with authentic artisan techniques"
+    ],
+    "specifications": {
+      "Category": "Pottery",
+      "Origin": "Madurai"
+    },
+    "care_instructions": "",
+    "tags": [
+      "pottery bowl",
+      "handcrafted bowl",
+      "Madurai pottery",
+      "traditional bowl",
+      "ceramic craft"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:25.516Z",
+    "updated_at": "2026-09-19T16:02:25.516Z"
+  },
+  {
+    "id": "cat-1789833749407-bo4bx",
+    "product_id": "prod-1789833741132-usnb4",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "ta",
+    "title": "Published Silk Stole",
+    "short_description": "பாரம்பரிய முறையில் கைவினைஞர்களால் உருவாக்கப்பட்ட பப்ளிஷ்ட் சில்க் ஸ்டோல். இது கைவேலையாக நெய்யப்பட்ட ஒரு பாரம்பரிய தயாரிப்பாகும்.",
+    "description": "இந்த பப்ளிஷ்ட் சில்க் ஸ்டோல் தலைசிறந்த கைவினைஞர்களால் பாரம்பரிய முறையில் கைவினைப் பொருளாக உருவாக்கப்பட்டுள்ளது. இந்த தயாரிப்பு கைவேலைப்பாடுகளின் நேர்த்தியையும், பாரம்பரிய கலைத்திறனையும் வெளிப்படுத்துகிறது.",
+    "highlights": [
+      "கைவினைஞர்களால் தயாரிக்கப்பட்ட பாரம்பரிய சில்க் ஸ்டோல்",
+      "பாரம்பரிய முறைப்படி கைவேலையாக உருவாக்கப்பட்டது",
+      "மதிப்புமிக்க கலைநயமிக்க தயாரிப்பு"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Silk Stole",
+      "Handcrafted",
+      "Traditional",
+      "Textiles",
+      "Silk Stole"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:29.070Z",
+    "updated_at": "2026-09-19T16:02:29.131Z"
+  },
+  {
+    "id": "cat-1789833749452-m2xqz",
+    "product_id": "prod-1789833740896-pd0hw",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "ta",
+    "title": "Draft Pottery Bowl - Madurai",
+    "short_description": "Explore this handcrafted traditional pottery bowl originating from Madurai. A beautifully made piece designed for everyday use.",
+    "description": "Enhance your living space with this handcrafted traditional pottery bowl, skillfully made in Madurai. This piece showcases traditional pottery craftsmanship, bringing an authentic and rustic charm to your home. Designed for practical utility and aesthetic appeal, it reflects the rich artisan heritage of Madurai without compromising on simplicity.",
+    "highlights": [
+      "Handcrafted traditional pottery bowl",
+      "Originates from Madurai",
+      "Made with traditional pottery techniques",
+      "Priced at ₹450"
+    ],
+    "specifications": {
+      "Category": "Pottery",
+      "Origin": "Madurai"
+    },
+    "care_instructions": "",
+    "tags": [
+      "pottery bowl",
+      "madurai pottery",
+      "handmade bowl",
+      "traditional pottery",
+      "craft item"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:29.117Z",
+    "updated_at": "2026-09-19T16:02:29.117Z"
+  },
+  {
+    "id": "cat-1789833752692-igm25",
+    "product_id": "prod-1789833741132-usnb4",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "hi",
+    "title": "Published Silk Stole",
+    "short_description": "हस्तनिर्मित पारंपरिक सिल्क स्टोल जो कुशल कारीगरों द्वारा तैयार किया गया है। यह आपकी पोशाक को एक अनूठा और आकर्षक लुक देता है।",
+    "description": "यह पब्लिश्ड सिल्क स्टोल कुशल और अनुभवी मास्टर कारीगरों द्वारा पूरी तरह से हस्तनिर्मित पारंपरिक उत्पाद है। इसके निर्माण में पारंपरिक बुनाई और कारीगरी का सुंदर समावेश किया गया है, जो इसे पहनने वाले को एक क्लासिक और शालीन अनुभव प्रदान करता है। किसी भी विशेष अवसर या दैनिक उपयोग के लिए यह स्टोल एक बेहतरीन विकल्प है।",
+    "highlights": [
+      "कुशल मास्टर कारीगरों द्वारा हस्तनिर्मित",
+      "पारंपरिक शिल्प कौशल से सुसज्जित",
+      "विभिन्न अवसरों के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handcrafted Traditional Weaving"
+    },
+    "care_instructions": "",
+    "tags": [
+      "सिल्क स्टोल",
+      "हस्तनिर्मित स्टोल",
+      "पारंपरिक एक्सेसरीज",
+      "Silk Stole",
+      "Handcrafted Textiles"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:32.336Z",
+    "updated_at": "2026-09-19T16:02:32.711Z"
+  },
+  {
+    "id": "cat-1789833753015-k98i9",
+    "product_id": "prod-1789833740896-pd0hw",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "hi",
+    "title": "Draft Pottery Bowl - Madurai",
+    "short_description": "हस्तनिर्मित पारंपरिक पोटरी बाउल, जो मदुराई से प्राप्त है। यह एक आकर्षक और उपयोगी शिल्प वस्तु है।",
+    "description": "यह ड्राफ्ट पोटरी बाउल मदुराई से एक हस्तनिर्मित पारंपरिक मिट्टी के बर्तन की कला का उदाहरण है। इसे कुशल कारीगरों द्वारा पारंपरिक तरीकों से तैयार किया गया है, जो इसकी बनावट और प्रामाणिकता को दर्शाता है। यह आपके घर की सजावट या दैनिक उपयोग के लिए एक बेहतरीन और सरल विकल्प है।",
+    "highlights": [
+      "मदुराई से हस्तनिर्मित पारंपरिक पोटरी बाउल",
+      "पारंपरिक शिल्प कौशल के साथ निर्मित",
+      "घरेलू उपयोग और सजावट दोनों के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Craft Technique": "हस्तनिर्मित पारंपरिक पोटरी"
+    },
+    "care_instructions": "",
+    "tags": [
+      "पोटरी बाउल",
+      "हस्तनिर्मित",
+      "मदुराई शिल्प",
+      "पारंपरिक बर्तन",
+      "क्राफ्ट"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:32.647Z",
+    "updated_at": "2026-09-19T16:02:32.647Z"
+  },
+  {
+    "id": "cat-1789833757610-ypbbg",
+    "product_id": "prod-1789833753606-w2kzo",
+    "artisan_id": "22222222-2222-4222-a222-222222222222",
+    "language": "en",
+    "title": "Handwoven Cotton Table Runner",
+    "short_description": "A beautifully handwoven cotton table runner created by master weavers. Designed to bring a refined touch to your dining space.",
+    "description": "Enhance your dining table with this exquisite Handwoven Cotton Table Runner, thoughtfully created by master weavers. Crafted with care through traditional weaving methods, this textile piece highlights the skill and artistry of its makers. Its versatile design seamlessly complements various table settings while adding an authentic handmade charm to your home decor.",
+    "highlights": [
+      "Handwoven by master artisans",
+      "Crafted from cotton",
+      "Suitable for dining table decoration",
+      "Created with traditional weaving expertise"
+    ],
+    "specifications": {
+      "Material": "Cotton",
+      "Craft Technique": "Handwoven"
+    },
+    "care_instructions": "Hand wash separately in cold water with mild detergent. Line dry in shade.",
+    "tags": [
+      "table runner",
+      "handwoven cotton",
+      "dining decor",
+      "handmade textile",
+      "home linen"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:37.196Z",
+    "updated_at": "2026-09-19T16:02:37.810Z"
+  },
+  {
+    "id": "cat-1789833761181-4qo5b",
+    "product_id": "prod-1789833753606-w2kzo",
+    "artisan_id": "22222222-2222-4222-a222-222222222222",
+    "language": "ta",
+    "title": "Handwoven Cotton Table Runner",
+    "short_description": "உயர்தர Handwoven Cotton Table Runner. சந்தை பயன்பாட்டிற்கு ஏற்ற சிறப்பான வடிவமைப்பு.",
+    "description": "இந்த Handwoven Cotton Table Runner வணிக ரீதியிலான சந்தை தரத்திற்கு ஏற்ப வடிவமைக்கப்பட்டுள்ளது. உருவாக்கப்பட்டுள்ளது.  நீடித்து உழைக்கும் சிறந்த கலைப்படைப்பு.",
+    "highlights": [
+      "சிறந்த கைவினை திறன்",
+      "தரமான பொருள்",
+      "சந்தை பயன்பாட்டிற்கு ஏற்ற வடிவமைப்பு"
+    ],
+    "specifications": {
+      "வகை": "Textiles"
+    },
+    "care_instructions": "உலர்ந்த நிலையில் பராமரிக்கவும்.",
+    "tags": [
+      "Handwoven Cotton Table Runner",
+      "Textiles"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:40.854Z",
+    "updated_at": "2026-09-19T16:02:42.277Z"
+  },
+  {
+    "id": "cat-1789833767895-n6av7",
+    "product_id": "prod-1789833753606-w2kzo",
+    "artisan_id": "22222222-2222-4222-a222-222222222222",
+    "language": "hi",
+    "title": "हस्तनिर्मित सूती टेबल रनर (Handwoven Cotton Table Runner)",
+    "short_description": "कुशल बुनकरों द्वारा तैयार किया गया यह हथकरघा सूती टेबल रनर आपकी डाइनिंग टेबल के लिए एक सुरुचिपूर्ण विकल्प है। यह पारंपरिक बुनाई और प्रामाणिक शिल्प कौशल का सुंदर संगम प्रस्तुत करता है।",
+    "description": "यह टेबल रनर अनुभवी मास्टर बुनकरों द्वारा हथकरघे पर कुशलतापूर्वक तैयार किया गया है। कॉटन (सूती) से निर्मित यह उत्पाद आपकी टेबल को एक व्यवस्थित और आकर्षक रूप प्रदान करता है। पारंपरिक हथकरघा शिल्प तकनीक से बुना गया यह टेक्सटाइल उत्पाद दैनिक उपयोग और विशेष अवसरों दोनों की सजावट के लिए सर्वथा उपयुक्त है।",
+    "highlights": [
+      "कुशल मास्टर बुनकरों द्वारा पारंपरिक हथकरघे पर निर्मित",
+      "प्रामाणिक सूती (कॉटन) सामग्री से तैयार",
+      "पारंपरिक बुनाई शिल्प (Handwoven) का उत्कृष्ट उदाहरण",
+      "डाइनिंग और टेबल सज्जा के लिए उत्तम टेक्सटाइल उत्पाद"
+    ],
+    "specifications": {
+      "Material": "कॉटन (Cotton)",
+      "Craft Technique": "हथकरघा बुनाई (Handwoven)",
+      "Category": "टेक्सटाइल्स (Textiles)",
+      "Price": "₹800"
+    },
+    "care_instructions": "सूती कपड़े की सुरक्षा के लिए ठंडे पानी में हल्के हाथों से धोएं। सीधे तेज धूप में सुखाने से बचें।",
+    "tags": [
+      "टेबल रनर",
+      "कॉटन टेबल रनर",
+      "हथकरघा",
+      "हैंडवोवन",
+      "टेक्सटाइल"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:47.488Z",
+    "updated_at": "2026-09-19T16:02:51.276Z"
+  },
+  {
+    "id": "cat-1789833776308-iplxz",
+    "product_id": "prod-1789833772221-x94gb",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "language": "en",
+    "title": "Terracotta Clay Pot",
+    "short_description": "Handcrafted terracotta clay pot made using eco-friendly natural clay. A traditional pottery piece designed for functional use.",
+    "description": "Discover this authentic Terracotta Clay Pot, meticulously shaped from eco-friendly natural clay. As a classic piece of pottery, it highlights traditional crafting methods using natural earthen materials. Perfect for everyday use or display, this pot combines functional design with the timeless appeal of natural clay craftsmanship.",
+    "highlights": [
+      "Crafted using eco-friendly natural clay",
+      "Made with traditional pottery techniques",
+      "Functional and versatile design"
+    ],
+    "specifications": {
+      "Material": "Natural Clay",
+      "Craft Technique": "Terracotta Pottery"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Terracotta Pot",
+      "Clay Pot",
+      "Pottery",
+      "Natural Clay",
+      "Eco-Friendly"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:02:55.885Z",
+    "updated_at": "2026-09-19T16:02:56.409Z"
+  },
+  {
+    "id": "cat-1789833780883-s0e6q",
+    "product_id": "prod-1789833772221-x94gb",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "language": "ta",
+    "title": "டீகோட்டா களிமண் பானை",
+    "short_description": "இயற்கையான களிமண்ணால் கைவினைப் பொருளாகத் தயாரிக்கப்பட்ட டெரக்கோட்டா களிமண் பானை. இது அன்றாட பயன்பாட்டிற்கும் சமையலுக்கும் ஏற்றது.",
+    "description": "இந்த டெரக்கோட்டா களிமண் பானை முற்றிலும் இயற்கையான களிமண்ணைப் பயன்படுத்தி, பாரம்பரிய முறையில் நேர்த்தியாக வடிவமைக்கப்பட்டுள்ளது. சுற்றுச்சூழலுக்கு உகந்த முறையில் தயாரிக்கப்பட்ட இப்பானை, சமையல் கலைக்கு ஏற்ற சிறந்த அம்சங்களைக் கொண்டுள்ளது. இதன் இயல்பான தன்மை உணவுப் பொருட்களின் சுவையை மேம்படுத்த உதவுகிறது.",
+    "highlights": [
+      "இயற்கையான களிமண்ணால் தயாரிக்கப்பட்டது",
+      "சுற்றுச்சூழலுக்கு உகந்த தயாரிப்பு",
+      "பாரம்பரிய முறையில் கைவினைப் பொருளாக உருவாக்கப்பட்டது"
+    ],
+    "specifications": {
+      "Material": "களிமண்",
+      "Craft Technique": "கைவினைப் pottery முறை"
+    },
+    "care_instructions": "மென்மையான கடற்பாசி மற்றும் லேசான சோப்பு கொண்டு மென்மையாகக் கழுவவும். அதிகப்படியான இரசாயனங்களைத் தவிர்க்கவும்.",
+    "tags": [
+      "டீகோட்டா பானை",
+      "களிமண் பாத்திரங்கள்",
+      "மண்பானை",
+      "பாரம்பரிய பானை",
+      "Pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:03:00.515Z",
+    "updated_at": "2026-09-19T16:03:00.674Z"
+  },
+  {
+    "id": "cat-1789833784591-tz7k8",
+    "product_id": "prod-1789833772221-x94gb",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "language": "hi",
+    "title": "हस्तनिर्मित टेराकोटा क्ले पॉट",
+    "short_description": "प्राकृतिक मिट्टी से निर्मित यह टेराकोटा क्ले पॉट पर्यावरण-अनुकूल और उपयोग में उपयोगी है। यह पारंपरिक कारीगरी का एक सुंदर उदाहरण है।",
+    "description": "यह टेराकोटा क्ले पॉट प्राकृतिक और पर्यावरण-अनुकूल मिट्टी का उपयोग करके सावधानीपूर्वक तैयार किया गया है। इसकी निर्माण प्रक्रिया में पारंपरिक तकनीकों का उपयोग किया जाता है, जिससे यह घरेलू उपयोग के लिए एक बेहतरीन और टिकाऊ विकल्प बनता है। इसका सरल और उपयोगी डिज़ाइन इसे आपकी दैनिक जीवनशैली में आसानी से शामिल करने योग्य बनाता है।",
+    "highlights": [
+      "पर्यावरण-अनुकूल प्राकृतिक मिट्टी से निर्मित",
+      "पारंपरिक टेराकोटा क्ले पॉट डिज़ाइन",
+      "दैनिक उपयोग के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "प्राकृतिक मिट्टी (Natural Clay)",
+      "Craft Technique": "टेराकोटा पॉटरी"
+    },
+    "care_instructions": "साफ करने के लिए हल्के पानी और मुलायम स्पंज का उपयोग करें।",
+    "tags": [
+      "टेराकोटा पॉट",
+      "क्ले पॉट",
+      "हस्तशिल्प मिट्टी के बर्तन",
+      "पर्यावरण-अनुकूल बर्तन",
+      "पॉटरी"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:03:04.170Z",
+    "updated_at": "2026-09-19T16:03:04.712Z"
+  },
+  {
+    "id": "cat-1789833793088-yj1cl",
+    "product_id": "prod-1789833789413-80lc4",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "language": "en",
+    "title": "Handcrafted Traditional Brass Lamp",
+    "short_description": "A traditional brass lamp handcrafted to elevate your festive home decor. Designed with authentic artisan skill for celebrations and daily living.",
+    "description": "Bring traditional elegance to your living space with this handcrafted traditional brass lamp. Expertly fashioned by skilled artisans, this piece is designed specifically for festive home decor, adding a warm and inviting glow to any room. The meticulous handcrafting process ensures a unique character, making it a wonderful addition to your traditional decor collection.",
+    "highlights": [
+      "Handcrafted traditional design",
+      "Suitable for festive home decor",
+      "Made from brass",
+      "Created by skilled artisans"
+    ],
+    "specifications": {
+      "Material": "Brass",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "Clean with a soft, dry cloth. Avoid using harsh chemical cleaners to preserve the brass finish.",
+    "tags": [
+      "brass lamp",
+      "festive decor",
+      "handcrafted lamp",
+      "home decor",
+      "traditional handicraft"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:03:12.679Z",
+    "updated_at": "2026-09-19T16:03:13.527Z"
+  },
+  {
+    "id": "cat-1789833797390-y97c2",
+    "product_id": "prod-1789833789413-80lc4",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "language": "ta",
+    "title": "கைவினைப் பாரம்பரிய பித்தளை விளக்கு",
+    "short_description": "வீட்டு அலங்காரத்திற்கும் பண்டிகை காலங்களுக்கும் ஏற்ற பாரம்பரிய பித்தளை விளக்கு. கைவினைப் பொருட்களாக திறம்பட உருவாக்கப்பட்டுள்ளது.",
+    "description": "இந்த விளக்கு பாரம்பரியமான முறையில் பண்டிகை கால வீட்டு அலங்காரத்திற்காகக் கைவினைஞர்களால் உருவாக்கப்பட்டது. நேர்த்தியான வடிவமைப்புடன் கூடிய இந்த பித்தளை விளக்கு, உங்கள் வீட்டின் சூழலுக்கு ஒரு சிறப்பான தோற்றத்தைத் தருகிறது.",
+    "highlights": [
+      "கைவினைப் பாரம்பரிய பித்தளை விளக்கு",
+      "பண்டிகை கால வீட்டு அலங்காரத்திற்கு ஏற்றது",
+      "பாரம்பரிய முறைப்படி உருவாக்கப்பட்டது"
+    ],
+    "specifications": {
+      "Material": "பித்தளை",
+      "Craft Technique": "கைவினைப் பொருள்"
+    },
+    "care_instructions": "",
+    "tags": [
+      "பித்தளை விளக்கு",
+      "வீட்டு அலங்காரம்",
+      "கைவினைப் பொருள்",
+      "பண்டிகை அலங்காரம்"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:03:16.985Z",
+    "updated_at": "2026-09-19T16:03:17.491Z"
+  },
+  {
+    "id": "cat-1789833800766-vj9y8",
+    "product_id": "prod-1789833789413-80lc4",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "language": "hi",
+    "title": "Traditional Brass Lamp for Festive Home Decor",
+    "short_description": "Explore this handcrafted traditional brass lamp designed for festive home decor. A beautiful artisan piece to elevate your living space.",
+    "description": "Enhance your festive home decor with this exquisitely handcrafted traditional brass lamp. Made with careful artisan skill, this piece serves as a timeless addition to your celebrations and everyday living space. The traditional design brings an authentic aesthetic to any room, reflecting classic craftsmanship in a functional home decor item.",
+    "highlights": [
+      "Handcrafted traditional brass lamp",
+      "Designed specifically for festive home decor",
+      "Artisan made product"
+    ],
+    "specifications": {
+      "Material": "Brass",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Brass Lamp",
+      "Home Decor",
+      "Festive Decor",
+      "Handicrafts",
+      "Traditional Lamp"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T16:03:20.359Z",
+    "updated_at": "2026-09-19T16:03:20.935Z"
+  },
+  {
+    "id": "cat-1789843013560-9j21j",
+    "product_id": "prod-1789843007357-ynsma",
+    "artisan_id": "artisan-analytics-111",
+    "language": "en",
+    "title": "Analytics Kanchipuram Silk Saree",
+    "short_description": "Discover the Analytics Kanchipuram Silk Saree, a handcrafted traditional silk saree featuring elegant gold zari work. Designed for classic elegance and timeless appeal.",
+    "description": "Elevate your ethnic wardrobe with the Analytics Kanchipuram Silk Saree. This handcrafted traditional silk saree showcases exquisite artistry, detailed with gleaming gold zari work that adds a touch of classic sophistication to its overall design. Meticulously created through skilled artisanal methods, this garment brings together traditional craftsmanship and refined aesthetics for special occasions and celebrations.",
+    "highlights": [
+      "Handcrafted traditional silk saree design",
+      "Adorned with intricate gold zari work",
+      "Suitable for traditional events and gatherings",
+      "Crafted with meticulous attention to detail"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handcrafted with gold zari work"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Kanchipuram silk saree",
+      "silk saree",
+      "gold zari saree",
+      "traditional saree",
+      "handcrafted saree"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:36:53.158Z",
+    "updated_at": "2026-09-19T18:36:57.907Z"
+  },
+  {
+    "id": "cat-1789843021499-wqrdw",
+    "product_id": "prod-1789843007357-ynsma",
+    "artisan_id": "artisan-analytics-111",
+    "language": "ta",
+    "title": "அனலிட்டிக்ஸ் காஞ்சிபுரம் சில்க் புடவை - தங்க ஜரிகை வேலைப்பாடுடன்",
+    "short_description": "நேர்த்தியான தங்க ஜரிகை வேலைப்பாடுகளுடன் கைவினை முறையில் உருவாக்கப்பட்ட பாரம்பரிய சில்க் புடவை. சிறப்பு வாய்ந்த தருணங்களுக்கு ஏற்ற இந்தத் தயாரிப்பு, பாரம்பரிய கைவினைத்திறனை அழகாக வெளிப்படுத்துகிறது.",
+    "description": "பாரம்பரிய கைவினைத்திறனின் அழகை அனலிட்டிக்ஸ் காஞ்சிபுரம் சில்க் புடவை மூலம் அனுபவியுங்கள். நேர்த்தியான தங்க ஜரிகை வேலைப்பாடுகளுடன் கைவினை முறையில் வடிவமைக்கப்பட்ட இந்த சில்க் புடவை, உன்னதமான பாரம்பரிய தோற்றத்தை வழங்குகிறது. பாரம்பரிய கலைநயத்தை விரும்புபவர்களுக்காகவே பிரத்யேகமாக உருவாக்கப்பட்டுள்ள இந்த புடவை, காலத்தால் அழியாத அழகையும் நேர்த்தியையும் கொண்டுள்ளது. ஒவ்வொரு இழையும் கைவினைஞர்களின் அர்ப்பணிப்பை பிரதிபலிக்கும் வகையில் அமைந்துள்ளது.",
+    "highlights": [
+      "கைவினை முறையில் உருவாக்கப்பட்ட பாரம்பரிய சில்க் புடவை",
+      "நேர்த்தியான தங்க ஜரிகை வேலைப்பாடு",
+      "சிறப்பு நிகழ்வுகளுக்கு ஏற்ற உன்னதமான வடிவமைப்பு"
+    ],
+    "specifications": {
+      "Material": "சில்க், தங்க ஜரிகை",
+      "Craft Technique": "கைவினை முறை"
+    },
+    "care_instructions": "சில்க் மற்றும் தங்க ஜரிகையின் தரத்தைப் பாதுகாக்க உலர் சலவை (Dry Clean) செய்ய பரிந்துரைக்கப்படுகிறது.",
+    "tags": [
+      "காஞ்சிபுரம் சில்க் புடவை",
+      "தங்க ஜரிகை புடவை",
+      "கைவினை புடவை",
+      "பாரம்பரிய ஆடைகள்",
+      "பட்டு புடவை"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:01.147Z",
+    "updated_at": "2026-09-19T18:37:03.115Z"
+  },
+  {
+    "id": "cat-1789843024899-xfmqf",
+    "product_id": "prod-1789843007357-ynsma",
+    "artisan_id": "artisan-analytics-111",
+    "language": "hi",
+    "title": "Analytics Kanchipuram Silk Saree",
+    "short_description": "हस्तनिर्मित पारंपरिक सिल्क साड़ी जिसमें सुंदर गोल्ड ज़री का काम किया गया है। यह एक उत्कृष्ट परिधान है जिसे विशेष अवसरों के लिए तैयार किया गया है।",
+    "description": "यह Analytics Kanchipuram Silk Saree एक पारंपरिक हस्तनिर्मित सिल्क साड़ी है, जो बेहतरीन शिल्प कौशल का एक उदाहरण है। इस साड़ी की मुख्य विशेषता इसमें किया गया आकर्षक गोल्ड ज़री का काम है, जो इसके पारंपरिक स्वरूप को और अधिक सुंदर बनाता है। यह साड़ी कारीगरों द्वारा हस्तशिल्प तकनीक से तैयार की गई है, जो इसे उत्सवों और विशेष अवसरों के पहनने के लिए एक बेहतरीन विकल्प बनाती है।",
+    "highlights": [
+      "पारंपरिक हस्तनिर्मित सिल्क साड़ी",
+      "आकर्षक गोल्ड ज़री का काम",
+      "उत्सवों और विशेष अवसरों के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handcrafted / Gold Zari Work"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Kanchipuram Silk Saree",
+      "Silk Saree",
+      "Handcrafted Saree",
+      "Zari Work Saree",
+      "Traditional Saree"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:04.572Z",
+    "updated_at": "2026-09-19T18:37:06.658Z"
+  },
+  {
+    "id": "cat-1789843030679-eaqq0",
+    "product_id": "prod-1789843027225-hxwzu",
+    "artisan_id": "artisan-analytics-111",
+    "language": "en",
+    "title": "Analytics Clay Diya Set",
+    "short_description": "A terracotta handpainted clay diya set designed for festive lighting. Perfect for traditional celebrations and decor.",
+    "description": "Enhance your festive lighting with the Analytics Clay Diya Set. Expertly crafted from terracotta, this handpainted clay diya set brings a traditional touch to your celebrations and home decor. Each piece is carefully designed to illuminate your space during festivals and special occasions.",
+    "highlights": [
+      "Terracotta construction",
+      "Handpainted clay diya set",
+      "Designed for festive lighting",
+      "Suitable for traditional celebrations"
+    ],
+    "specifications": {
+      "Material": "Terracotta",
+      "Craft Technique": "Handpainted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "clay diya",
+      "terracotta diya",
+      "festive lighting",
+      "handpainted diya",
+      "pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:10.344Z",
+    "updated_at": "2026-09-19T18:37:10.461Z"
+  },
+  {
+    "id": "cat-1789843034041-ku7b0",
+    "product_id": "prod-1789843027225-hxwzu",
+    "artisan_id": "artisan-analytics-111",
+    "language": "ta",
+    "title": "Analytics Clay Diya Set",
+    "short_description": "பாரம்பரிய விழா ஒளிச்சேர்க்கைக்காக உருவாக்கப்பட்ட டெரகோட்டா கைவண்ண களிமண் தீபத் தொகுதி. திருவிழா கால அலங்காரத்திற்கு ஏற்றது.",
+    "description": "இந்த அனலிட்டிக்ஸ் களிமண் தீபத் தொகுதி (Analytics Clay Diya Set) டெரகோட்டாவால் உருவாக்கப்பட்டுள்ளது. விழா காலங்களில் வீட்டை ஒளிரச் செய்ய ஏற்ற வகையில் கைவண்ண வேலைப்பாடுகளுடன் இந்த களிமண் விளக்குகள் தயாரிக்கப்பட்டுள்ளன. பொங்கல், தீபாவளி மற்றும் இதர திருவிழா கொண்டாட்டங்களுக்கு இது மிகவும் பொருத்தமானது.",
+    "highlights": [
+      "டெரகோட்டா களிமண் மூலம் உருவாக்கப்பட்டது",
+      "விழா கால ஒளிச்சேர்க்கைக்காக கைவண்ண வேலைப்பாடு செய்யப்பட்டது",
+      "பாரம்பரிய பாணி களிமண் தீபத் தொகுதி"
+    ],
+    "specifications": {
+      "Material": "டெரகோட்டா களிமண்",
+      "Craft Technique": "கைவண்ண வேலைப்பாடு"
+    },
+    "care_instructions": "",
+    "tags": [
+      "Clay Diya Set",
+      "Terracotta Diya",
+      "Pottery",
+      "Festive Lighting",
+      "Karthigai Diya"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:13.692Z",
+    "updated_at": "2026-09-19T18:37:13.834Z"
+  },
+  {
+    "id": "cat-1789843036078-0zn2m",
+    "product_id": "prod-1789843032388-6ukdn",
+    "artisan_id": "artisan-iso-aaaa",
+    "language": "en",
+    "title": "Artisan A Wooden Toy",
+    "short_description": "Discover the Artisan A Wooden Toy, carefully handcrafted from wood and finished with natural organic vegetable dyes. A wonderful addition to any collection.",
+    "description": "Bring home the Artisan A Wooden Toy, a beautifully handcrafted piece created with traditional woodworking skills. This artisanal toy is made using natural organic vegetable dyes, highlighting a commitment to authentic craftsmanship and natural finishes. Each piece reflects the careful dedication of the maker, resulting in a unique item that stands out for its simple and classic design.",
+    "highlights": [
+      "Handcrafted wooden toy",
+      "Colored with natural organic vegetable dyes",
+      "Priced at ₹1000"
+    ],
+    "specifications": {
+      "Material": "Wood",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "wooden toy",
+      "handcrafted toy",
+      "natural dyes",
+      "wood craft",
+      "artisan toy"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:15.669Z",
+    "updated_at": "2026-09-19T18:37:16.140Z"
+  },
+  {
+    "id": "cat-1789843037805-lp591",
+    "product_id": "prod-1789843027225-hxwzu",
+    "artisan_id": "artisan-analytics-111",
+    "language": "hi",
+    "title": "Terracotta Handpainted Clay Diya Set for Festive Lighting",
+    "short_description": "हैंडपेंटेड क्ले दिया सेट जो आपके त्योहारों की रोशनी और सजावट के लिए एकदम सही है। यह टेराकोटा से बना एक सुंदर उत्पाद है।",
+    "description": "यह टेराकोटा से बना हैंडपेंटेड क्ले दिया सेट है, जिसे विशेष रूप से त्योहारी रोशनी और सजावट के लिए तैयार किया गया है। इसका पारंपरिक शिल्प आपके घर के परिवेश को रोशन करने और उत्सव के माहौल को और अधिक सुंदर बनाने के लिए उपयुक्त है।",
+    "highlights": [
+      "टेराकोटा सामग्री से निर्मित",
+      "सुंदर हैंडपेंटेड डिज़ाइन",
+      "त्योहारी रोशनी और सजावट के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "टेराकोटा (Terracotta)",
+      "Craft Technique": "हैंडपेंटेड"
+    },
+    "care_instructions": "",
+    "tags": [
+      "दिए",
+      "टेराकोटा दिया",
+      "फेस्टिवल डेकोर",
+      "हैंडपेंटेड दिया",
+      "पॉटरी"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:17.031Z",
+    "updated_at": "2026-09-19T18:37:17.103Z"
+  },
+  {
+    "id": "cat-1789843039154-8yxnd",
+    "product_id": "prod-1789843032388-6ukdn",
+    "artisan_id": "artisan-iso-aaaa",
+    "language": "ta",
+    "title": "Artisan A Wooden Toy",
+    "short_description": "கைவினைஞரால் தயாரிக்கப்பட்ட மர பொம்மை, இயற்கை தாவர சாயங்களைப் பயன்படுத்தி உருவாக்கப்பட்டது. குழந்தைகளுக்கு ஏற்ற பாதுகாப்பான பொருள்.",
+    "description": "இந்த ஆர்டிசன் ஏ மர பொம்மை இயற்கை தாவர சாயங்களைப் பயன்படுத்தி முற்றிலும் கைவினைஞரால் தயாரிக்கப்பட்ட ஒரு தயாரிப்பாகும். பாரம்பரிய முறையில் மரத்தினால் உருவாக்கப்பட்ட இந்த பொம்மை, இயற்கையான சாயங்கள் மூலம் வண்ணம் தீட்டப்பட்டுள்ளது. கைவினைப் பொருட்களின் நேர்த்தியைக் காட்டும் வகையில் இந்த தயாரிப்பு உருவாக்கப்பட்டுள்ளது.",
+    "highlights": [
+      "கைவினைஞரால் தயாரிக்கப்பட்ட மர பொம்மை",
+      "இயற்கையான தாவர சாயங்களால் வண்ணம் தீட்டப்பட்டது",
+      "மரத்தினால் செய்யப்பட்டது"
+    ],
+    "specifications": {
+      "Material": "மரம்",
+      "Craft Technique": "கைவினை தயாரிப்பு"
+    },
+    "care_instructions": "ஈரப்பதம் இல்லாத உலர்ந்த துணியால் மென்மையாக துடைக்கவும்.",
+    "tags": [
+      "மர பொம்மை",
+      "கைவினைப் பொருள்",
+      "இயற்கை சாய பொம்மை",
+      "மர கைவினை"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:18.747Z",
+    "updated_at": "2026-09-19T18:37:19.465Z"
+  },
+  {
+    "id": "cat-1789843042610-59dw4",
+    "product_id": "prod-1789843032388-6ukdn",
+    "artisan_id": "artisan-iso-aaaa",
+    "language": "hi",
+    "title": "Artisan A Wooden Toy",
+    "short_description": "Handcrafted wooden toy made with natural organic vegetable dyes. A traditional artisan-made product designed for safety and durability.",
+    "description": "Discover the Artisan A Wooden Toy, a carefully handcrafted wooden play item designed to showcase traditional craftsmanship. Each piece is crafted with natural organic vegetable dyes, ensuring a safe and authentic finish. This item highlights the skill of wooden toy making, offering a classic addition to your collection.",
+    "highlights": [
+      "Handcrafted wooden toy",
+      "Colored with natural organic vegetable dyes",
+      "Traditional artisan creation"
+    ],
+    "specifications": {
+      "Material": "Wood",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "Wipe clean with a dry cloth. Keep away from water and direct moisture.",
+    "tags": [
+      "Wooden Toy",
+      "Handcrafted Toy",
+      "Natural Dyes",
+      "Wood Craft",
+      "Artisan Toy"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:22.152Z",
+    "updated_at": "2026-09-19T18:37:22.461Z"
+  },
+  {
+    "id": "cat-1789843048678-cnb02",
+    "product_id": "prod-1789843042956-vynr4",
+    "artisan_id": "artisan-iso-bbbb",
+    "language": "en",
+    "title": "Handcrafted Artisan B Silver Necklace",
+    "short_description": "A professionally crafted Artisan B Silver Necklace featuring traditional artisan techniques.",
+    "description": "This Artisan B Silver Necklace is a high-quality catalogue item combining authentic craftsmanship with durable design. to achieve a refined visual texture and structure.",
+    "highlights": [
+      "Artisan craftsmanship",
+      "Quality material",
+      "Refined design"
+    ],
+    "specifications": {
+      "Category": "Jewellery"
+    },
+    "care_instructions": "Handle with care.",
+    "tags": [
+      "Artisan B Silver Necklace",
+      "Jewellery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:27.780Z",
+    "updated_at": "2026-09-19T18:37:28.912Z"
+  },
+  {
+    "id": "cat-1789843055886-npzo4",
+    "product_id": "prod-1789843042956-vynr4",
+    "artisan_id": "artisan-iso-bbbb",
+    "language": "ta",
+    "title": "கைவினைஞர் B உருவாக்கிய பாரம்பரிய வெள்ளி நெக்லஸ்",
+    "short_description": "கைவினைஞர் B அவர்களால் நேர்த்தியாகக் கையால் வடிவமைக்கப்பட்ட பாரம்பரிய வெள்ளி நெக்லஸ். விசேஷ நிகழ்வுகளுக்கும் பாரம்பரிய தருணங்களுக்கும் ஏற்ற கலைநயம் மிக்க ஆபரணம்.",
+    "description": "கைவினைஞர் B அவர்களின் கைவண்ணத்தில் உருவான நேர்த்தியான பாரம்பரிய வெள்ளி நெக்லஸ். அனுபவம் வாய்ந்த கைவினை நேர்த்தியுடன் கையால் செய்யப்பட்ட இந்த நகை, பாரம்பரிய ஆபரண வடிவமைப்பின் உன்னதத்தை வெளிப்படுத்துகிறது. பாரம்பரிய அழகியல் உணர்வுடன் வடிவமைக்கப்பட்டுள்ள இந்த வெள்ளி நெக்லஸ், உங்களின் சிறப்புத் தருணங்களை மேலும் மெருகூட்டும் சிறப்பான தேர்வாகும்.",
+    "highlights": [
+      "கைவினைஞர் B அவர்களால் பிரத்யேகமாகக் கையால் செய்யப்பட்டது",
+      "பாரம்பரிய பாணியிலான வெள்ளி நெக்லஸ் வடிவமைப்பு",
+      "ஆபரண வகையைச் சேர்ந்த தரமான கைவினைப் பொருள்"
+    ],
+    "specifications": {
+      "Material": "வெள்ளி",
+      "Craft Technique": "கைவினைப்பணி (Handcrafted)",
+      "Category": "நகை (Jewellery)"
+    },
+    "care_instructions": "வெள்ளி நகையின் பளபளப்பைப் பாதுகாக்க, மென்மையான உலர் துணியால் துடைத்து, பயன்பாட்டிற்குப் பின் காற்றுப்புகாத பெட்டியில் அல்லது பையில் பத்திரப்படுத்தி வைக்கவும்.",
+    "tags": [
+      "வெள்ளி நெக்லஸ்",
+      "பாரம்பரிய நகை",
+      "கைவினை ஆபரணம்",
+      "வெள்ளி நகை",
+      "நெக்லஸ்"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:35.505Z",
+    "updated_at": "2026-09-19T18:37:36.291Z"
+  },
+  {
+    "id": "cat-1789843061435-re2u7",
+    "product_id": "prod-1789843042956-vynr4",
+    "artisan_id": "artisan-iso-bbbb",
+    "language": "hi",
+    "title": "कारीगर बी द्वारा हस्तनिर्मित पारंपरिक सिल्वर नेकलेस",
+    "short_description": "कारीगर बी द्वारा तैयार किया गया यह पारंपरिक सिल्वर नेकलेस आभूषण संग्रह के लिए एक उत्कृष्ट विकल्प है। यह हस्तनिर्मित हार पारंपरिक शिल्प कौशल को खूबसूरती से दर्शाता है।",
+    "description": "यह पारंपरिक सिल्वर नेकलेस कुशल कारीगर बी द्वारा हस्तनिर्मित (handcrafted) किया गया है। ज्वेलरी श्रेणी में शामिल यह उत्पाद पारंपरिक शैली और प्रामाणिक कारीगरी का सुंदर संगम है। कुशल निर्माण प्रक्रिया के साथ तैयार किया गया यह हार पारंपरिक परिधानों के साथ पहनने के लिए एक सुरुचिपूर्ण विकल्प प्रदान करता है।",
+    "highlights": [
+      "कारीगर बी द्वारा प्रामाणिक रूप से हस्तनिर्मित",
+      "सुरुचिपूर्ण पारंपरिक सिल्वर नेकलेस डिज़ाइन",
+      "ज्वेलरी श्रेणी का उत्कृष्ट आभूषण",
+      "मूल्य: ₹9000"
+    ],
+    "specifications": {
+      "Category": "Jewellery",
+      "Craft Technique": "Handcrafted (हस्तनिर्मित)",
+      "Product Type": "Traditional Silver Necklace",
+      "Artisan": "Artisan B"
+    },
+    "care_instructions": "आभूषण को नमी और रसायनों से दूर रखें तथा उपयोग के पश्चात सूखे व मुलायम कपड़े से पोंछकर सुरक्षित स्थान पर रखें।",
+    "tags": [
+      "सिल्वर नेकलेस",
+      "पारंपरिक ज्वेलरी",
+      "हस्तनिर्मित नेकलेस",
+      "कारीगर बी",
+      "सिल्वर आभूषण"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:37:41.104Z",
+    "updated_at": "2026-09-19T18:37:58.252Z"
+  },
+  {
+    "id": "cat-1789843150943-yuplm",
+    "product_id": "prod-1789843146942-0jjwh",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "en",
+    "title": "Published Silk Stole",
+    "short_description": "A handcrafted traditional silk stole expertly woven by master artisans. Designed as a versatile textile piece for everyday elegance.",
+    "description": "Discover the elegance of the Published Silk Stole, a handcrafted traditional silk stole woven by skilled master artisans. Created through traditional textile craft, this piece reflects careful artisanal workmanship and timeless design. Suitable for various occasions, it brings authentic artisan skill and classic style to your wardrobe.",
+    "highlights": [
+      "Handcrafted traditional silk stole",
+      "Woven by master artisans",
+      "Made with silk material",
+      "Traditional textile category"
+    ],
+    "specifications": {
+      "Material": "Silk",
+      "Craft Technique": "Handwoven"
+    },
+    "care_instructions": "",
+    "tags": [
+      "silk stole",
+      "handcrafted textile",
+      "artisanal scarf",
+      "traditional stole",
+      "silk accessory"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:10.574Z",
+    "updated_at": "2026-09-19T18:39:10.961Z"
+  },
+  {
+    "id": "cat-1789843151002-40i7t",
+    "product_id": "prod-1789843146461-5w6cz",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "en",
+    "title": "Draft Pottery Bowl",
+    "short_description": "A handcrafted traditional pottery bowl originating from Madurai. This authentic piece showcases classic artisanal skill for everyday use or display.",
+    "description": "Discover the traditional charm of the Draft Pottery Bowl, expertly handcrafted in Madurai. This piece reflects authentic pottery techniques, bringing a genuine traditional aesthetic to your home. Designed with simplicity and function in mind, it serves as a versatile addition to any collection of handmade crafts.",
+    "highlights": [
+      "Handcrafted traditional pottery bowl",
+      "Originates from Madurai",
+      "Authentic handmade design",
+      "Suitable for home decor or utility"
+    ],
+    "specifications": {
+      "Craft Technique": "Handcrafted Pottery"
+    },
+    "care_instructions": "",
+    "tags": [
+      "pottery bowl",
+      "handmade bowl",
+      "Madurai pottery",
+      "traditional bowl",
+      "craft pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:10.650Z",
+    "updated_at": "2026-09-19T18:39:10.650Z"
+  },
+  {
+    "id": "cat-1789843154114-ehhxe",
+    "product_id": "prod-1789843146942-0jjwh",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "ta",
+    "title": "Published Silk Stole",
+    "short_description": "கைவினைஞர்களால் உருவாக்கப்பட்ட பாரம்பரிய பட்டு ஸ்டோல். நேர்த்தியான வடிவமைப்புடன் கூடிய பிரத்யேக தயாரிப்பு.",
+    "description": "தலைசிறந்த கைவினைஞர்களால் பாரம்பரிய முறையில் கைகளால் உருவாக்கப்பட்ட பட்டு ஸ்டோல் இது. இது ஒரு பிரத்யேக தயாரிப்பு ஆகும், இது கைவினைத்திறனின் அழகை வெளிப்படுத்துகிறது.",
+    "highlights": [
+      "கைவினைஞர்களால் பாரம்பரிய முறையில் தயாரிக்கப்பட்டது",
+      "பட்டுப் பொருள்",
+      "பாரம்பரிய வடிவமைப்பு"
+    ],
+    "specifications": {
+      "Material": "பட்டு (Silk)",
+      "Craft Technique": "கைவினை (Handcrafted)"
+    },
+    "care_instructions": "டிரை கிளீன் செய்யவும் அல்லது மென்மையான சோப்புடன் கை அலசல் செய்யவும.",
+    "tags": [
+      "Silk Stole",
+      "Handcrafted Stole",
+      "Silk Scarf",
+      "Traditional Stole",
+      "Silk Accessories"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:13.710Z",
+    "updated_at": "2026-09-19T18:39:14.183Z"
+  },
+  {
+    "id": "cat-1789843154321-cfq22",
+    "product_id": "prod-1789843146461-5w6cz",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "ta",
+    "title": "Draft Pottery Bowl - Madurai",
+    "short_description": "Explore this traditional handcrafted pottery bowl originating from Madurai. A beautifully made piece designed for everyday use.",
+    "description": "Enhance your living space with this traditional handcrafted pottery bowl, authentically made in Madurai. This piece showcases traditional pottery craftsmanship, bringing a touch of indigenous artistry and rustic charm to your home. Carefully shaped by skilled hands, it serves as a wonderful addition to your daily utility or decor needs.",
+    "highlights": [
+      "Handcrafted traditional pottery bowl",
+      "Originates from Madurai",
+      "Authentic handmade pottery item"
+    ],
+    "specifications": {
+      "Craft Technique": "Handcrafted Pottery"
+    },
+    "care_instructions": "",
+    "tags": [
+      "pottery bowl",
+      "madurai pottery",
+      "handcrafted bowl",
+      "traditional pottery",
+      "handmade bowl"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:13.966Z",
+    "updated_at": "2026-09-19T18:39:13.966Z"
+  },
+  {
+    "id": "cat-1789843157225-usszc",
+    "product_id": "prod-1789843146942-0jjwh",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "hi",
+    "title": "पब्लिश्ड सिल्क स्टोल",
+    "short_description": "कुशल कारीगरों द्वारा हस्तनिर्मित पारंपरिक सिल्क स्टोल। यह उत्पाद बेहतरीन कारीगरी का एक सुंदर उदाहरण है।",
+    "description": "यह पब्लिश्ड सिल्क स्टोल कुशल मास्टर कारीगरों द्वारा पूरी तरह से हस्तनिर्मित पारंपरिक सिल्क स्टोल है। पारंपरिक शिल्प कौशल और बेहतरीन सिल्क सामग्री के साथ इसे सावधानीपूर्वक तैयार किया गया है, जो इसे आपकी पोशाक के लिए एक शानदार विकल्प बनाता है।",
+    "highlights": [
+      "कुशल कारीगरों द्वारा हस्तनिर्मित",
+      "पारंपरिक सिल्क स्टोल डिजाइन",
+      "उत्कृष्ट फिनिश और गुणवत्ता"
+    ],
+    "specifications": {
+      "Material": "सिल्क",
+      "Craft Technique": "हस्तनिर्मित"
+    },
+    "care_instructions": "",
+    "tags": [
+      "सिल्क स्टोल",
+      "हस्तनिर्मित स्टोल",
+      "पारंपरिक स्टोल",
+      "महिलाओं के वस्त्र",
+      "सिल्क एक्सेसरीज"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:16.873Z",
+    "updated_at": "2026-09-19T18:39:17.171Z"
+  },
+  {
+    "id": "cat-1789843157490-sr8hp",
+    "product_id": "prod-1789843146461-5w6cz",
+    "artisan_id": "11111111-1111-4111-a111-111111111111",
+    "language": "hi",
+    "title": "Draft Pottery Bowl",
+    "short_description": "मदुरै से हस्तनिर्मित पारंपरिक पॉटरी बाउल। यह एक सुंदर और उपयोगी शिल्प वस्तु है।",
+    "description": "यह मदुरै का एक हस्तनिर्मित पारंपरिक पॉटरी बाउल है, जिसे पारंपरिक विधियों से तैयार किया गया है। इसका डिजाइन और शिल्प कौशल इसे घर की सजावट और उपयोग के लिए एक बेहतरीन विकल्प बनाते हैं। इस उत्पाद की कीमत ₹450 है।",
+    "highlights": [
+      "मदुरै से हस्तनिर्मित पारंपरिक पॉटरी बाउल",
+      "पारंपरिक शिल्प कौशल द्वारा निर्मित",
+      "घरेलू उपयोग और सजावट के लिए उपयुक्त"
+    ],
+    "specifications": {},
+    "care_instructions": "",
+    "tags": [
+      "पॉटरी बाउल",
+      "हस्तशिल्प",
+      "मदुरै पॉटरी",
+      "हैंडमेड बाउल",
+      "शिल्प"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:17.136Z",
+    "updated_at": "2026-09-19T18:39:17.136Z"
+  },
+  {
+    "id": "cat-1789843162850-0h3b0",
+    "product_id": "prod-1789843158355-ufbm8",
+    "artisan_id": "22222222-2222-4222-a222-222222222222",
+    "language": "en",
+    "title": "Handwoven Cotton Table Runner",
+    "short_description": "A beautifully handwoven cotton table runner crafted by master weavers. Designed to bring a refined touch to your dining space.",
+    "description": "Enhance your dining table with this Handwoven Cotton Table Runner, expertly created by master weavers. This piece reflects skilled traditional craftsmanship, offering a clean and elegant textile accent for your home decor. Each runner is carefully crafted to provide both functionality and a polished aesthetic for everyday dining or special gatherings.",
+    "highlights": [
+      "Created by master weavers",
+      "Handwoven cotton construction",
+      "Designed for dining and home decor use"
+    ],
+    "specifications": {
+      "Material": "Cotton",
+      "Craft Technique": "Handwoven"
+    },
+    "care_instructions": "Hand wash separately in cold water with mild detergent. Dry in shade.",
+    "tags": [
+      "table runner",
+      "cotton table runner",
+      "handwoven textile",
+      "dining decor",
+      "handcrafted home"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:22.448Z",
+    "updated_at": "2026-09-19T18:39:23.422Z"
+  },
+  {
+    "id": "cat-1789843167049-x5wj7",
+    "product_id": "prod-1789843158355-ufbm8",
+    "artisan_id": "22222222-2222-4222-a222-222222222222",
+    "language": "ta",
+    "title": "கைத்தறி பருத்தி மேஜை விரிப்பு (Handwoven Cotton Table Runner)",
+    "short_description": "மாஸ்டர் நெசவாளர்களால் திறம்பட உருவாக்கப்பட்ட கைத்தறி பருத்தி மேஜை விரிப்பு. உங்கள் உணவு மேஜைக்கு அழகும் நேர்த்தியும் சேர்க்கிறது.",
+    "description": "மாஸ்டர் நெசவாளர்களின் கைவண்ணத்தில் உருவாக்கப்பட்ட இந்த கைத்தறி பருத்தி மேஜை விரிப்பு (Handwoven Cotton Table Runner), உங்கள் வீட்டின் உணவு மேஜை மற்றும் அறையின் தோற்றத்தை மேம்படுத்தப் பயன்படுகிறது. கைத்தறி முறையில் கவனமாக தயாரிக்கப்பட்ட இந்த தயாரிப்பு, பாரம்பரிய நெசவுத் திறமையின் வெளிப்பாடாகும்.",
+    "highlights": [
+      "மாஸ்டர் நெசவாளர்களால் கைத்தறியாக உருவாக்கப்பட்டது",
+      "உயர்தர பருத்திப் பொருளால் தயாரிக்கப்பட்டது",
+      "உணவு மேஜை அலங்காரத்திற்கு ஏற்றது"
+    ],
+    "specifications": {
+      "Material": "பருத்தி",
+      "Craft Technique": "கைத்தறி"
+    },
+    "care_instructions": "மென்மையான முறையில் குளிர்ந்த நீரில் கைகளால் துவைக்க அறிவுறுத்தப்படுகிறது.",
+    "tags": [
+      "மேஜை விரிப்பு",
+      "கைத்தறி",
+      "பருத்தி",
+      "வீட்டு அலங்காரம்",
+      "Table Runner"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:26.563Z",
+    "updated_at": "2026-09-19T18:39:27.592Z"
+  },
+  {
+    "id": "cat-1789843170404-zsmam",
+    "product_id": "prod-1789843158355-ufbm8",
+    "artisan_id": "22222222-2222-4222-a222-222222222222",
+    "language": "hi",
+    "title": "Handwoven Cotton Table Runner",
+    "short_description": "Explore this elegant handwoven cotton table runner, skillfully created by master weavers. Designed to add a refined touch to your dining space.",
+    "description": "Enhance your dining table with this exquisite handwoven cotton table runner. Expertly crafted by skilled master weavers, this piece showcases traditional handloom techniques and durable cotton construction. Perfect for everyday dining or special gatherings, it combines timeless style with functional elegance.",
+    "highlights": [
+      "Handwoven cotton construction",
+      "Created by master weavers",
+      "Ideal for dining table decor",
+      "Price: ₹800"
+    ],
+    "specifications": {
+      "Material": "Cotton",
+      "Craft Technique": "Handwoven"
+    },
+    "care_instructions": "Hand wash separately in cold water.",
+    "tags": [
+      "Table Runner",
+      "Handwoven",
+      "Cotton",
+      "Home Decor",
+      "Dining Accessories"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:30.053Z",
+    "updated_at": "2026-09-19T18:39:30.848Z"
+  },
+  {
+    "id": "cat-1789843180291-0g449",
+    "product_id": "prod-1789843175776-cz5ev",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "language": "en",
+    "title": "Handcrafted Terracotta Clay Pot",
+    "short_description": "A professionally crafted Terracotta Clay Pot featuring traditional artisan techniques.",
+    "description": "This Terracotta Clay Pot is a high-quality catalogue item combining authentic craftsmanship with durable design. to achieve a refined visual texture and structure.",
+    "highlights": [
+      "Artisan craftsmanship",
+      "Quality material",
+      "Refined design"
+    ],
+    "specifications": {
+      "Category": "Pottery"
+    },
+    "care_instructions": "Handle with care.",
+    "tags": [
+      "Terracotta Clay Pot",
+      "Pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:39.746Z",
+    "updated_at": "2026-09-19T18:39:44.052Z"
+  },
+  {
+    "id": "cat-1789843187778-spu0h",
+    "product_id": "prod-1789843175776-cz5ev",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "language": "ta",
+    "title": "Terracotta Clay Pot",
+    "short_description": "உயர்தர Terracotta Clay Pot. சந்தை பயன்பாட்டிற்கு ஏற்ற சிறப்பான வடிவமைப்பு.",
+    "description": "இந்த Terracotta Clay Pot வணிக ரீதியிலான சந்தை தரத்திற்கு ஏற்ப வடிவமைக்கப்பட்டுள்ளது. உருவாக்கப்பட்டுள்ளது.  நீடித்து உழைக்கும் சிறந்த கலைப்படைப்பு.",
+    "highlights": [
+      "சிறந்த கைவினை திறன்",
+      "தரமான பொருள்",
+      "சந்தை பயன்பாட்டிற்கு ஏற்ற வடிவமைப்பு"
+    ],
+    "specifications": {
+      "வகை": "Pottery"
+    },
+    "care_instructions": "உலர்ந்த நிலையில் பராமரிக்கவும்.",
+    "tags": [
+      "Terracotta Clay Pot",
+      "Pottery"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:47.422Z",
+    "updated_at": "2026-09-19T18:39:48.194Z"
+  },
+  {
+    "id": "cat-1789843191496-lf5i3",
+    "product_id": "prod-1789843175776-cz5ev",
+    "artisan_id": "44444444-4444-4444-a444-444444444444",
+    "language": "hi",
+    "title": "हैंडक्राफ्टेड टेराकोटा क्ले पॉट",
+    "short_description": "प्राकृतिक मिट्टी से निर्मित यह टेराकोटा क्ले पॉट पर्यावरण अनुकूल है। यह पारंपरिक कारीगरी का एक सुंदर उदाहरण है।",
+    "description": "यह टेराकोटा क्ले पॉट पर्यावरण के अनुकूल प्राकृतिक मिट्टी का उपयोग करके सावधानीपूर्वक तैयार किया गया है। इसकी निर्माण प्रक्रिया में पारंपरिक तरीकों का ध्यान रखा गया है, जो इसे एक प्रामाणिक और उपयोगी उत्पाद बनाती है। इसका सरल और प्राकृतिक डिजाइन इसे आपके दैनिक उपयोग के लिए उपयुक्त बनाता है।",
+    "highlights": [
+      "पर्यावरण के अनुकूल प्राकृतिक मिट्टी से निर्मित",
+      "पारंपरिक टेराकोटा क्ले पॉट",
+      "दैनिक उपयोग के लिए उपयुक्त"
+    ],
+    "specifications": {
+      "Material": "प्राकृतिक मिट्टी (Terracotta Clay)",
+      "Craft Technique": "हैंडमेड पोटरी"
+    },
+    "care_instructions": "नाजुक वस्तु है, इसे सावधानी से संभालें और केवल मुलायम कपड़े से साफ करें।",
+    "tags": [
+      "टेराकोटा पॉट",
+      "क्ले पॉट",
+      "हैंडमेड पोटरी",
+      "मिट्टी का बर्तन",
+      "इको फ्रेंडली डेकोर"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:51.121Z",
+    "updated_at": "2026-09-19T18:39:52.019Z"
+  },
+  {
+    "id": "cat-1789843198784-t05st",
+    "product_id": "prod-1789843195497-c3s1d",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "language": "en",
+    "title": "Handcrafted Traditional Brass Lamp",
+    "short_description": "A traditional handcrafted brass lamp designed to enhance your festive home decor. Exquisitely shaped for celebratory spaces and everyday ambiance.",
+    "description": "Bring a touch of traditional craftsmanship to your living space with this handcrafted brass lamp. Designed specifically for festive home decor, this piece showcases artisanal skill in metalwork, serving as a classic decorative accent that brightens any setting during celebrations and everyday use.",
+    "highlights": [
+      "Handcrafted traditional brass lamp",
+      "Designed for festive home decor",
+      "Made with metal craftsmanship"
+    ],
+    "specifications": {
+      "Material": "Brass",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "brass lamp",
+      "festive decor",
+      "handcrafted",
+      "home decor",
+      "handicrafts"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:39:58.374Z",
+    "updated_at": "2026-09-19T18:39:58.917Z"
+  },
+  {
+    "id": "cat-1789843201978-7jx80",
+    "product_id": "prod-1789843195497-c3s1d",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "language": "ta",
+    "title": "கைவினைப் பாரம்பரிய பித்தளை விளக்கு",
+    "short_description": "வீட்டு அலங்காரத்திற்கும் பண்டிகை காலங்களுக்கும் ஏற்ற பாரம்பரிய பித்தளை விளக்கு. கைவினைப் பொருட்களாக உருவாக்கப்பட்டுள்ளது.",
+    "description": "இது ஒரு கைவினைப் பாரம்பரிய பித்தளை விளக்கு ஆகும். பண்டிகை கால வீட்டு அலங்காரத்திற்காக கைமுறையாக உருவாக்கப்பட்டுள்ளது. இந்த விளக்கு உங்கள் இல்லத்தில் பாரம்பரியமான தோற்றத்தை வழங்குகிறது.",
+    "highlights": [
+      "கைவினைப் பாரம்பரிய பித்தளை விளக்கு",
+      "பண்டிகை கால வீட்டு அலங்காரத்திற்கு ஏற்றது",
+      "கைமுறையாக உருவாக்கப்பட்டது"
+    ],
+    "specifications": {
+      "Material": "Brass",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "",
+    "tags": [
+      "பித்தளை விளக்கு",
+      "வீட்டு அலங்காரம்",
+      "கைவினைப் பொருட்கள்",
+      "பண்டிகை அலங்காரம்",
+      "Brass Lamp"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:40:01.531Z",
+    "updated_at": "2026-09-19T18:40:01.992Z"
+  },
+  {
+    "id": "cat-1789843205134-8ga7j",
+    "product_id": "prod-1789843195497-c3s1d",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "language": "hi",
+    "title": "Traditional Handcrafted Brass Lamp for Festive Home Decor",
+    "short_description": "Enhance your festive home decor with this beautifully handcrafted traditional brass lamp. Designed for elegance, it brings a classic touch to any living space.",
+    "description": "Bring traditional elegance to your living space with this handcrafted brass lamp, specifically designed for festive home decor. Created with skilled artisanal effort, this piece serves as a charming addition to your traditional setup, blending timeless design with careful craftsmanship.",
+    "highlights": [
+      "Handcrafted traditional design",
+      "Suitable for festive home decor",
+      "Made of durable brass",
+      "Crafted with artisanal care"
+    ],
+    "specifications": {
+      "Material": "Brass",
+      "Craft Technique": "Handcrafted"
+    },
+    "care_instructions": "Clean gently with a soft dry cloth to maintain the shine.",
+    "tags": [
+      "Brass Lamp",
+      "Handicrafts",
+      "Festive Decor",
+      "Home Decor",
+      "Traditional Lamp"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "m63",
+    "created_at": "2026-09-19T18:40:04.787Z",
+    "updated_at": "2026-09-19T18:40:05.027Z"
+  },
+  {
+    "id": "cat-1789843237907-kike9",
+    "product_id": "prod-isolation-1789843237393",
+    "artisan_id": "artisan-account-A",
+    "language": "en",
+    "title": "Blue Saree",
+    "short_description": "Short summary for A",
+    "description": "Account A description",
+    "highlights": [
+      "A item"
+    ],
+    "specifications": {
+      "Material": "Cotton"
+    },
+    "care_instructions": "Care info",
+    "tags": [
+      "saree"
+    ],
+    "tone_style": "PROFESSIONAL",
+    "generated_by": "artisan",
+    "created_at": "2026-09-19T18:40:37.394Z",
+    "updated_at": "2026-09-19T18:40:37.394Z"
   }
 ]

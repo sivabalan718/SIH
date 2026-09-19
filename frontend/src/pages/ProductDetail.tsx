@@ -25,6 +25,7 @@ import { LoadingSpinner } from '../components/ui/LoadingSpinner.js';
 import { SmartCatalogueSection } from '../components/product/SmartCatalogueSection.js';
 import { SmartFairPricingSection } from '../components/pricing/SmartFairPricingSection.js';
 import { savePricingState, getPricingState } from '../services/pricingService.js';
+import { CustomerFeedbackSection } from '../components/reviews/CustomerFeedbackSection.js';
 import {
   getCatalogue,
   saveCatalogue,
@@ -582,6 +583,13 @@ export const ProductDetail: React.FC = () => {
             if (style) setCatalogueStyle(style);
           }}
         />
+
+        {/* Customer Feedback & Grounded M63 AI Insight Section */}
+        {productId && (
+          <div className="m63-card">
+            <CustomerFeedbackSection productId={productId} />
+          </div>
+        )}
 
         {/* Footer Actions */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', paddingTop: '12px' }}>
