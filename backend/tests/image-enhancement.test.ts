@@ -23,6 +23,9 @@ import {
   generateAdaptiveShadow,
   computeAdaptiveFilters,
   runAdaptiveEnhancerPipeline,
+  validateImageInput,
+  checkMaskQuality,
+  buildSafeFallbackResult,
   SubjectGeometry,
   ImageAnalysisMetrics,
 } from '../src/services/image/adaptive-image-enhancer.service.js';
@@ -361,6 +364,32 @@ describe('M63 Adaptive Free AI Image Enhancer Test Suite', () => {
       expect(res.status).toBe(401);
       expect(res.body.success).toBe(false);
       expect(res.body.error.code).toBe('UNAUTHORIZED');
+    });
+  });
+
+  describe('6. Input Validation & Mask Quality Safety Gates', () => {
+    test('should reject empty or tiny image buffers during input validation', () => {
+      const tinyBuffer = Buffer.from('hello');
+      const val = validateImageInput(tinyBuffer);
+      expect(val.valid).toBe(false);
+      expect(val.reason).toContain('buffer is missing or corrupt');
+    });
+
+    test('should trigger safe fallback when invalid buffer is passed to pipeline', async () => {
+      const corruptBuffer = Buffer.alloc(100);
+      const res = await runAdaptiveEnhancerPipeline(corruptBuffer, 'WHITE');
+      expect(res.success).toBe(true);
+      expect(res.fallbackTriggered).toBe(true);
+      expect(res.qualityGatePassed).toBe(false);
+    });
+
+    test('buildSafeFallbackResult should produce valid JPEG image without crashing', async () => {
+      const testBuffer = await createTestImage('BRIGHT_CRAFT');
+      const res = await buildSafeFallbackResult(testBuffer, 'Test fallback reason', 'CREAM');
+      expect(res.success).toBe(true);
+      expect(res.fallbackTriggered).toBe(true);
+      expect(res.enhancedBuffer.length).toBeGreaterThan(1000);
+      expect(res.improvementsApplied).toContain('✓ Product photo framed safely in Smart Studio');
     });
   });
 });
