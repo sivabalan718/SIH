@@ -5,6 +5,8 @@ import { Button } from '../components/ui/Button.js';
 import { Input } from '../components/ui/Input.js';
 import { CustomerFloatingEntry } from '../components/common/CustomerFloatingEntry.js';
 import { StarryBackground3D } from '../components/common/StarryBackground3D.js';
+import { EmberField } from '../components/common/EmberField.js';
+import '../styles/m63-animations.css';
 
 export const Register: React.FC = () => {
   const { register } = useAuth();
@@ -62,6 +64,7 @@ export const Register: React.FC = () => {
 
   return (
     <div
+      className="m63-sans"
       style={{
         position: 'relative',
         minHeight: '100vh',
@@ -75,10 +78,12 @@ export const Register: React.FC = () => {
       }}
     >
       <StarryBackground3D />
+      <EmberField count={16} variant="clay" />
+      <div className="m63-card-glow" />
 
-      <div className="m63-auth-card-dark animate-fade-in" style={{ position: 'relative', zIndex: 10 }}>
+      <div className="m63-auth-card-dark m63-card-in" style={{ position: 'relative', zIndex: 10 }}>
         {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div className="m63-reveal" style={{ textAlign: 'center', marginBottom: '24px', animationDelay: '0.05s' }}>
           <div
             style={{
               width: '48px',
@@ -97,7 +102,10 @@ export const Register: React.FC = () => {
           >
             M
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
+          <h1
+            className="m63-serif"
+            style={{ fontSize: '1.55rem', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-0.01em' }}
+          >
             Welcome to M63
           </h1>
           <p style={{ fontSize: '0.875rem', color: '#94A3B8', marginTop: '4px' }}>
@@ -106,12 +114,20 @@ export const Register: React.FC = () => {
         </div>
 
         {serverError && (
-          <div className="m63-alert m63-alert-error" role="alert" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#FCA5A5' }}>
+          <div
+            className="m63-alert m63-alert-error"
+            role="alert"
+            style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              borderColor: 'rgba(239, 68, 68, 0.4)',
+              color: '#FCA5A5',
+            }}
+          >
             <span>{serverError}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} noValidate className="m63-reveal" style={{ animationDelay: '0.15s' }}>
           <Input
             label="Full Name"
             placeholder="e.g. Meena Devi"
@@ -151,7 +167,7 @@ export const Register: React.FC = () => {
             required
           />
 
-          <div style={{ marginTop: '24px' }}>
+          <div style={{ marginTop: '24px' }} className="m63-btn-wrap">
             <Button
               type="submit"
               variant="primary"
@@ -169,7 +185,16 @@ export const Register: React.FC = () => {
           </div>
         </form>
 
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: '#94A3B8' }}>
+        <div
+          className="m63-reveal"
+          style={{
+            marginTop: '24px',
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            color: '#94A3B8',
+            animationDelay: '0.24s',
+          }}
+        >
           Already have an account?{' '}
           <Link to="/login" style={{ fontWeight: 600, color: '#F59E0B', textDecoration: 'none' }}>
             Sign in

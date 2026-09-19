@@ -248,5 +248,34 @@
     "placed_at": "2026-08-31T14:58:22.862Z",
     "updated_at": "2026-08-31T14:58:25.973Z",
     "cancelled_at": "2026-08-31T14:58:25.973Z"
+  },
+  {
+    "id": "ord-1789811414768-vyfq9",
+    "m63_order_number": "M63-3695",
+    "buyer_id": "77777777-7777-4777-a777-777777777777",
+    "artisan_id": "66666666-6666-4666-a666-666666666666",
+    "status": "CANCELLED",
+    "subtotal": 7500,
+    "delivery_charge": 0,
+    "total_amount": 7500,
+    "shipping_name": "Buyer",
+    "shipping_phone": "999",
+    "shipping_address": "Main St",
+    "items": [
+      {
+        "id": "item-1789811414768-d8b",
+        "order_id": "ord-1789811414768-vyfq9",
+        "product_id": "prod-1789811397717-7m2mz",
+        "product_name_snapshot": "Handcrafted Traditional Brass Lamp",
+        "unit_price_snapshot": 2500,
+        "quantity": 3,
+        "subtotal": 7500,
+        "artisan_id": "66666666-6666-4666-a666-666666666666",
+        "primary_image_url": "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb"
+      }
+    ],
+    "placed_at": "2026-09-19T09:50:14.768Z",
+    "updated_at": "2026-09-19T09:50:28.879Z",
+    "cancelled_at": "2026-09-19T09:50:28.879Z"
   }
 ]

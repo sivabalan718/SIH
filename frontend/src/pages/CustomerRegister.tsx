@@ -6,6 +6,8 @@ import { Button } from '../components/ui/Button.js';
 import { Input } from '../components/ui/Input.js';
 import { PreferredLanguage } from '../types/auth.js';
 import { StarryBackground3D } from '../components/common/StarryBackground3D.js';
+import { EmberField } from '../components/common/EmberField.js';
+import '../styles/m63-animations.css';
 
 export const CustomerRegister: React.FC = () => {
   const { registerCustomer } = useAuth();
@@ -88,22 +90,51 @@ export const CustomerRegister: React.FC = () => {
   };
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', width: '100%', backgroundColor: '#030712', padding: '32px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
+    <div
+      className="m63-sans"
+      style={{
+        position: 'relative',
+        minHeight: '100vh',
+        width: '100%',
+        backgroundColor: '#030712',
+        padding: '32px 20px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+      }}
+    >
       <StarryBackground3D />
+      <EmberField count={16} variant="gold" />
+      <div className="m63-card-glow m63-card-glow--gold" />
 
-      <div className="m63-auth-card-dark animate-fade-in" style={{ position: 'relative', zIndex: 10, maxWidth: '640px', width: '100%' }}>
+      <div
+        className="m63-auth-card-dark m63-card-in"
+        style={{ position: 'relative', zIndex: 10, maxWidth: '640px', width: '100%' }}
+      >
         {/* Back Link */}
         <button
           type="button"
           onClick={() => navigate('/login')}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#94A3B8', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', marginBottom: '20px' }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            color: '#94A3B8',
+            fontWeight: 600,
+            fontSize: '0.85rem',
+            cursor: 'pointer',
+            marginBottom: '20px',
+          }}
         >
           <ArrowLeft size={16} />
           <span>Back to M63 Landing Page</span>
         </button>
 
         {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <div className="m63-reveal" style={{ textAlign: 'center', marginBottom: '28px', animationDelay: '0.05s' }}>
           <div
             style={{
               width: '52px',
@@ -120,7 +151,10 @@ export const CustomerRegister: React.FC = () => {
           >
             <ShoppingBag size={26} />
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.02em', margin: 0 }}>
+          <h1
+            className="m63-serif"
+            style={{ fontSize: '1.55rem', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-0.01em', margin: 0 }}
+          >
             Create Customer Account
           </h1>
           <p style={{ fontSize: '0.88rem', color: '#94A3B8', marginTop: '6px' }}>
@@ -129,7 +163,21 @@ export const CustomerRegister: React.FC = () => {
         </div>
 
         {serverError && (
-          <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '10px', padding: '12px 14px', color: '#FCA5A5', fontSize: '0.85rem', fontWeight: 600, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid rgba(239, 68, 68, 0.4)',
+              borderRadius: '10px',
+              padding: '12px 14px',
+              color: '#FCA5A5',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              marginBottom: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
             <AlertCircle size={18} className="shrink-0 text-red-400" />
             <span>{serverError}</span>
           </div>
@@ -137,8 +185,19 @@ export const CustomerRegister: React.FC = () => {
 
         <form onSubmit={handleSubmit} noValidate>
           {/* Basic Identity Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="m63-reveal" style={{ marginBottom: '24px', animationDelay: '0.12s' }}>
+            <h3
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                color: '#F59E0B',
+                textTransform: 'uppercase',
+                marginBottom: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
               <User size={16} className="text-amber-500" /> 1. Customer Identity
             </h3>
 
@@ -179,19 +238,45 @@ export const CustomerRegister: React.FC = () => {
                 <select
                   value={formData.preferredLanguage}
                   onChange={(e) => setFormData({ ...formData, preferredLanguage: e.target.value as PreferredLanguage })}
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(30, 41, 59, 0.65)', color: '#F8FAFC', fontSize: '0.88rem', fontWeight: 600 }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    backgroundColor: 'rgba(30, 41, 59, 0.65)',
+                    color: '#F8FAFC',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                  }}
                 >
-                  <option value="en" style={{ backgroundColor: '#0F172A', color: '#FFF' }}>English</option>
-                  <option value="ta" style={{ backgroundColor: '#0F172A', color: '#FFF' }}>தமிழ் (Tamil)</option>
-                  <option value="hi" style={{ backgroundColor: '#0F172A', color: '#FFF' }}>हिन्दी (Hindi)</option>
+                  <option value="en" style={{ backgroundColor: '#0F172A', color: '#FFF' }}>
+                    English
+                  </option>
+                  <option value="ta" style={{ backgroundColor: '#0F172A', color: '#FFF' }}>
+                    தமிழ் (Tamil)
+                  </option>
+                  <option value="hi" style={{ backgroundColor: '#0F172A', color: '#FFF' }}>
+                    हिन्दी (Hindi)
+                  </option>
                 </select>
               </div>
             </div>
           </div>
 
           {/* Security Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="m63-reveal" style={{ marginBottom: '24px', animationDelay: '0.2s' }}>
+            <h3
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                color: '#F59E0B',
+                textTransform: 'uppercase',
+                marginBottom: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
               <Lock size={16} className="text-amber-500" /> 2. Account Security
             </h3>
 
@@ -219,8 +304,19 @@ export const CustomerRegister: React.FC = () => {
           </div>
 
           {/* Delivery Information Section */}
-          <div style={{ marginBottom: '24px' }}>
-            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="m63-reveal" style={{ marginBottom: '24px', animationDelay: '0.28s' }}>
+            <h3
+              style={{
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                color: '#F59E0B',
+                textTransform: 'uppercase',
+                marginBottom: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
               <MapPin size={16} className="text-amber-500" /> 3. Default Delivery Address
             </h3>
 
@@ -285,26 +381,46 @@ export const CustomerRegister: React.FC = () => {
                   type="text"
                   value="India"
                   disabled
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.15)', backgroundColor: 'rgba(30, 41, 59, 0.4)', color: '#94A3B8', fontSize: '0.88rem', fontWeight: 600 }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    backgroundColor: 'rgba(30, 41, 59, 0.4)',
+                    color: '#94A3B8',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                  }}
                 />
               </div>
             </div>
           </div>
 
-          <div style={{ marginTop: '28px' }}>
+          <div className="m63-reveal m63-btn-wrap" style={{ marginTop: '28px', animationDelay: '0.36s' }}>
             <Button
               type="submit"
               variant="primary"
               fullWidth
               loading={loading}
-              style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', border: 'none', color: '#FFFFFF', fontWeight: 700, height: '46px', fontSize: '0.95rem', boxShadow: '0 4px 16px rgba(245, 158, 11, 0.35)' }}
+              style={{
+                background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                border: 'none',
+                color: '#FFFFFF',
+                fontWeight: 700,
+                height: '46px',
+                fontSize: '0.95rem',
+                boxShadow: '0 4px 16px rgba(245, 158, 11, 0.35)',
+              }}
             >
               Register & Start Shopping
             </Button>
           </div>
         </form>
 
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.88rem', color: '#94A3B8' }}>
+        <div
+          className="m63-reveal"
+          style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.88rem', color: '#94A3B8', animationDelay: '0.42s' }}
+        >
           Already registered as a customer?{' '}
           <Link to="/customer/login" style={{ fontWeight: 700, color: '#F59E0B', textDecoration: 'none' }}>
             Sign In here

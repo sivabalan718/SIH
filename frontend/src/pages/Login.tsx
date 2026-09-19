@@ -6,6 +6,8 @@ import { Input } from '../components/ui/Input.js';
 import { CustomerFloatingEntry } from '../components/common/CustomerFloatingEntry.js';
 import { StarryBackground3D } from '../components/common/StarryBackground3D.js';
 import { WelcomeSplashIntro } from '../components/common/WelcomeSplashIntro.js';
+import { EmberField } from '../components/common/EmberField.js';
+import '../styles/m63-animations.css';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
@@ -54,6 +56,7 @@ export const Login: React.FC = () => {
 
   return (
     <div
+      className="m63-sans"
       style={{
         position: 'relative',
         minHeight: '100vh',
@@ -69,13 +72,22 @@ export const Login: React.FC = () => {
       {/* 3D Cosmic Animated Starfield & Shooting Stars Canvas */}
       <StarryBackground3D />
 
+      {/* Kiln-spark ember field — reads as one continuous atmosphere with the starfield */}
+      <EmberField count={16} variant="clay" />
+
       {/* 3-Second Welcome Splash Screen */}
       {showSplash && <WelcomeSplashIntro onComplete={() => setShowSplash(false)} />}
 
+      {/* One-time kiln flare behind the card on load */}
+      <div className="m63-card-glow" />
+
       {/* Login Dark Glass Card */}
-      <div className="m63-auth-card-dark animate-fade-in" style={{ position: 'relative', zIndex: 10 }}>
-        {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+      <div className="m63-auth-card-dark m63-card-in" style={{ position: 'relative', zIndex: 10 }}>
+        {/* Brand Header — orchestrated reveal, staggered once on mount */}
+        <div
+          className="m63-reveal"
+          style={{ textAlign: 'center', marginBottom: '28px', animationDelay: '0.05s' }}
+        >
           <div
             style={{
               width: '48px',
@@ -94,7 +106,10 @@ export const Login: React.FC = () => {
           >
             M
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
+          <h1
+            className="m63-serif"
+            style={{ fontSize: '1.6rem', fontWeight: 700, color: '#F8FAFC', letterSpacing: '-0.01em' }}
+          >
             M63
           </h1>
           <p style={{ fontSize: '0.875rem', color: '#94A3B8', marginTop: '4px' }}>
@@ -103,18 +118,34 @@ export const Login: React.FC = () => {
         </div>
 
         {serverError && (
-          <div className="m63-alert m63-alert-error" role="alert" style={{ backgroundColor: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#FCA5A5' }}>
+          <div
+            className="m63-alert m63-alert-error"
+            role="alert"
+            style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              borderColor: 'rgba(239, 68, 68, 0.4)',
+              color: '#FCA5A5',
+            }}
+          >
             <span>{serverError}</span>
           </div>
         )}
 
         {forgotMsg && (
-          <div className="m63-alert m63-alert-success" role="alert" style={{ backgroundColor: 'rgba(16, 185, 129, 0.15)', borderColor: 'rgba(16, 185, 129, 0.4)', color: '#6EE7B7' }}>
+          <div
+            className="m63-alert m63-alert-success"
+            role="alert"
+            style={{
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
+              borderColor: 'rgba(16, 185, 129, 0.4)',
+              color: '#6EE7B7',
+            }}
+          >
             <span>Password recovery instructions can be requested via M63 Support or your registered email address.</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} noValidate className="m63-reveal" style={{ animationDelay: '0.15s' }}>
           <Input
             label="Email or M63 ID"
             placeholder="e.g. artisan@example.com or M63-MOMAOV"
@@ -139,29 +170,47 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => setForgotMsg(true)}
-              style={{ background: 'none', border: 'none', color: '#F59E0B', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 500 }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#F59E0B',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                fontWeight: 500,
+              }}
             >
               Forgot password?
             </button>
           </div>
 
-          <Button
-            type="submit"
-            variant="primary"
-            fullWidth
-            loading={loading}
-            style={{
-              background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
-              border: 'none',
-              boxShadow: '0 4px 16px rgba(234, 88, 12, 0.35)',
-              fontWeight: 700,
-            }}
-          >
-            Sign In to M63
-          </Button>
+          <div className="m63-btn-wrap">
+            <Button
+              type="submit"
+              variant="primary"
+              fullWidth
+              loading={loading}
+              style={{
+                background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
+                border: 'none',
+                boxShadow: '0 4px 16px rgba(234, 88, 12, 0.35)',
+                fontWeight: 700,
+              }}
+            >
+              Sign In to M63
+            </Button>
+          </div>
         </form>
 
-        <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '0.875rem', color: '#94A3B8' }}>
+        <div
+          className="m63-reveal"
+          style={{
+            marginTop: '24px',
+            textAlign: 'center',
+            fontSize: '0.875rem',
+            color: '#94A3B8',
+            animationDelay: '0.24s',
+          }}
+        >
           Don't have an M63 account yet?{' '}
           <Link to="/register" style={{ fontWeight: 600, color: '#F59E0B', textDecoration: 'none' }}>
             Create M63 account
@@ -172,4 +221,3 @@ export const Login: React.FC = () => {
     </div>
   );
 };
-

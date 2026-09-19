@@ -1,0 +1,207 @@
+/* ============================================================
+   M63 — Shared motion & atmosphere system for auth flows
+   Brand feel: a kiln at night. Warm sparks rising through a
+   dark, star-flecked workshop. One orchestrated reveal per
+   page, not scattered per-element effects.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@500;600;700;800&display=swap');
+
+:root {
+  --m63-void: #030712;
+  --m63-glass: rgba(15, 23, 42, 0.55);
+  --m63-glass-border: rgba(255, 255, 255, 0.08);
+  --m63-clay-1: #ea580c;
+  --m63-clay-2: #c2410c;
+  --m63-gold-1: #f59e0b;
+  --m63-gold-2: #d97706;
+  --m63-text: #f8fafc;
+  --m63-text-dim: #94a3b8;
+}
+
+.m63-serif {
+  font-family: 'Fraunces', Georgia, serif;
+}
+.m63-sans {
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ---------- One-time kiln flare behind the auth card ---------- */
+.m63-card-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  background: radial-gradient(circle, rgba(234, 88, 12, 0.35) 0%, rgba(234, 88, 12, 0) 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 1;
+  animation: m63-glow-pulse 1.8s ease-out forwards;
+}
+.m63-card-glow--gold {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.32) 0%, rgba(245, 158, 11, 0) 70%);
+}
+@keyframes m63-glow-pulse {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.32;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* ---------- Card entrance ---------- */
+.m63-card-in {
+  animation: m63-card-in-kf 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes m63-card-in-kf {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Orchestrated staggered reveal — apply to 3-5 blocks max per page ---------- */
+.m63-reveal {
+  opacity: 0;
+  animation: m63-reveal-kf 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes m63-reveal-kf {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Ember particle field (syncs visually with StarryBackground3D) ---------- */
+.m63-ember-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+.m63-ember {
+  position: absolute;
+  bottom: -10px;
+  width: var(--m63-ember-size, 3px);
+  height: var(--m63-ember-size, 3px);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.9) 0%, rgba(234, 88, 12, 0.15) 70%);
+  animation: m63-ember-rise var(--m63-ember-duration, 9s) linear infinite;
+  animation-delay: var(--m63-ember-delay, 0s);
+  opacity: 0;
+}
+@keyframes m63-ember-rise {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.85;
+  }
+  85% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(var(--m63-ember-drift, 20px), -110vh);
+    opacity: 0;
+  }
+}
+
+/* ---------- Primary CTA — one restrained shimmer, not a hover-everywhere effect ---------- */
+.m63-btn-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  isolation: isolate;
+  transition: transform 0.18s ease;
+}
+.m63-btn-wrap:active {
+  transform: scale(0.985);
+}
+.m63-btn-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.22) 48%, transparent 66%);
+  transform: translateX(-120%);
+  animation: m63-shimmer-kf 6s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes m63-shimmer-kf {
+  0% {
+    transform: translateX(-120%);
+  }
+  16% {
+    transform: translateX(120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* ---------- Focus glow for inputs / selects — answers a user action, not ambient ---------- */
+.m63-auth-card-dark input:focus,
+.m63-auth-card-dark select:focus,
+.m63-auth-card-dark textarea:focus {
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.18) !important;
+  transition: box-shadow 0.2s ease;
+}
+
+/* ---------- Success burst rings (RegisterSuccess only) ---------- */
+.m63-success-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  transform: translate(-50%, -50%);
+  animation: m63-ring-kf 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  pointer-events: none;
+}
+@keyframes m63-ring-kf {
+  0% {
+    width: 64px;
+    height: 64px;
+    opacity: 0.8;
+  }
+  100% {
+    width: 340px;
+    height: 340px;
+    opacity: 0;
+  }
+}
+
+/* ---------- Respect reduced-motion preference ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .m63-card-glow,
+  .m63-card-in,
+  .m63-reveal,
+  .m63-ember,
+  .m63-btn-wrap::after,
+  .m63-success-ring {
+    animation: none !important;
+  }
+  .m63-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
