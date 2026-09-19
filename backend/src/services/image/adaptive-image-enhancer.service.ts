@@ -286,7 +286,7 @@ export function computeAdaptiveComposition(
   if (subWidth < 300 && subHeight < 300 && scale > 1.6) {
     scale = 1.6;
   }
-
+    
   const scaledWidth = Math.round(subWidth * scale);
   const scaledHeight = Math.round(subHeight * scale);
 
