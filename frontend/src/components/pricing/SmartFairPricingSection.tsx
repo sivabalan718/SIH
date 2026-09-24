@@ -12,7 +12,6 @@ import {
   ChevronDown,
   ChevronUp,
   Search,
-  TrendingUp,
 } from 'lucide-react';
 import { Button } from '../ui/Button.js';
 import {
@@ -24,6 +23,150 @@ import {
   extractPricingVoice,
   recommendFairPrice,
 } from '../../services/pricingService.js';
+
+const UI_STRINGS = {
+  en: {
+    header: '✨ M63 SMART PRICE',
+    recommendedPriceLabel: 'RECOMMENDED PRICE',
+    priceProtectsCosts: '🛡️ This price protects your costs',
+    marketAlignedPrice: 'Market-aligned price',
+    yourProductCost: 'YOUR PRODUCT COST',
+    minimumSellingPrice: 'MINIMUM SELLING PRICE',
+    includesMarkup: 'Includes your chosen markup.',
+    pricesSeenSimilar: 'PRICES SEEN FOR SIMILAR PRODUCTS',
+    pricesSeenSubtext: 'Based on similar products found in the marketplace.',
+    costHigherTitle: '⚠️ YOUR COST IS HIGHER THAN THE USUAL SELLING PRICE',
+    costHigherBody: (marketPrice: string, minPrice: string) =>
+      `Similar products are selling for around ₹${marketPrice}, but your minimum selling price is ₹${minPrice}. M63 does not recommend selling below ₹${minPrice}.`,
+    whyThisPriceTitle: '💡 WHY M63 RECOMMENDS THIS PRICE',
+    whyThisPriceBodyCostProtected: (cost: string, marketPrice: string, minPrice: string) =>
+      `Your product costs ₹${cost} to make. Similar products are selling around ₹${marketPrice}. Your chosen markup brings your minimum selling price to ₹${minPrice}. M63 recommends ₹${minPrice} so your production costs are protected.`,
+    whyThisPriceBodyMarketAligned: (cost: string, marketPrice: string, recPrice: string) =>
+      `Your product costs ₹${cost} to make. Similar products in the marketplace sell around ₹${marketPrice}. Based on market evidence, M63 recommends ₹${recPrice}.`,
+    similarProductsTitle: 'Similar products we looked at',
+    limitedMarketEvidence: 'Limited price information available',
+    comparableProductsTitle: 'COMPARABLE PRODUCTS',
+    comparableProductsStats: (total: number, used: number, excluded: number) =>
+      `${total} products analyzed • ${used} used for pricing • ${excluded} excluded`,
+    comparableProductsSubtext: 'More relevant products have a greater influence on the suggested price.',
+    usedForPricingTitle: 'USED FOR PRICING',
+    matchedLabel: 'Matched',
+    priceInfluenceLabel: 'Price influence',
+    whyIsItSimilar: 'Why is it similar?',
+    whyIsItSimilarHeader: 'WHY IS IT SIMILAR?',
+    productTypeLabel: 'Product type',
+    productTypeVal: '✓ Similar product type and category',
+    intendedUseLabel: 'Intended use',
+    intendedUseVal: '✓ Used for similar purpose',
+    materialLabel: 'Material',
+    materialVal: '✓ Made from similar material',
+    craftLabel: 'Craft',
+    craftVal: '✓ Similar craft technique',
+    quantityLabel: 'Quantity / scale',
+    quantityVal: '✓ Similar set/quantity scale',
+    differenceHeader: 'Difference',
+    seeDetails: 'See price details',
+    hideDetails: 'Hide price details',
+    useRecommendedPrice: '✨ Use Recommended Price',
+    priceApplied: '✓ Price Applied to Form',
+    keepMyPrice: 'Keep My Price',
+    keptMyPrice: '✓ Kept My Price',
+  },
+  ta: {
+    header: '✨ M63 ஸ்மார்ட் விலை',
+    recommendedPriceLabel: 'பரிந்துரைக்கப்பட்ட விலை',
+    priceProtectsCosts: '🛡️ இந்த விலை உங்கள் உற்பத்தி செலவை பாதுகாக்கிறது',
+    marketAlignedPrice: 'சந்தைக்கேற்ற சீரான விலை',
+    yourProductCost: 'உங்கள் தயாரிப்பு செலவு',
+    minimumSellingPrice: 'குறைந்தபட்ச விற்பனை விலை',
+    includesMarkup: 'லாப வரம்பு சேர்க்கப்பட்டுள்ளது.',
+    pricesSeenSimilar: 'ஒத்த தயாரிப்புகளின் சந்தை விலை',
+    pricesSeenSubtext: 'சந்தையில் உள்ள ஒத்த தயாரிப்புகளின் அடிப்படையில்.',
+    costHigherTitle: '⚠️ உங்கள் செலவு வழக்கமான விற்பனை விலையை விட அதிகமாக உள்ளது',
+    costHigherBody: (marketPrice: string, minPrice: string) =>
+      `ஒத்த தயாரிப்புகள் சுமார் ₹${marketPrice}-க்கு விற்கப்படுகின்றன, ஆனால் உங்கள் குறைந்தபட்ச விற்பனை விலை ₹${minPrice}. ₹${minPrice}-க்கு கீழே விற்க M63 பரிந்துரைக்கவில்லை.`,
+    whyThisPriceTitle: '💡 M63 ஏன் இந்த விலையை பரிந்துரைக்கிறது',
+    whyThisPriceBodyCostProtected: (cost: string, marketPrice: string, minPrice: string) =>
+      `உங்கள் தயாரிப்பை உருவாக்க ₹${cost} செலவாகிறது. ஒத்த தயாரிப்புகள் ₹${marketPrice}-க்கு விற்கப்படுகின்றன. உங்கள் குறைந்தபட்ச விற்பனை விலை ₹${minPrice}. உங்கள் செலவுகள் பாதுகாக்கப்பட M63 ₹${minPrice}-ஐ பரிந்துரைக்கிறது.`,
+    whyThisPriceBodyMarketAligned: (cost: string, marketPrice: string, recPrice: string) =>
+      `உங்கள் தயாரிப்பு செலவு ₹${cost}. சந்தையில் ஒத்த தயாரிப்புகள் ₹${marketPrice}-க்கு விற்கப்படுகின்றன. M63 ₹${recPrice}-ஐ பரிந்துரைக்கிறது.`,
+    similarProductsTitle: 'நாங்கள் பார்த்த ஒத்த தயாரிப்புகள்',
+    limitedMarketEvidence: 'குறைந்த அளவிலான சந்தை தகவல்கள் மட்டுமே உள்ளன',
+    comparableProductsTitle: 'ஒப்பிடக்கூடிய தயாரிப்புகள்',
+    comparableProductsStats: (total: number, used: number, excluded: number) =>
+      `${total} தயாரிப்புகள் பகுப்பாய்வு செய்யப்பட்டன • ${used} விலைக்குப் பயன்படுத்தப்பட்டன • ${excluded} விலக்கப்பட்டன`,
+    comparableProductsSubtext: 'அதிக பொருத்தமான தயாரிப்புகள் பரிந்துரைக்கப்பட்ட விலையில் அதிக செல்வாக்கைக் கொண்டுள்ளன.',
+    usedForPricingTitle: 'விலை நிர்ணயத்திற்கு பயன்படுத்தப்பட்டது',
+    matchedLabel: 'பொருந்தியது',
+    priceInfluenceLabel: 'விலை செல்வாக்கு',
+    whyIsItSimilar: 'இது ஏன் ஒத்திருக்கிறது?',
+    whyIsItSimilarHeader: 'இது ஏன் ஒத்திருக்கிறது?',
+    productTypeLabel: 'தயாரிப்பு வகை',
+    productTypeVal: '✓ ஒத்த தயாரிப்பு வகை மற்றும் பிரிவு',
+    intendedUseLabel: 'பயன்பாட்டு நோக்கம்',
+    intendedUseVal: '✓ ஒத்த பயன்பாட்டிற்கு உகந்தது',
+    materialLabel: 'பொருள் (Material)',
+    materialVal: '✓ ஒத்த மூலப்பொருளால் செய்யப்பட்டது',
+    craftLabel: 'கைவினைத் தொழில்',
+    craftVal: '✓ ஒத்த கைவினை நுட்பம்',
+    quantityLabel: 'அளவு / எண்ணிக்கை',
+    quantityVal: '✓ ஒத்த அளவு மற்றும் எண்ணிக்கை',
+    differenceHeader: 'வேறுபாடு',
+    seeDetails: 'விலை விவரங்களை காண்க',
+    hideDetails: 'விலை விவரங்களை மறைக்க',
+    useRecommendedPrice: '✨ பரிந்துரைக்கப்பட்ட விலையை பயன்படுத்துக',
+    priceApplied: '✓ விலை படிவத்தில் சேர்க்கப்பட்டது',
+    keepMyPrice: 'என் விலையை வைத்துக்கொள்கிறேன்',
+    keptMyPrice: '✓ என் விலை வைக்கப்பட்டது',
+  },
+  hi: {
+    header: '✨ M63 स्मार्ट मूल्य',
+    recommendedPriceLabel: 'अनुशंसित मूल्य',
+    priceProtectsCosts: '🛡️ यह मूल्य आपकी लागत की रक्षा करता है',
+    marketAlignedPrice: 'बाजार के अनुकूल मूल्य',
+    yourProductCost: 'आपकी उत्पाद लागत',
+    minimumSellingPrice: 'न्यूनतम बिक्री मूल्य',
+    includesMarkup: 'आपका चुना हुआ लाभ मार्जिन शामिल है।',
+    pricesSeenSimilar: 'समान उत्पादों की बाजार कीमत',
+    pricesSeenSubtext: 'बाजार में उपलब्ध समान उत्पादों के आधार पर।',
+    costHigherTitle: '⚠️ आपकी लागत सामान्य बिक्री मूल्य से अधिक है',
+    costHigherBody: (marketPrice: string, minPrice: string) =>
+      `समान उत्पाद लगभग ₹${marketPrice} में बिक रहे हैं, लेकिन आपका न्यूनतम बिक्री मूल्य ₹${minPrice} है। M63 ₹${minPrice} से कम में बेचने की सलाह नहीं देता है।`,
+    whyThisPriceTitle: '💡 M63 इस मूल्य की सिफारिश क्यों करता है',
+    whyThisPriceBodyCostProtected: (cost: string, marketPrice: string, minPrice: string) =>
+      `आपके उत्पाद की निर्माण लागत ₹${cost} है। समान उत्पाद लगभग ₹${marketPrice} में बिक रहे हैं। आपका न्यूनतम बिक्री मूल्य ₹${minPrice} है। M63 ₹${minPrice} की सिफारिश करता है ताकि आपकी लागत सुरक्षित रहे।`,
+    whyThisPriceBodyMarketAligned: (cost: string, marketPrice: string, recPrice: string) =>
+      `आपके उत्पाद की लागत ₹${cost} है। बाजार में समान उत्पाद ₹${marketPrice} के आसपास बिकते हैं। M63 ₹${recPrice} की सिफारिश करता है।`,
+    similarProductsTitle: 'समान उत्पाद जो हमने देखे',
+    limitedMarketEvidence: 'सीमित मूल्य जानकारी उपलब्ध है',
+    comparableProductsTitle: 'समान उत्पाद (COMPARABLE PRODUCTS)',
+    comparableProductsStats: (total: number, used: number, excluded: number) =>
+      `${total} उत्पाद विश्लेषण किए गए • ${used} मूल्य निर्धारण के लिए उपयोग किए गए • ${excluded} बाहर रखे गए`,
+    comparableProductsSubtext: 'अधिक प्रासंगिक उत्पादों का अनुशंसित मूल्य पर अधिक प्रभाव पड़ता है।',
+    usedForPricingTitle: 'मूल्य निर्धारण के लिए प्रयुक्त',
+    matchedLabel: 'समान विशेषताएं',
+    priceInfluenceLabel: 'मूल्य प्रभाव',
+    whyIsItSimilar: 'यह समान क्यों है?',
+    whyIsItSimilarHeader: 'यह समान क्यों है?',
+    productTypeLabel: 'उत्पाद का प्रकार',
+    productTypeVal: '✓ समान उत्पाद प्रकार और श्रेणी',
+    intendedUseLabel: 'उपयोग का उद्देश्य',
+    intendedUseVal: '✓ समान उद्देश्य के लिए उपयोग',
+    materialLabel: 'सामग्री (Material)',
+    materialVal: '✓ समान सामग्री से बना है',
+    craftLabel: 'हस्तशिल्प (Craft)',
+    craftVal: '✓ समान शिल्प तकनीक',
+    quantityLabel: 'मात्रा / पैमाना',
+    quantityVal: '✓ समान मात्रा और पैमाना',
+    differenceHeader: 'अंतर (Difference)',
+    seeDetails: 'मूल्य विवरण देखें',
+    hideDetails: 'मूल्य विवरण छुपाएं',
+    useRecommendedPrice: '✨ अनुशंसित मूल्य का उपयोग करें',
+    priceApplied: '✓ मूल्य फॉर्म में लागू किया गया',
+    keepMyPrice: 'मेरा मूल्य रखें',
+    keptMyPrice: '✓ मेरा मूल्य रखा गया',
+  },
+};
 
 interface SmartFairPricingSectionProps {
   productData: {
@@ -80,6 +223,7 @@ export const SmartFairPricingSection: React.FC<SmartFairPricingSectionProps> = (
   const [isCalculating, setIsCalculating] = useState(false);
   const [isOutdated, setIsOutdated] = useState(false);
   const [isReasoningExpanded, setIsReasoningExpanded] = useState(false);
+  const [expandedCardIds, setExpandedCardIds] = useState<Record<string, boolean>>({});
 
   // Voice Recording States
   const [activeRecordingField, setActiveRecordingField] = useState<string | null>(null);
@@ -729,351 +873,352 @@ export const SmartFairPricingSection: React.FC<SmartFairPricingSectionProps> = (
             </div>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--m63-slate)', margin: 0 }}>
-              ✨ M63 Smart Fair Pricing Intelligence
-            </h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
-                  padding: '3px 10px',
-                  borderRadius: '12px',
-                  backgroundColor: recommendation.confidence === 'high' ? '#D1FAE5' : recommendation.confidence === 'medium' ? '#FEF3C7' : '#FEE2E2',
-                  color: recommendation.confidence === 'high' ? '#065F46' : recommendation.confidence === 'medium' ? '#92400E' : '#991B1B',
-                }}
-              >
-                Confidence: {recommendation.confidence.toUpperCase()}
-              </span>
-              <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} onClick={handleCalculateFairPrice} loading={isCalculating}>
-                Recalculate
-              </Button>
-            </div>
-          </div>
+          {/* Main Artisan Pricing Experience Card */}
+          {(() => {
+            const t = UI_STRINGS[activeLanguage] || UI_STRINGS.en;
+            const marketRef = recommendation.calculation_breakdown?.weighted_market_price;
+            const costPrice = recommendation.calculation_breakdown?.cost_based_price ?? (recommendation.known_cost * 1.25);
+            const isCostProtected = recommendation.calculation_breakdown?.is_cost_floor_active || (marketRef != null && marketRef < costPrice);
+            const marketRefStr = marketRef != null ? marketRef.toLocaleString('en-IN') : '—';
+            const costPriceStr = Math.round(costPrice).toLocaleString('en-IN');
+            const recPriceStr = (recommendation.suggested_price || Math.round(costPrice)).toLocaleString('en-IN');
+            const knownCostStr = recommendation.known_cost.toLocaleString('en-IN');
+            const eligibleComps = recommendation.selected_comparables ? recommendation.selected_comparables.filter((c) => c.benchmark_eligible) : [];
 
-          {/* Artisan Price Comparison Banner */}
-          {recommendation.comparison_with_artisan_price && recommendation.comparison_with_artisan_price.artisan_price ? (
-            <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B', textTransform: 'uppercase' }}>YOUR CURRENT PRICE</span>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#334155', margin: '2px 0 0 0' }}>
-                    ₹{recommendation.comparison_with_artisan_price.artisan_price.toLocaleString('en-IN')}
-                  </p>
-                </div>
-                <div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#047857', textTransform: 'uppercase' }}>M63 RECOMMENDED</span>
-                  <p style={{ fontSize: '1.25rem', fontWeight: 900, color: '#059669', margin: '2px 0 0 0' }}>
-                    ₹{recommendation.suggested_price?.toLocaleString('en-IN')}
-                  </p>
-                </div>
-                <div>
-                  <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#B45309', textTransform: 'uppercase' }}>FAIR RANGE</span>
-                  <p style={{ fontSize: '1.1rem', fontWeight: 800, color: '#92400E', margin: '2px 0 0 0' }}>
-                    ₹{recommendation.fair_price_min?.toLocaleString('en-IN')} – ₹{recommendation.fair_price_max?.toLocaleString('en-IN')}
-                  </p>
-                </div>
-              </div>
-
-              {recommendation.comparison_with_artisan_price.message && (
-                <div
-                  style={{
-                    marginTop: '12px',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    backgroundColor: recommendation.comparison_with_artisan_price.position_status === 'below' && recommendation.comparison_with_artisan_price.message.includes('WARNING') ? '#FEF2F2' : '#F1F5F9',
-                    border: recommendation.comparison_with_artisan_price.position_status === 'below' && recommendation.comparison_with_artisan_price.message.includes('WARNING') ? '1px solid #FCA5A5' : '1px solid #CBD5E1',
-                    color: recommendation.comparison_with_artisan_price.position_status === 'below' && recommendation.comparison_with_artisan_price.message.includes('WARNING') ? '#991B1B' : '#334155',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <AlertCircle size={16} className={recommendation.comparison_with_artisan_price.position_status === 'below' && recommendation.comparison_with_artisan_price.message.includes('WARNING') ? 'text-red-600 shrink-0' : 'text-slate-600 shrink-0'} />
-                  <span>{recommendation.comparison_with_artisan_price.message}</span>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Standard Range Display */
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' }}>
-              <div style={{ backgroundColor: '#FEF3C7', padding: '14px', borderRadius: '12px', border: '1px solid #FCD34D' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#92400E', textTransform: 'uppercase' }}>Fair Price Range</span>
-                <p style={{ fontSize: '1.25rem', fontWeight: 800, color: '#78350F', marginTop: '4px' }}>
-                  ₹{recommendation.fair_price_min?.toLocaleString('en-IN') || '—'} – ₹{recommendation.fair_price_max?.toLocaleString('en-IN') || '—'}
-                </p>
-              </div>
-
-              <div style={{ backgroundColor: '#ECFDF5', padding: '14px', borderRadius: '12px', border: '1px solid #6EE7B7' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#065F46', textTransform: 'uppercase' }}>Suggested Selling Price</span>
-                <p style={{ fontSize: '1.4rem', fontWeight: 900, color: '#047857', marginTop: '4px' }}>
-                  ₹{recommendation.suggested_price?.toLocaleString('en-IN') || '—'}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* WHY THIS PRICE? Explanation */}
-          {(recommendation.price_justification || recommendation.explanation) && (
-            <div style={{ backgroundColor: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '12px', padding: '14px', marginBottom: '16px' }}>
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#6B21A8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <TrendingUp size={14} /> WHY THIS PRICE?
-              </span>
-              <p style={{ fontSize: '0.88rem', color: '#581C87', lineHeight: 1.5, marginTop: '6px', fontWeight: 500 }}>
-                {recommendation.price_justification || recommendation.explanation}
-              </p>
-            </div>
-          )}
-
-          {/* Factors Considered & Evidence Used */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px', marginBottom: '16px' }}>
-            {/* Factors */}
-            {recommendation.factors_considered && recommendation.factors_considered.length > 0 && (
-              <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Check size={14} className="text-emerald-600" /> FACTORS CONSIDERED
-                </span>
-                <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0', fontSize: '0.82rem', color: '#475569' }}>
-                  {recommendation.factors_considered.map((f, idx) => (
-                    <li key={idx} style={{ marginBottom: '3px' }}>{f}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* Evidence Used */}
-            {recommendation.evidence_used && (
-              <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#334155', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Search size={14} className="text-sky-600" /> MARKET EVIDENCE
-                </span>
-                {recommendation.calculation_breakdown?.eligible_comparable_count ? (
-                  <div style={{ fontSize: '0.82rem', color: '#475569', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div>• <strong>{recommendation.calculation_breakdown.eligible_comparable_count} eligible comparable{recommendation.calculation_breakdown.eligible_comparable_count > 1 ? 's' : ''}</strong></div>
-                    <div>• Similarity-weighted market reference: <strong>₹{recommendation.calculation_breakdown.weighted_market_price?.toLocaleString('en-IN') ?? '—'}</strong></div>
-                    <div>• Observed prices: <strong>{recommendation.evidence_used.price_range_str || '—'}</strong></div>
-                    <div>• Observed marketplace comparables</div>
-                  </div>
-                ) : (
-                  <div style={{ fontSize: '0.82rem', color: '#475569', marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div>• <strong>No sufficiently similar products found</strong></div>
-                    <div>• Market reference: <strong>Not available</strong></div>
-                    <div>• Recommendation based on production cost</div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Comparable Product Analysis Card */}
-          {recommendation.selected_comparables && recommendation.selected_comparables.length > 0 ? (
-            <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-              <div style={{ marginBottom: '12px' }}>
-                <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Search size={14} className="text-amber-600" /> COMPARABLE PRODUCTS
-                </span>
-                <p style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B', margin: '4px 0 0 0' }}>
-                  {recommendation.calculation_breakdown?.total_candidates_count ?? recommendation.selected_comparables.length} products analyzed • {recommendation.calculation_breakdown?.eligible_comparable_count ?? recommendation.selected_comparables.filter((c) => c.benchmark_eligible).length} used for pricing • {recommendation.calculation_breakdown?.contextual_excluded_count ?? recommendation.selected_comparables.filter((c) => !c.benchmark_eligible).length} excluded
-                </p>
-                <p style={{ fontSize: '0.7rem', fontStyle: 'italic', color: '#475569', marginTop: '4px' }}>
-                  Market reference is weighted by product similarity — more similar products have greater influence.
-                </p>
-              </div>
-
-              {/* Eligible Comparables: USED FOR PRICING */}
-              {recommendation.selected_comparables.filter((c) => c.benchmark_eligible).length > 0 && (
-                <div style={{ marginBottom: '14px' }}>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#047857', marginBottom: '6px', textTransform: 'uppercase' }}>
-                    🟢 USED FOR PRICING
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {recommendation.selected_comparables.filter((c) => c.benchmark_eligible).map((comp) => (
-                      <div key={comp.productId} style={{ backgroundColor: '#FFFFFF', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                          <div>
-                            <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#0F172A' }}>{comp.productName}</span>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#047857', marginTop: '2px' }}>
-                              {comp.similarityPercentage}% similar • ₹{comp.price.toLocaleString('en-IN')}
-                            </div>
-                          </div>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', backgroundColor: '#D1FAE5', color: '#047857' }}>
-                            USED FOR PRICING
-                          </span>
-                        </div>
-                        {/* Matched attributes */}
-                        {comp.matchedAttributes && comp.matchedAttributes.length > 0 && (
-                          <div style={{ fontSize: '0.73rem', color: '#475569', borderTop: '1px solid #F1F5F9', paddingTop: '5px' }}>
-                            <strong style={{ color: '#334155' }}>Matched:</strong> {comp.matchedAttributes.join(' • ')}
-                          </div>
-                        )}
-                        {/* Price influence */}
-                        {comp.priceInfluenceExplanation && (
-                          <div style={{ fontSize: '0.71rem', color: '#15803D', fontWeight: 500 }}>
-                            <strong style={{ color: '#166534' }}>Price influence:</strong> {comp.priceInfluenceExplanation}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+            return (
+              <>
+                {/* Header & Language Indicator */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--m63-slate)', margin: 0 }}>
+                    {t.header}
+                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600 }}>
+                      {eligibleComps.length > 0 ? `${eligibleComps.length} similar products found` : t.limitedMarketEvidence}
+                    </span>
+                    <Button size="sm" variant="ghost" icon={<RotateCcw size={14} />} onClick={handleCalculateFairPrice} loading={isCalculating}>
+                      Recalculate
+                    </Button>
                   </div>
                 </div>
-              )}
 
-              {/* Contextual Comparables: NOT USED FOR PRICING */}
-              {recommendation.selected_comparables.filter((c) => !c.benchmark_eligible).length > 0 && (
-                <div>
-                  <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#B45309', marginBottom: '2px', textTransform: 'uppercase' }}>
-                    🟠 CONTEXTUAL ONLY
-                  </div>
-                  <p style={{ fontSize: '0.68rem', color: '#78350F', marginBottom: '6px' }}>
-                    Contextual reference — not included in benchmark pricing.
-                  </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {recommendation.selected_comparables.filter((c) => !c.benchmark_eligible).map((comp) => (
-                      <div key={comp.productId} style={{ backgroundColor: '#FFFFFF', border: '1px solid #FED7AA', borderRadius: '8px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                          <div>
-                            <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#334155' }}>{comp.productName}</span>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#B45309', marginTop: '2px' }}>
-                              {comp.similarityPercentage}% similar • ₹{comp.price.toLocaleString('en-IN')}
-                            </div>
-                          </div>
-                          <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', backgroundColor: '#FFEDD5', color: '#9A3412' }}>
-                            NOT USED FOR PRICING
-                          </span>
-                        </div>
-                        {/* Matched attributes */}
-                        {comp.matchedAttributes && comp.matchedAttributes.length > 0 && (
-                          <div style={{ fontSize: '0.73rem', color: '#475569', borderTop: '1px solid #FFF7ED', paddingTop: '5px' }}>
-                            <strong style={{ color: '#334155' }}>Matched:</strong> {comp.matchedAttributes.join(' • ')}
-                          </div>
-                        )}
-                        {/* Price influence */}
-                        {comp.priceInfluenceExplanation && (
-                          <div style={{ fontSize: '0.71rem', color: '#9A3412', fontWeight: 500 }}>
-                            <strong style={{ color: '#7C2D12' }}>Price influence:</strong> {comp.priceInfluenceExplanation}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            recommendation.pricing_basis === 'COST_ANCHORED' && (
-              <div style={{ backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '12px', padding: '12px 16px', marginBottom: '16px', fontSize: '0.82rem', color: '#92400E', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Info size={16} className="text-amber-600 shrink-0" />
-                <span>No sufficiently similar products found. Recommendation based on production cost.</span>
-              </div>
-            )
-          )}
-
-          {/* How M63 Calculated The Price Card */}
-          {recommendation.calculation_breakdown && (
-            <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '18px', marginBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  📐 HOW M63 CALCULATED THE PRICE
-                </span>
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#047857', backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '4px' }}>
-                  PRICE CALCULATION BREAKDOWN
-                </span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '8px', maxWidth: '520px', margin: '0 auto' }}>
-                {/* 1. Production Cost */}
-                <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569' }}>Production Cost</span>
-                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A' }}>
-                    {recommendation.calculation_breakdown.known_production_cost !== null ? `₹${recommendation.calculation_breakdown.known_production_cost.toLocaleString('en-IN')}` : 'Not provided'}
+                {/* Primary Hero Recommendation Card */}
+                <div style={{ backgroundColor: '#ECFDF5', border: '2px solid #059669', borderRadius: '16px', padding: '20px', marginBottom: '18px', textAlign: 'center' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#065F46', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                    {t.recommendedPriceLabel}
                   </span>
+                  <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#047857', margin: '6px 0' }}>
+                    ₹{recPriceStr}
+                  </div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#065F46', display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#D1FAE5', padding: '4px 12px', borderRadius: '20px' }}>
+                    {isCostProtected ? t.priceProtectsCosts : t.marketAlignedPrice}
+                  </div>
                 </div>
 
-                <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
+                {/* 3 Core Metric Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '18px' }}>
+                  {/* Your Product Cost */}
+                  <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>
+                      {t.yourProductCost}
+                    </span>
+                    <p style={{ fontSize: '1.2rem', fontWeight: 900, color: '#1E293B', marginTop: '4px', marginBottom: 0 }}>
+                      ₹{knownCostStr}
+                    </p>
+                  </div>
 
-                {/* 2. Sustainable Price Floor (25% markup) */}
-                <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#047857' }}>Sustainable Price Floor (25% markup)</span>
-                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#047857' }}>
-                    +₹{recommendation.calculation_breakdown.base_margin.toLocaleString('en-IN')}
-                  </span>
+                  {/* Minimum Selling Price */}
+                  <div style={{ backgroundColor: '#FEF3C7', padding: '14px', borderRadius: '12px', border: '1px solid #FCD34D' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#92400E', textTransform: 'uppercase' }}>
+                      {t.minimumSellingPrice}
+                    </span>
+                    <p style={{ fontSize: '1.2rem', fontWeight: 900, color: '#78350F', marginTop: '4px', marginBottom: '2px' }}>
+                      ₹{costPriceStr}
+                    </p>
+                    <span style={{ fontSize: '0.68rem', color: '#B45309', fontWeight: 600 }}>
+                      {t.includesMarkup}
+                    </span>
+                  </div>
+
+                  {/* Prices Seen For Similar Products */}
+                  <div style={{ backgroundColor: '#F8FAFC', padding: '14px', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+                      {t.pricesSeenSimilar}
+                    </span>
+                    <p style={{ fontSize: '1.2rem', fontWeight: 900, color: '#334155', marginTop: '4px', marginBottom: '2px' }}>
+                      {marketRef != null ? `Around ₹${marketRefStr}` : t.limitedMarketEvidence}
+                    </p>
+                    <span style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>
+                      {t.pricesSeenSubtext}
+                    </span>
+                  </div>
                 </div>
 
-                {/* 3. Craft Adjustment (Only if > 0) */}
-                {(recommendation.calculation_breakdown.craft_adjustment ?? 0) > 0 && (
-                  <>
-                    <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
-                    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #A7F3D0', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#047857' }}>Craft Adjustment</span>
-                        {recommendation.calculation_breakdown.craft_factor_breakdown && recommendation.calculation_breakdown.craft_factor_breakdown.length > 0 && (
-                          <div style={{ fontSize: '0.68rem', color: '#64748B', marginTop: '2px' }}>
-                            {recommendation.calculation_breakdown.craft_factor_breakdown.join(' • ')}
-                          </div>
-                        )}
-                      </div>
-                      <span style={{ fontSize: '1rem', fontWeight: 800, color: '#047857' }}>
-                        +₹{recommendation.calculation_breakdown.craft_adjustment!.toLocaleString('en-IN')}
-                      </span>
+                {/* Market-Cost Mismatch Warning Box */}
+                {isCostProtected && (
+                  <div style={{ backgroundColor: '#FFFBEB', border: '1.5px solid #F59E0B', borderRadius: '12px', padding: '14px 16px', marginBottom: '18px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#B45309', fontWeight: 800, fontSize: '0.88rem', marginBottom: '6px' }}>
+                      <AlertCircle size={18} className="text-amber-600 shrink-0" />
+                      <span>{t.costHigherTitle}</span>
                     </div>
-                  </>
+                    <p style={{ fontSize: '0.82rem', color: '#92400E', margin: 0, lineHeight: 1.5, fontWeight: 600 }}>
+                      {t.costHigherBody(marketRefStr, costPriceStr)}
+                    </p>
+                  </div>
                 )}
 
-                <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
-
-                {/* 4. Cost-Based Price */}
-                <div style={{ backgroundColor: '#F1F5F9', border: '1px solid #CBD5E1', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155' }}>Cost-Based Price</span>
-                  <span style={{ fontSize: '1rem', fontWeight: 800, color: '#0F172A' }}>
-                    ₹{(recommendation.calculation_breakdown.cost_based_price ?? (recommendation.calculation_breakdown.known_production_cost! + recommendation.calculation_breakdown.base_margin + (recommendation.calculation_breakdown.craft_adjustment ?? 0))).toLocaleString('en-IN')}
+                {/* WHY THIS PRICE? Section */}
+                <div style={{ backgroundColor: '#FAF5FF', border: '1px solid #E9D5FF', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#6B21A8', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                    {t.whyThisPriceTitle}
                   </span>
+                  <p style={{ fontSize: '0.88rem', color: '#581C87', lineHeight: 1.5, margin: 0, fontWeight: 600 }}>
+                    {isCostProtected
+                      ? t.whyThisPriceBodyCostProtected(knownCostStr, marketRefStr, costPriceStr)
+                      : t.whyThisPriceBodyMarketAligned(knownCostStr, marketRefStr, recPriceStr)}
+                  </p>
                 </div>
 
-                <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
-
-                {/* 5. Market Alignment */}
-                <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #FED7AA', borderRadius: '8px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#C2410C' }}>Market Alignment</span>
-                    {recommendation.calculation_breakdown.weighted_market_price != null && (
-                      <div style={{ fontSize: '0.68rem', color: '#7C2D12', marginTop: '2px', lineHeight: 1.4 }}>
-                        <div>Observed similarity-weighted market reference: ₹{recommendation.calculation_breakdown.weighted_market_price.toLocaleString('en-IN')}</div>
-                        <div>
-                          {recommendation.calculation_breakdown.eligible_comparable_count === 1
-                            ? `Limited market evidence → ${recommendation.calculation_breakdown.market_evidence_weight_pct ?? 15}% market influence`
-                            : recommendation.calculation_breakdown.market_evidence_weight_pct != null
-                            ? `Market evidence (${recommendation.calculation_breakdown.eligible_comparable_count} comparables) → ${recommendation.calculation_breakdown.market_evidence_weight_pct}% market influence`
-                            : `Aligned toward similarity-weighted market reference of ₹${recommendation.calculation_breakdown.weighted_market_price.toLocaleString('en-IN')}`}
-                        </div>
+                {/* COMPARABLE PRODUCTS (Approved Card Format with Expandable Why is it similar?) */}
+                {eligibleComps.length > 0 && (
+                  <div style={{ backgroundColor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+                    <div style={{ marginBottom: '14px' }}>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#1E293B', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+                        {t.comparableProductsTitle}
                       </div>
-                    )}
+                      <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: 600, marginBottom: '4px' }}>
+                        {t.comparableProductsStats(
+                          recommendation.calculation_breakdown?.total_candidates_count || eligibleComps.length + (recommendation.excluded_comparables?.length || 0),
+                          eligibleComps.length,
+                          recommendation.calculation_breakdown?.contextual_excluded_count || (recommendation.excluded_comparables?.length || 0)
+                        )}
+                      </div>
+                      <div style={{ fontSize: '0.82rem', color: '#475569', fontStyle: 'italic', marginBottom: '10px' }}>
+                        {t.comparableProductsSubtext}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#047857', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        {t.usedForPricingTitle}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {eligibleComps.map((comp) => {
+                        const isExpanded = !!expandedCardIds[comp.productId];
+                        const influenceLevel = comp.priceInfluenceLevel || comp.priceInfluence || 'VERY_HIGH';
+                        const formattedInfluence = influenceLevel === 'VERY_HIGH' ? 'Very High' : influenceLevel === 'HIGH' ? 'High' : influenceLevel === 'MEDIUM' ? 'Medium' : 'Low';
+                        const matchedText = comp.matchedAttributes && comp.matchedAttributes.length > 0 ? comp.matchedAttributes.join(' • ') : 'Product type match • Intended use • Similar material';
+
+                        return (
+                          <div
+                            key={comp.productId}
+                            style={{
+                              backgroundColor: '#FFFFFF',
+                              border: '1px solid #CBD5E1',
+                              borderRadius: '10px',
+                              padding: '14px 16px',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            }}
+                          >
+                            {/* Card Top Row: Product Name, Similarity %, Price */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                              <h4 style={{ fontSize: '0.92rem', fontWeight: 800, color: '#1E293B', margin: 0 }}>
+                                {comp.productName}
+                              </h4>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#047857', backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: '12px' }}>
+                                  {comp.similarityPercentage}% similar
+                                </span>
+                                <span style={{ fontSize: '1rem', fontWeight: 900, color: '#1E293B' }}>
+                                  ₹{comp.price.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Matched Summary Line */}
+                            <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '6px', lineHeight: 1.4 }}>
+                              <strong style={{ color: '#334155' }}>{t.matchedLabel}:</strong> {matchedText}
+                            </div>
+
+                            {/* Price Influence Line */}
+                            <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '10px', lineHeight: 1.4 }}>
+                              <strong style={{ color: '#334155' }}>{t.priceInfluenceLabel}:</strong>{' '}
+                              <span style={{ fontWeight: 700, color: '#047857' }}>{formattedInfluence}</span>
+                              {comp.priceInfluenceExplanation ? ` — ${comp.priceInfluenceExplanation}` : ''}
+                            </div>
+
+                            {/* Expandable "Why is it similar?" Button */}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setExpandedCardIds((prev) => ({
+                                  ...prev,
+                                  [comp.productId]: !prev[comp.productId],
+                                }))
+                              }
+                              aria-expanded={isExpanded}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: '4px 0',
+                                color: '#D97706',
+                                fontSize: '0.82rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                              }}
+                            >
+                              <span>{t.whyIsItSimilar}</span>
+                              {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                            </button>
+
+                            {/* Expanded Explanation Content */}
+                            {isExpanded && (
+                              <div
+                                style={{
+                                  marginTop: '12px',
+                                  paddingTop: '12px',
+                                  borderTop: '1px dashed #E2E8F0',
+                                  backgroundColor: '#FAFAFA',
+                                  padding: '12px',
+                                  borderRadius: '8px',
+                                }}
+                              >
+                                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '10px' }}>
+                                  {t.whyIsItSimilarHeader}
+                                </div>
+
+                                {/* Detailed Attribute Breakdown Checklist */}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', marginBottom: '10px' }}>
+                                  <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px' }}>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '2px' }}>
+                                      {t.productTypeLabel}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857' }}>
+                                      {t.productTypeVal}
+                                    </div>
+                                  </div>
+
+                                  <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px' }}>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '2px' }}>
+                                      {t.intendedUseLabel}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857' }}>
+                                      {t.intendedUseVal}
+                                    </div>
+                                  </div>
+
+                                  <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px' }}>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '2px' }}>
+                                      {t.materialLabel}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857' }}>
+                                      {comp.matchedAttributes?.find((a) => a.toLowerCase().includes('material'))
+                                        ? `✓ ${comp.matchedAttributes.find((a) => a.toLowerCase().includes('material'))}`
+                                        : t.materialVal}
+                                    </div>
+                                  </div>
+
+                                  <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px' }}>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '2px' }}>
+                                      {t.craftLabel}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857' }}>
+                                      {comp.matchedAttributes?.find((a) => a.toLowerCase().includes('craft'))
+                                        ? `✓ ${comp.matchedAttributes.find((a) => a.toLowerCase().includes('craft'))}`
+                                        : t.craftVal}
+                                    </div>
+                                  </div>
+
+                                  <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '8px 12px' }}>
+                                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '2px' }}>
+                                      {t.quantityLabel}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#047857' }}>
+                                      {t.quantityVal}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Difference Section (Only rendered if supported by backend differing attributes data) */}
+                                {comp.differingAttributes && comp.differingAttributes.length > 0 && (
+                                  <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '8px', marginTop: '8px' }}>
+                                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748B', textTransform: 'uppercase', marginBottom: '4px' }}>
+                                      {t.differenceHeader}
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                      {comp.differingAttributes.map((diffItem, idx) => (
+                                        <div key={idx} style={{ fontSize: '0.78rem', color: '#475569', lineHeight: 1.4 }}>
+                                          • {diffItem}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <span style={{ fontSize: '1rem', fontWeight: 800, color: recommendation.calculation_breakdown.market_evidence_adjustment >= 0 ? '#047857' : '#C2410C' }}>
-                    {recommendation.calculation_breakdown.market_evidence_adjustment >= 0
-                      ? `+₹${recommendation.calculation_breakdown.market_evidence_adjustment.toLocaleString('en-IN')}`
-                      : `−₹${Math.abs(recommendation.calculation_breakdown.market_evidence_adjustment).toLocaleString('en-IN')}`}
-                  </span>
+                )}
+
+                {/* Expandable Price Details */}
+                <div style={{ border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', marginBottom: '18px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsReasoningExpanded(!isReasoningExpanded)}
+                    style={{
+                      width: '100%',
+                      padding: '12px 16px',
+                      backgroundColor: '#F8FAFC',
+                      border: 'none',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      color: '#334155',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Info size={15} className="text-amber-600" />
+                      <span>{isReasoningExpanded ? t.hideDetails : t.seeDetails}</span>
+                    </div>
+                    {isReasoningExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </button>
+
+                  {isReasoningExpanded && (
+                    <div style={{ padding: '16px', backgroundColor: '#FFFFFF', borderTop: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#64748B', fontWeight: 600 }}>Production cost</span>
+                        <span style={{ color: '#1E293B', fontWeight: 800 }}>₹{knownCostStr}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#64748B', fontWeight: 600 }}>Chosen markup</span>
+                        <span style={{ color: '#1E293B', fontWeight: 800 }}>25%</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#64748B', fontWeight: 600 }}>Minimum selling price</span>
+                        <span style={{ color: '#78350F', fontWeight: 800 }}>₹{costPriceStr}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                        <span style={{ color: '#64748B', fontWeight: 600 }}>Similar products</span>
+                        <span style={{ color: '#334155', fontWeight: 800 }}>Around ₹{marketRefStr}</span>
+                      </div>
+                      <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: '8px', display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+                        <span style={{ color: '#047857', fontWeight: 800 }}>Recommended price</span>
+                        <span style={{ color: '#047857', fontWeight: 900 }}>₹{recPriceStr}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.9rem', lineHeight: 1 }}>↓</div>
-
-                {/* 6. M63 RECOMMENDED PRICE */}
-                <div style={{ backgroundColor: '#ECFDF5', border: '2px solid #059669', borderRadius: '10px', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#065F46', textTransform: 'uppercase' }}>M63 RECOMMENDED PRICE</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#047857' }}>
-                    ₹{recommendation.calculation_breakdown.suggested_price.toLocaleString('en-IN')}
-                  </span>
-                </div>
-              </div>
-
-              <div style={{ marginTop: '14px', textAlign: 'center', fontSize: '0.72rem', fontWeight: 700, color: '#047857' }}>
-                ✓ Price will never fall below verified production cost.
-              </div>
-            </div>
-          )}
+              </>
+            );
+          })()}
 
           {/* Expandable "How M63 Decided" Section */}
           <div style={{ border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', marginBottom: '18px' }}>

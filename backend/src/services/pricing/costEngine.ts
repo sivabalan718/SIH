@@ -6,8 +6,12 @@ export function calculateCostAnalysis(input: TargetProductInput): CostAnalysis {
   const lab = input.labourCost !== undefined && input.labourCost !== null ? Math.max(0, input.labourCost) : null;
   const oth = input.otherExpenses !== undefined && input.otherExpenses !== null ? Math.max(0, input.otherExpenses) : null;
 
+  const knownCost = (mat || 0) + (lab || 0) + (oth || 0);
+
   let costState: 'COMPLETE' | 'PARTIAL' | 'UNAVAILABLE' = 'UNAVAILABLE';
-  if (mat !== null && lab !== null && oth !== null) {
+  if (knownCost === 0) {
+    costState = 'UNAVAILABLE';
+  } else if (mat !== null && lab !== null && oth !== null) {
     costState = 'COMPLETE';
   } else if (mat !== null || lab !== null || oth !== null) {
     costState = 'PARTIAL';
@@ -15,13 +19,14 @@ export function calculateCostAnalysis(input: TargetProductInput): CostAnalysis {
     costState = 'UNAVAILABLE';
   }
 
-  const knownCost = (mat || 0) + (lab || 0) + (oth || 0);
 
-  const minMarkup = PRICING_CONFIG.minimumMarkup; // 0.25
-  const targetMarkup = PRICING_CONFIG.targetMarkup; // 0.50
+  const markupRate = PRICING_CONFIG.markupRate ?? PRICING_CONFIG.minimumMarkup; // 0.25 (25% markup rate)
+  const markupAmount = knownCost > 0 ? Math.round(knownCost * markupRate * 100) / 100 : 0;
+  const costBasedPrice = knownCost > 0 ? Math.round(knownCost * (1 + markupRate) * 100) / 100 : 0;
 
-  const costFloor = knownCost > 0 ? Math.round(knownCost * (1 + minMarkup) * 100) / 100 : 0;
-  const costAnchor = knownCost > 0 ? Math.round(knownCost * (1 + targetMarkup) * 100) / 100 : 0;
+  const sustainablePriceFloor = costBasedPrice;
+  const costFloor = costBasedPrice;
+  const costAnchor = costBasedPrice;
 
   // QA check on implied labour rate (production time does NOT add a second labour charge!)
   const pTime = input.productionTime || null;
@@ -43,10 +48,14 @@ export function calculateCostAnalysis(input: TargetProductInput): CostAnalysis {
     labourCost: lab,
     otherExpenses: oth,
     costState,
+    costBasedPrice,
+    markupAmount,
+    markupRate,
+    sustainablePriceFloor,
     costFloor,
     costAnchor,
-    minimumMarkupUsed: minMarkup,
-    targetMarkupUsed: targetMarkup,
+    minimumMarkupUsed: markupRate,
+    targetMarkupUsed: markupRate,
     productionTime: pTime,
     productionTimeUnit: pUnit,
     impliedLabourRate,

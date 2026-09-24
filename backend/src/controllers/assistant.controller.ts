@@ -79,6 +79,7 @@ export async function processAssistantQuery(req: Request, res: Response, next: N
       audioDataUri,
       businessData: businessData.data,
       evidence: businessData.evidence,
+      sources: responseResult.sources,
       suggestedQuestions: responseResult.suggestedQuestions,
       pageContext,
     });

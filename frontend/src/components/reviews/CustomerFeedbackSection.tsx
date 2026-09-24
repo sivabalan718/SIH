@@ -54,14 +54,14 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
     return (
       <div className="bg-[#121638]/60 border border-slate-800 rounded-xl p-6 flex items-center justify-center space-x-3 text-slate-400">
         <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
-        <span>Loading customer feedback & insights...</span>
+        <span className="text-sm font-medium">Loading artisan customer feedback & insights...</span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-[#121638]/60 border border-red-900/40 rounded-xl p-6 text-red-300 flex items-center space-x-3">
+      <div className="bg-[#121638]/60 border border-red-900/40 rounded-xl p-6 text-red-300 flex items-center space-x-3 text-sm">
         <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
         <span>{error}</span>
       </div>
@@ -73,34 +73,50 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
   const total = stats?.total_reviews ?? 0;
   const avg = stats?.average_rating ?? 0;
 
+  // Zero-Reviews Intentional Empty State for Artisan
+  if (total === 0) {
+    return (
+      <div className="bg-[#0f1330] border border-slate-800/80 rounded-xl p-8 text-center space-y-3">
+        <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto text-amber-400">
+          <MessageSquare className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-white">No verified customer feedback yet</h3>
+        <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+          Customer feedback will appear here after verified purchases are delivered and reviewed by your buyers.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-800 pb-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
             <MessageSquare className="w-5 h-5 text-amber-400" />
-            Customer Feedback
+            CUSTOMER FEEDBACK & INSIGHTS
           </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Real customer ratings, verified purchase reviews, and grounded AI insights.
+          <p className="text-xs text-slate-400 mt-0.5">
+            Customer sentiment analysis derived strictly from verified purchase reviews.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 px-3 py-1.5 rounded-full text-xs font-semibold">
-          <CheckCircle2 className="w-4 h-4" />
+        <div className="flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold">
+          <CheckCircle2 className="w-3.5 h-3.5" />
           <span>VERIFIED PURCHASES ONLY</span>
         </div>
       </div>
 
-      {/* VERIFIED STATS HEADER */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Overall Rating Box */}
+      {/* Stats Summary & Rating Distribution Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Rating Card */}
         <div className="bg-[#0f1330] border border-slate-800 rounded-xl p-5 flex flex-col justify-center items-center text-center">
-          <span className="text-4xl font-extrabold text-amber-400">{avg > 0 ? avg.toFixed(1) : 'N/A'}</span>
+          <span className="text-4xl font-black text-amber-400">{avg.toFixed(1)}</span>
           <div className="flex items-center space-x-1 my-2">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`w-5 h-5 ${
+                className={`w-4 h-4 ${
                   star <= Math.round(avg)
                     ? 'fill-amber-400 text-amber-400'
                     : 'fill-slate-800 text-slate-700'
@@ -108,22 +124,20 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
               />
             ))}
           </div>
-          <span className="text-xs text-slate-400 font-medium">
-            {total === 0
-              ? 'No customer feedback yet'
-              : `${total} verified review${total === 1 ? '' : 's'}`}
+          <span className="text-xs text-slate-300 font-semibold">
+            {total} Verified Review{total === 1 ? '' : 's'}
           </span>
           {stats && stats.positive_percentage > 0 && (
-            <span className="mt-2 text-xs text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-800/40">
-              {stats.positive_percentage}% positive feedback
+            <span className="mt-2 text-[11px] text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-800/40">
+              {stats.positive_percentage}% Positive Satisfaction
             </span>
           )}
         </div>
 
         {/* Rating Distribution */}
         <div className="bg-[#0f1330] border border-slate-800 rounded-xl p-5 md:col-span-2 space-y-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
-            VERIFIED RATING DISTRIBUTION
+          <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+            RATING DISTRIBUTION
           </h4>
           {[5, 4, 3, 2, 1].map((starCount) => {
             const count = stats?.rating_distribution?.[starCount as 1 | 2 | 3 | 4 | 5] ?? 0;
@@ -139,30 +153,73 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <span className="w-8 text-right text-slate-400">{count}</span>
+                <span className="w-8 text-right text-slate-400 font-mono text-[11px]">{count}</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* M63 GROUNDED AI INSIGHT (CLEARLY DISTINGUISHED) */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-amber-950/30 via-[#131942] to-indigo-950/40 border border-amber-500/30 rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-4">
+      {/* Grounded Sentiment Themes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* What Customers Liked */}
+        <div className="bg-[#0b0e26]/80 rounded-xl p-4 border border-emerald-900/40">
+          <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 mb-2">
+            <ThumbsUp className="w-4 h-4 text-emerald-400" />
+            WHAT CUSTOMERS LIKED
+          </h4>
+          {insight && insight.positive_themes.length > 0 ? (
+            <ul className="space-y-1.5 text-xs text-slate-200">
+              {insight.positive_themes.map((theme, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-emerald-400 font-bold">•</span>
+                  <span>{theme}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-slate-500 italic">No specific positive highlights identified yet.</p>
+          )}
+        </div>
+
+        {/* Areas Mentioned for Improvement */}
+        <div className="bg-[#0b0e26]/80 rounded-xl p-4 border border-amber-900/40">
+          <h4 className="text-xs font-bold text-amber-400 flex items-center gap-1.5 mb-2">
+            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            AREAS MENTIONED FOR IMPROVEMENT
+          </h4>
+          {insight && insight.improvement_themes.length > 0 ? (
+            <ul className="space-y-1.5 text-xs text-slate-200">
+              {insight.improvement_themes.map((theme, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-amber-400 font-bold">•</span>
+                  <span>{theme}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-slate-500 italic">No specific areas for improvement reported.</p>
+          )}
+        </div>
+      </div>
+
+      {/* M63 AI INSIGHT CARD */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-amber-950/30 via-[#131942] to-indigo-950/40 border border-amber-500/30 rounded-xl p-5 shadow-md">
+        <div className="flex items-center justify-between border-b border-amber-500/20 pb-3 mb-3">
           <div className="flex items-center space-x-2">
             <div className="p-1.5 bg-amber-500/20 rounded-lg border border-amber-500/30">
-              <Sparkles className="w-5 h-5 text-amber-400" />
+              <Sparkles className="w-4 h-4 text-amber-400" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-amber-300 uppercase tracking-wide">
+              <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wide">
                 M63 AI INSIGHT
               </h3>
-              <p className="text-[11px] text-amber-400/70">Strictly grounded in verified customer feedback</p>
+              <p className="text-[10px] text-amber-400/70">Strictly grounded in verified customer feedback</p>
             </div>
           </div>
           {insight && (
             <span
-              className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                 insight.confidence === 'HIGH'
                   ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500/30'
                   : insight.confidence === 'MEDIUM'
@@ -175,74 +232,29 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
           )}
         </div>
 
-        {/* Insight Summary */}
-        <p className="text-sm text-slate-200 leading-relaxed font-normal mb-5 italic border-l-2 border-amber-400 pl-4 py-1">
+        <p className="text-xs text-slate-200 leading-relaxed font-normal mb-3 italic border-l-2 border-amber-400 pl-3 py-0.5">
           "{insight?.summary || 'No customer feedback available yet.'}"
         </p>
 
-        {/* Positive & Improvement Bullet Lists */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* What Customers Liked */}
-          <div className="bg-[#0b0e26]/70 rounded-lg p-4 border border-emerald-900/30">
-            <h4 className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5 mb-2">
-              <ThumbsUp className="w-4 h-4 text-emerald-400" />
-              What customers liked
-            </h4>
-            {insight && insight.positive_themes.length > 0 ? (
-              <ul className="space-y-1 text-xs text-slate-300">
-                {insight.positive_themes.map((theme, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-emerald-400">•</span>
-                    <span>{theme}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-slate-500 italic">No specific positive highlights identified yet.</p>
-            )}
-          </div>
-
-          {/* Areas for Improvement */}
-          <div className="bg-[#0b0e26]/70 rounded-lg p-4 border border-amber-900/30">
-            <h4 className="text-xs font-semibold text-amber-400 flex items-center gap-1.5 mb-2">
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-              Areas mentioned for improvement
-            </h4>
-            {insight && insight.improvement_themes.length > 0 ? (
-              <ul className="space-y-1 text-xs text-slate-300">
-                {insight.improvement_themes.map((theme, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-amber-400">•</span>
-                    <span>{theme}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-xs text-slate-500 italic">No specific areas for improvement reported.</p>
-            )}
-          </div>
-        </div>
-
-        {/* Evidence & Limitations Footer */}
         {insight && insight.limitations && insight.limitations.length > 0 && (
-          <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
-            <span>Based on {insight.evidence_count} verified customer review{insight.evidence_count === 1 ? '' : 's'}.</span>
+          <div className="pt-2 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between">
+            <span>Evidence: {insight.evidence_count} verified review{insight.evidence_count === 1 ? '' : 's'}</span>
             <span className="text-amber-400/80 italic">{insight.limitations[0]}</span>
           </div>
         )}
       </div>
 
-      {/* RECENT VERIFIED CUSTOMER REVIEWS */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">
+      {/* RECENT VERIFIED REVIEWS */}
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
           RECENT VERIFIED REVIEWS ({stats?.recent_reviews?.length ?? 0})
         </h3>
         {!stats?.recent_reviews || stats.recent_reviews.length === 0 ? (
-          <div className="bg-[#0f1330] border border-slate-800/80 rounded-xl p-6 text-center text-slate-500 text-sm">
-            No customer reviews submitted for this product yet.
+          <div className="bg-[#0f1330] border border-slate-800/80 rounded-xl p-5 text-center text-slate-400 text-xs">
+            No customer reviews submitted yet.
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {stats.recent_reviews.map((rev) => (
               <div
                 key={rev.id}
@@ -260,7 +272,7 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
                         />
                       ))}
                     </div>
-                    <span className="text-[11px] text-slate-400 font-medium">
+                    <span className="text-[10px] text-slate-400">
                       {new Date(rev.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -271,11 +283,11 @@ export const CustomerFeedbackSection: React.FC<CustomerFeedbackSectionProps> = (
                   )}
                 </div>
                 <div className="flex items-center justify-between border-t border-slate-800/60 pt-2 text-[11px]">
-                  <span className="text-slate-300 font-medium flex items-center gap-1">
+                  <span className="text-slate-300 font-semibold flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                     {rev.customer_name || 'Verified Customer'}
                   </span>
-                  <span className="text-slate-400 text-[10px]">Verified Purchase</span>
+                  <span className="text-emerald-400/90 text-[10px] font-medium">Verified Purchase</span>
                 </div>
               </div>
             ))}

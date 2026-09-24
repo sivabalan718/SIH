@@ -221,6 +221,54 @@ export class AssistantToolsService {
         };
       }
 
+      case 'GENERAL_CONVERSATION':
+      case 'WEB_RESEARCH': {
+        return {
+          intent,
+          data: {},
+          evidence: [],
+        };
+      }
+
+      case 'MIXED_COMPARISON': {
+        const products = await getProductsByArtisan(artisanId);
+        let matched = products[0];
+        if (queryText && products.length > 0) {
+          const lower = queryText.toLowerCase();
+          const found = products.find((p) => p.name.toLowerCase().includes(lower) || p.category?.toLowerCase().includes(lower));
+          if (found) matched = found;
+        }
+
+        let record = null;
+        if (matched) {
+          record = await getPricingRecord(matched.id, artisanId).catch(() => null);
+        }
+
+        return {
+          intent,
+          data: {
+            m63_product: matched
+              ? {
+                  id: matched.id,
+                  name: matched.name,
+                  category: matched.category,
+                  price: matched.price,
+                  stock: matched.stock_quantity,
+                  material: matched.material,
+                }
+              : null,
+            pricing_record: record,
+          },
+          evidence: matched
+            ? [
+                { metric: 'M63 Product Name', value: matched.name },
+                { metric: 'M63 Verified Price', value: `₹${matched.price}` },
+                { metric: 'M63 Inventory Stock', value: `${matched.stock_quantity} units` },
+              ]
+            : [],
+        };
+      }
+
       case 'GENERAL_M63_HELP':
       default: {
         const analytics = await getArtisanAnalytics(artisanId, '30d');

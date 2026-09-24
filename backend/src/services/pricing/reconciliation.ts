@@ -9,8 +9,7 @@ export function reconcileCostAndMarket(
   const secondaryCount = market.secondaryCount;
   const marketRef = market.p50;
   const knownCost = cost.knownCost;
-  const costFloor = cost.costFloor;
-  const costAnchor = cost.costAnchor;
+  const costBasedPrice = cost.costBasedPrice || cost.costFloor || cost.costAnchor;
 
   // 1. Determine Pricing Basis
   let pricingBasis: PricingBasis = 'COST_ANCHORED';
@@ -41,18 +40,19 @@ export function reconcileCostAndMarket(
     alpha = 0.0;
   }
 
-  // 3. Deterministic Market Adjustment:
-  // marketAdjustment = alpha * (marketRef - costAnchor)
+  // 3. Deterministic Market Adjustment & Raw Market-Adjusted Price:
+  // P_raw = F + alpha * (P_WM - F)
+  // marketAdjustment = alpha * (P_WM - F)
   let marketAdjustment = 0;
-  let rawSuggested = costAnchor;
+  let rawSuggested = costBasedPrice;
 
   if (knownCost > 0) {
     if (marketRef !== null && marketRef > 0) {
-      marketAdjustment = Math.round(alpha * (marketRef - costAnchor));
-      rawSuggested = costAnchor + marketAdjustment;
+      marketAdjustment = Math.round(alpha * (marketRef - costBasedPrice) * 100) / 100;
+      rawSuggested = costBasedPrice + (alpha * (marketRef - costBasedPrice));
     } else {
       marketAdjustment = 0;
-      rawSuggested = Math.round(costAnchor);
+      rawSuggested = costBasedPrice;
     }
   } else {
     if (marketRef !== null && marketRef > 0) {
@@ -62,96 +62,106 @@ export function reconcileCostAndMarket(
     }
   }
 
-  // 4. Enforce Cost Floor Invariant: suggestedPrice >= costFloor
+  // 4. Enforce Cost Floor Invariant: P_M63 = max(F, P_raw)
   let isCostFloorActive = false;
   let costFloorProtectionReason: string | null = null;
   let finalSuggested = rawSuggested;
 
   if (knownCost > 0) {
-    if (finalSuggested < costFloor) {
-      finalSuggested = costFloor;
+    if (rawSuggested < costBasedPrice) {
+      finalSuggested = costBasedPrice;
       isCostFloorActive = true;
-      costFloorProtectionReason = `Observed marketplace evidence is below the sustainable cost floor, so M63 anchors the recommendation to the minimum viable price (₹${costFloor.toLocaleString('en-IN')}) rather than recommending a price below production cost.`;
-    } else if (marketRef !== null && marketRef < costFloor) {
+      costFloorProtectionReason = `Raw market-adjusted price (₹${Math.round(rawSuggested).toLocaleString('en-IN')}) is below your sustainable floor. Recommendation protected by the verified sustainable cost floor (₹${costBasedPrice.toLocaleString('en-IN')}).`;
+    } else if (marketRef !== null && marketRef < costBasedPrice) {
       isCostFloorActive = true;
-      costFloorProtectionReason = `Observed weighted market reference (₹${marketRef.toLocaleString('en-IN')}) is below your production cost floor (₹${costFloor.toLocaleString('en-IN')}). M63 protected your production economics.`;
+      costFloorProtectionReason = `Observed weighted market reference (₹${marketRef.toLocaleString('en-IN')}) is below your production cost floor (₹${costBasedPrice.toLocaleString('en-IN')}). Recommendation protected by the verified sustainable cost floor.`;
+    } else {
+      finalSuggested = Math.round(rawSuggested * 100) / 100;
     }
+  } else {
+    finalSuggested = Math.round(rawSuggested * 100) / 100;
   }
 
-  // 5. Calculate Fair Price Range (P_min -> P_max)
-  let fairMin = 0;
-  let fairMax = 0;
-  let fairRangeType: 'MARKET_BASED' | 'COST_ANCHORED' = 'COST_ANCHORED';
+  // 5. Expose Market-Cost Mismatch Explicitly
+  let hasMarketCostMismatch = false;
+  let marketCostMismatchWarning: string | null = null;
+
+  if (knownCost > 0 && marketRef !== null && marketRef < costBasedPrice) {
+    hasMarketCostMismatch = true;
+    marketCostMismatchWarning = `Market–Cost Mismatch: Comparable marketplace prices (observed reference ₹${marketRef.toLocaleString('en-IN')}) are substantially below your sustainable cost floor (₹${costBasedPrice.toLocaleString('en-IN')}). Matching the observed market price would not cover your stated production costs.`;
+  } else if (knownCost > 0 && rawSuggested < costBasedPrice) {
+    hasMarketCostMismatch = true;
+    marketCostMismatchWarning = `Market–Cost Mismatch: Raw market-adjusted price (₹${Math.round(rawSuggested).toLocaleString('en-IN')}) falls below your sustainable cost floor (₹${costBasedPrice.toLocaleString('en-IN')}). Recommendation is cost-protected.`;
+  }
+
+  // 6. Calculate Independent Market Fair Price Range (DO NOT CLAMP TO COST FLOOR!)
+  let fairMin: number | null = null;
+  let fairMax: number | null = null;
+  let fairRangeType: 'MARKET_BASED' | 'COST_ANCHORED' | 'INSUFFICIENT_EVIDENCE' = 'INSUFFICIENT_EVIDENCE';
   let fairRangeMinReason = '';
   let fairRangeMaxReason = '';
 
-  if (pricingBasis === 'MARKET_SUPPORTED' && market.p25 !== null && market.p75 !== null) {
+  if (market.p25 !== null && market.p75 !== null && validComps >= 3) {
     fairRangeType = 'MARKET_BASED';
-    if (knownCost > 0 && costFloor > market.p25) {
-      fairMin = costFloor;
-      fairRangeMinReason = `Cost floor protection (₹${costFloor.toLocaleString('en-IN')}) enforces minimum viable price above market P25 (₹${market.p25.toLocaleString('en-IN')}).`;
-    } else {
-      fairMin = market.p25;
-      fairRangeMinReason = `Supported by observed market lower band P25 (₹${market.p25.toLocaleString('en-IN')}).`;
-    }
-    fairMax = Math.max(finalSuggested, market.p75);
-    fairRangeMaxReason = `Supported by observed market upper band P75 (₹${market.p75.toLocaleString('en-IN')}).`;
+    fairMin = Math.round(market.p25);
+    fairMax = Math.round(market.p75);
+    fairRangeMinReason = `Observed comparable market lower quartile P25 (₹${fairMin.toLocaleString('en-IN')}).`;
+    fairRangeMaxReason = `Observed comparable market upper quartile P75 (₹${fairMax.toLocaleString('en-IN')}).`;
   } else {
-    fairRangeType = 'COST_ANCHORED';
-    if (knownCost > 0) {
-      fairMin = Math.round(costFloor);
-      fairRangeMinReason = `Sustainable production cost floor (+${Math.round(cost.minimumMarkupUsed * 100)}% markup: ₹${costFloor.toLocaleString('en-IN')}).`;
-      fairMax = Math.max(finalSuggested, Math.round(costAnchor * 1.25));
-      fairRangeMaxReason = `Cost anchor ceiling (+${Math.round(cost.targetMarkupUsed * 100)}% markup with craft headroom: ₹${fairMax.toLocaleString('en-IN')}).`;
-    } else if (marketRef !== null) {
-      fairMin = Math.round(marketRef * 0.85);
-      fairRangeMinReason = `Estimated lower market band (85% of market reference ₹${marketRef.toLocaleString('en-IN')}).`;
-      fairMax = Math.round(marketRef * 1.25);
-      fairRangeMaxReason = `Estimated upper market band (125% of market reference ₹${marketRef.toLocaleString('en-IN')}).`;
-    } else {
-      fairMin = 650;
-      fairRangeMinReason = 'General craft baseline minimum.';
-      fairMax = 1100;
-      fairRangeMaxReason = 'General craft baseline maximum.';
-    }
+    fairRangeType = 'INSUFFICIENT_EVIDENCE';
+    fairMin = null;
+    fairMax = null;
+    fairRangeMinReason = 'Limited price information available to establish a reliable market range.';
+    fairRangeMaxReason = 'Limited price information available to establish a reliable market range.';
   }
 
-  // Hard Invariants Safety Check
-  fairMin = Math.max(costFloor, fairMin);
-  fairMin = Math.min(fairMin, finalSuggested);
-  fairMax = Math.max(finalSuggested, fairMax);
+  // SAFETY: If fairMin > fairMax due to single comp, swap or adjust
+  if (fairMin !== null && fairMax !== null && fairMin > fairMax) {
+    const temp = fairMin;
+    fairMin = fairMax;
+    fairMax = temp;
+  }
 
   const alphaPercent = Math.round(alpha * 100);
   let reconciliationExplanation = '';
   if (marketRef !== null && validComps > 0) {
-    if (marketAdjustment >= 0) {
-      reconciliationExplanation = `Observed weighted market reference is ₹${marketRef.toLocaleString('en-IN')}. Based on ${validComps} eligible comparable(s) (${alphaPercent}% market influence), M63 applies a market alignment of +₹${marketAdjustment.toLocaleString('en-IN')} to your cost anchor (₹${costAnchor.toLocaleString('en-IN')}).`;
+    if (hasMarketCostMismatch) {
+      reconciliationExplanation = `Observed weighted market reference is ₹${marketRef.toLocaleString('en-IN')}. Raw market-adjusted price is ₹${Math.round(rawSuggested).toLocaleString('en-IN')}. Because market prices fall below your verified production cost (+25% markup: ₹${costBasedPrice.toLocaleString('en-IN')}), M63 cost-floor protection is active, resulting in a cost-protected recommendation of ₹${finalSuggested.toLocaleString('en-IN')}.`;
+    } else if (marketAdjustment >= 0) {
+      reconciliationExplanation = `Observed weighted market reference is ₹${marketRef.toLocaleString('en-IN')}. Based on ${validComps} eligible comparable(s) (${alphaPercent}% market influence), M63 applies a market alignment of +₹${Math.abs(marketAdjustment).toLocaleString('en-IN')} to your cost-based price (₹${costBasedPrice.toLocaleString('en-IN')}).`;
     } else {
-      reconciliationExplanation = `Observed weighted market reference is ₹${marketRef.toLocaleString('en-IN')}. Based on ${validComps} eligible comparable(s) (${alphaPercent}% market influence), M63 applies a market alignment of −₹${Math.abs(marketAdjustment).toLocaleString('en-IN')} to your cost anchor (₹${costAnchor.toLocaleString('en-IN')}).`;
+      reconciliationExplanation = `Observed weighted market reference is ₹${marketRef.toLocaleString('en-IN')}. Based on ${validComps} eligible comparable(s) (${alphaPercent}% market influence), M63 applies a market alignment of −₹${Math.abs(marketAdjustment).toLocaleString('en-IN')} to your cost-based price (₹${costBasedPrice.toLocaleString('en-IN')}).`;
     }
   } else {
-    reconciliationExplanation = `No eligible marketplace comparables available. Recommendation is 100% anchored to verified production cost anchor (₹${costAnchor.toLocaleString('en-IN')}).`;
+    reconciliationExplanation = `No eligible marketplace comparables available. Recommendation is 100% anchored to verified cost-based price (₹${costBasedPrice.toLocaleString('en-IN')}).`;
   }
 
   return {
     pricingBasis,
     evidenceQualityAlpha: alpha,
     marketEvidenceWeight: alpha,
-    costAnchor,
+    costBasedPrice,
+    costAnchor: costBasedPrice,
     marketReferencePrice: marketRef,
     marketAdjustment,
+    rawMarketAdjustedPrice: rawSuggested,
     suggestedPrice: finalSuggested,
     fairPriceMin: fairMin,
     fairPriceMax: fairMax,
     isCostFloorActive,
+    costFloorApplied: isCostFloorActive,
     costFloorProtectionReason,
+    hasMarketCostMismatch,
+    marketCostMismatchWarning,
     fairRangeType,
-    reconciliationFormula: `P_suggested = max(P_floor, P_anchor + α × (P_market - P_anchor))`,
+    reconciliationFormula: `P_suggested = max(F, F + α × (P_market - F))`,
     reconciliationInputs: {
-      costAnchor,
+      costAnchor: costBasedPrice,
+      costBasedPrice,
       marketReference: marketRef,
       alpha,
       adjustment: marketAdjustment,
+      rawMarketAdjustedPrice: rawSuggested,
     },
     reconciliationExplanation,
     fairRangeMinReason,

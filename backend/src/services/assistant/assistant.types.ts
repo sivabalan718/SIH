@@ -12,7 +12,16 @@ export type AssistantIntent =
   | 'CATEGORY_PERFORMANCE'
   | 'BUSINESS_ANALYTICS'
   | 'PRICING_GUIDANCE'
-  | 'GENERAL_M63_HELP';
+  | 'GENERAL_M63_HELP'
+  | 'GENERAL_CONVERSATION'
+  | 'WEB_RESEARCH'
+  | 'MIXED_COMPARISON';
+
+export type AssistantIntentCategory =
+  | 'M63_BUSINESS'
+  | 'GENERAL_CONVERSATION'
+  | 'WEB_RESEARCH'
+  | 'MIXED_COMPARISON';
 
 export interface AssistantQueryPayload {
   text?: string;
@@ -27,6 +36,11 @@ export interface BusinessDataResult {
   evidence: Array<{ metric: string; value: string }>;
 }
 
+export interface WebSourceItem {
+  title: string;
+  url: string;
+}
+
 export interface AssistantResponsePayload {
   transcript?: string;
   language: AssistantLanguage;
@@ -35,5 +49,7 @@ export interface AssistantResponsePayload {
   audioDataUri?: string | null;
   businessData?: Record<string, any>;
   evidence?: Array<{ metric: string; value: string }>;
+  sources?: WebSourceItem[];
   suggestedQuestions?: string[];
 }
+

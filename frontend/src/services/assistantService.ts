@@ -10,6 +10,7 @@ export interface AssistantResponse {
   audioDataUri?: string | null;
   businessData?: Record<string, any>;
   evidence?: Array<{ metric: string; value: string }>;
+  sources?: Array<{ title: string; url: string }>;
   suggestedQuestions?: string[];
   pageContext?: string;
 }

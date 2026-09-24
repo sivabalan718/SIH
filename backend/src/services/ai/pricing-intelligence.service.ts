@@ -194,6 +194,8 @@ export const PRICING_POLICY_CONFIG = {
 
 export interface CalculationBreakdown {
   known_production_cost: number | null;
+  markup_rate?: number;
+  markup_amount?: number;
   margin_rate: number;
   base_margin: number;
   cost_state: CostState;
@@ -205,11 +207,18 @@ export interface CalculationBreakdown {
   eligible_comparable_count: number;
   contextual_excluded_count: number;
   weighted_market_price: number | null;
+  raw_market_adjusted_price?: number;
   market_evidence_adjustment: number;
-  fair_minimum: number;
+  is_cost_floor_active?: boolean;
+  cost_floor_applied?: boolean;
+  has_market_cost_mismatch?: boolean;
+  market_cost_mismatch_warning?: string | null;
+  fair_minimum: number | null;
   suggested_price: number;
-  fair_maximum: number;
+  fair_maximum: number | null;
   confidence: ConfidenceLevel;
+  cost_confidence?: string;
+  market_confidence?: string;
   confidence_reason: string;
   mathematical_formula_str: string;
   market_evidence_weight_pct?: number;
@@ -232,11 +241,16 @@ export interface CalculationBreakdown {
   cost_based_minimum?: number;
 }
 
+
 export interface FairPriceRecommendation {
   fair_price_min: number | null;
   fair_price_max: number | null;
   suggested_price: number | null;
   confidence: ConfidenceLevel;
+  cost_confidence?: string;
+  market_confidence?: string;
+  has_market_cost_mismatch?: boolean;
+  market_cost_mismatch_warning?: string | null;
   known_cost: number;
   cost_state?: CostState;
   pricing_basis?: PricingBasis;
@@ -1298,6 +1312,8 @@ export async function generateFairPriceRecommendation(
     matchTier: c.tier === 'PRIMARY' ? 'TIER_1' : c.tier === 'SECONDARY' ? 'TIER_2' : 'TIER_3',
     matchTierLabel: c.tierLabel,
     matchedAttributes: c.matchedAttributes,
+    differingAttributes: c.differingAttributes,
+    breakdown: c.breakdown as any,
     benchmark_eligible: c.benchmarkEligible,
     is_outlier: false,
     priceInfluenceLevel: c.priceInfluenceLevel,
@@ -1313,29 +1329,38 @@ export async function generateFairPriceRecommendation(
 
   const calculationBreakdown: CalculationBreakdown = {
     known_production_cost: result.costAnalysis.knownCost > 0 ? result.costAnalysis.knownCost : null,
-    margin_rate: result.costAnalysis.targetMarkupUsed,
-    base_margin: Math.round(result.costAnalysis.knownCost * result.costAnalysis.minimumMarkupUsed),
+    markup_rate: result.costAnalysis.markupRate,
+    markup_amount: result.costAnalysis.markupAmount,
+    margin_rate: result.costAnalysis.markupRate,
+    base_margin: result.costAnalysis.markupAmount, // Backward compatibility alias for markup_amount
     cost_state: result.costAnalysis.costState,
     craft_factor: 0,
     craft_adjustment: 0,
     craft_factor_breakdown: [],
-    cost_based_price: result.costAnalysis.costAnchor,
+    cost_based_price: result.costAnalysis.costBasedPrice,
     total_candidates_count: result.marketReference.totalCandidatesEvaluated,
     eligible_comparable_count: result.marketReference.validComparablesCount,
     contextual_excluded_count: result.marketReference.contextualCount + result.marketReference.excludedCount,
     weighted_market_price: result.marketReference.p50,
+    raw_market_adjusted_price: result.reconciliation.rawMarketAdjustedPrice,
     market_evidence_adjustment: result.reconciliation.marketAdjustment,
+    is_cost_floor_active: result.reconciliation.isCostFloorActive,
+    cost_floor_applied: result.reconciliation.costFloorApplied,
+    has_market_cost_mismatch: result.reconciliation.hasMarketCostMismatch,
+    market_cost_mismatch_warning: result.reconciliation.marketCostMismatchWarning,
     fair_minimum: result.reconciliation.fairPriceMin,
     suggested_price: result.reconciliation.suggestedPrice,
     fair_maximum: result.reconciliation.fairPriceMax,
     confidence: confLevel,
+    cost_confidence: (result.confidence.costConfidence || 'LOW').toLowerCase() as any,
+    market_confidence: (result.confidence.marketConfidence || 'LOW').toLowerCase() as any,
     confidence_reason: result.confidence.reasons.join('; '),
     mathematical_formula_str: result.reconciliation.reconciliationFormula,
     market_evidence_weight_pct: Math.round(result.reconciliation.evidenceQualityAlpha * 100),
     market_adjustment_explanation: result.reconciliation.reconciliationExplanation,
     reconciliation_formula: result.reconciliation.reconciliationFormula,
-    cost_floor_amount: result.costAnalysis.costFloor,
-    cost_anchor_amount: result.costAnalysis.costAnchor,
+    cost_floor_amount: result.costAnalysis.costBasedPrice,
+    cost_anchor_amount: result.costAnalysis.costBasedPrice,
     fair_range_min_reason: result.reconciliation.fairRangeMinReason,
     fair_range_max_reason: result.reconciliation.fairRangeMaxReason,
     material_factor_bonus: 0,
@@ -1346,8 +1371,9 @@ export async function generateFairPriceRecommendation(
     outlier_count: 0,
     benchmark_statistic_used: 'WEIGHTED_MARKET_REFERENCE',
     benchmark_price: result.marketReference.p50,
-    cost_based_minimum: result.costAnalysis.costFloor,
+    cost_based_minimum: result.costAnalysis.costBasedPrice,
   };
+
 
   const diagnostics: PricingDiagnosticAudit = {
     totalCandidates: result.marketReference.totalCandidatesEvaluated,
@@ -1371,6 +1397,10 @@ export async function generateFairPriceRecommendation(
     fair_price_max: result.reconciliation.fairPriceMax,
     suggested_price: result.reconciliation.suggestedPrice,
     confidence: confLevel,
+    cost_confidence: (result.confidence.costConfidence || 'LOW').toLowerCase() as any,
+    market_confidence: (result.confidence.marketConfidence || 'LOW').toLowerCase() as any,
+    has_market_cost_mismatch: result.reconciliation.hasMarketCostMismatch,
+    market_cost_mismatch_warning: result.reconciliation.marketCostMismatchWarning,
     known_cost: result.costAnalysis.knownCost,
     cost_state: result.costAnalysis.costState,
     pricing_basis: result.reconciliation.pricingBasis === 'MARKET_SUPPORTED' ? 'MARKET_SUPPORTED' : 'COST_ANCHORED',

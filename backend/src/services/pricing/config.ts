@@ -99,8 +99,9 @@ export const PRICING_CONFIG = {
   semanticWeightCap: 0.03,
 
   // Cost Markup Assumptions (Configurable business assumptions; MARKUP where Price = Cost * (1 + Markup))
+  markupRate: 0.25,    // 25% canonical markup rate for Cost-Based Price (F)
   minimumMarkup: 0.25, // 25% minimum markup for Cost Floor (P_floor)
-  targetMarkup: 0.50,  // 50% target markup for Cost Anchor (P_anchor)
+  targetMarkup: 0.25,  // 25% target markup for Cost Anchor (P_anchor)
 
   // Versioning
   materialSimilarityVersion: 'v1',

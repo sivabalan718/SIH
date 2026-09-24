@@ -12,25 +12,24 @@ export interface FeedbackInsightResult {
 }
 
 /**
- * Generate evidence-grounded AI feedback insights from actual verified customer reviews.
- * Adheres strictly to ground truth: no invented opinions, claims, or unmentioned issues.
+ * Deterministic fallback generator for review statistics & evidence.
+ * Grounded 100% in actual verified reviews.
  */
-export async function generateFeedbackInsight(
-  stats: DeterministicReviewStats,
+export function generateDeterministicFallback(
+  productName: string,
+  reviews: ProductReviewRecord[],
   language: 'en' | 'ta' | 'hi' = 'en'
-): Promise<FeedbackInsightResult> {
-  const reviews = stats.recent_reviews || [];
-  const count = stats.total_reviews;
+): FeedbackInsightResult {
+  const count = reviews.length;
 
-  // 0 Reviews Fallback
   if (count === 0) {
     return {
       summary:
         language === 'ta'
-          ? 'இன்னும் வாடிக்கையாளர் கருத்துகள் எதுவும் இல்லை.'
+          ? 'இன்னும் சரிபார்க்கப்பட்ட வாடிக்கையாளர் கருத்துகள் எதுவும் இல்லை.'
           : language === 'hi'
-          ? 'अभी तक कोई ग्राहक प्रतिक्रिया नहीं मिली है।'
-          : 'No customer feedback yet.',
+          ? 'अभी तक कोई सत्यापित ग्राहक प्रतिक्रिया नहीं मिली है।'
+          : 'No verified customer feedback available yet.',
       positive_themes: [],
       improvement_themes: [],
       evidence_count: 0,
@@ -45,24 +44,25 @@ export async function generateFeedbackInsight(
     };
   }
 
-  // 1-2 Reviews Fallback (Limited sample size warning)
-  if (count <= 2) {
-    const texts = reviews.map((r) => r.review_text).filter(Boolean) as string[];
-    const posThemes: string[] = [];
-    const impThemes: string[] = [];
+  const posThemes: string[] = [];
+  const impThemes: string[] = [];
+  let sum = 0;
 
-    for (const r of reviews) {
-      if (r.rating >= 4) {
-        if (r.review_text && !posThemes.includes(r.review_text)) {
-          posThemes.push(r.review_text);
-        }
-      } else if (r.rating <= 3) {
-        if (r.review_text && !impThemes.includes(r.review_text)) {
-          impThemes.push(r.review_text);
-        }
+  for (const r of reviews) {
+    sum += r.rating;
+    if (r.review_text && r.review_text.trim()) {
+      if (r.rating >= 4 && !posThemes.includes(r.review_text.trim())) {
+        posThemes.push(r.review_text.trim());
+      } else if (r.rating <= 3 && !impThemes.includes(r.review_text.trim())) {
+        impThemes.push(r.review_text.trim());
       }
     }
+  }
 
+  const avg = Math.round((sum / count) * 10) / 10;
+  const positivePercentage = Math.round((reviews.filter((r) => r.rating >= 4).length / count) * 100);
+
+  if (count <= 2) {
     return {
       summary:
         language === 'ta'
@@ -80,10 +80,81 @@ export async function generateFeedbackInsight(
     };
   }
 
+  const summary =
+    language === 'ta'
+      ? `${count} சரிபார்க்கப்பட்ட வாடிக்கையாளர் மதிப்புரைகளின்படி, ${productName} சராசரி மதிப்பீடு 5க்கு ${avg} ஆகும் (${positivePercentage}% நேர்மறை).`
+      : language === 'hi'
+      ? `${count} सत्यापित ग्राहक समीक्षाओं के आधार पर, ${productName} की औसत रेटिंग 5 में से ${avg} है (${positivePercentage}% सकारात्मक)।`
+      : `Based on ${count} verified customer reviews, ${productName || 'this product'} has an average rating of ${avg} out of 5 stars (${positivePercentage}% positive satisfaction).`;
+
+  return {
+    summary,
+    positive_themes: posThemes.slice(0, 3),
+    improvement_themes: impThemes.slice(0, 3),
+    evidence_count: count,
+    confidence: count >= 5 ? 'HIGH' : 'MEDIUM',
+    limitations: [`Calculated deterministically from ${count} verified customer reviews.`],
+  };
+}
+
+/**
+ * Generate evidence-grounded AI feedback insights from actual verified customer reviews.
+ * Adheres strictly to ground truth: no invented opinions, claims, or unmentioned issues.
+ */
+export async function generateFeedbackInsight(
+  statsOrName: DeterministicReviewStats | string,
+  reviewsOrLang?: ProductReviewRecord[] | ('en' | 'ta' | 'hi'),
+  language: 'en' | 'ta' | 'hi' = 'en'
+): Promise<FeedbackInsightResult> {
+  let stats: DeterministicReviewStats;
+  let lang: 'en' | 'ta' | 'hi' = language;
+  let productName = 'Handcrafted Item';
+
+  if (typeof statsOrName === 'string') {
+    productName = statsOrName;
+    const reviews = Array.isArray(reviewsOrLang) ? reviewsOrLang : [];
+    lang = (typeof language === 'string' ? language : 'en') as 'en' | 'ta' | 'hi';
+
+    const total = reviews.length;
+    const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+    const avg = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
+    const pos = total > 0 ? Math.round((reviews.filter((r) => r.rating >= 4).length / total) * 100) : 0;
+
+    const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    for (const r of reviews) {
+      const star = Math.max(1, Math.min(5, Math.round(r.rating))) as 1 | 2 | 3 | 4 | 5;
+      dist[star] = (dist[star] || 0) + 1;
+    }
+
+    stats = {
+      total_reviews: total,
+      average_rating: avg,
+      positive_percentage: pos,
+      rating_distribution: dist,
+      recent_reviews: reviews,
+    };
+  } else {
+    stats = statsOrName;
+    lang = (typeof reviewsOrLang === 'string' ? reviewsOrLang : 'en') as 'en' | 'ta' | 'hi';
+  }
+
+  const reviews = stats.recent_reviews || [];
+  const count = stats.total_reviews;
+
+  // 0 Reviews Fallback
+  if (count === 0) {
+    return generateDeterministicFallback(productName, [], lang);
+  }
+
+  // 1-2 Reviews Fallback
+  if (count <= 2) {
+    return generateDeterministicFallback(productName, reviews, lang);
+  }
+
   // 3+ Reviews: Attempt Gemini Reasoning with Strict Evidence Grounding
   if (env.geminiApiKey) {
     try {
-      const insight = await callGeminiFeedbackIntelligence(stats, reviews, language);
+      const insight = await callGeminiFeedbackIntelligence(stats, reviews, lang);
       if (insight) return insight;
     } catch (err: any) {
       logger.warn('[FeedbackIntelligence] Gemini API notice, falling back to deterministic review summary:', err.message);
@@ -91,27 +162,29 @@ export async function generateFeedbackInsight(
   }
 
   // Deterministic Fallback Engine for 3+ Reviews
-  return buildDeterministicFeedbackInsight(stats, reviews, language);
+  return generateDeterministicFallback(productName, reviews, lang);
 }
 
 /**
  * Call Gemini API with strict prompt instructions enforcing evidence grounding.
+ * NEVER sends private customer information (email, phone, address, auth ID).
  */
 async function callGeminiFeedbackIntelligence(
   stats: DeterministicReviewStats,
   reviews: ProductReviewRecord[],
   language: 'en' | 'ta' | 'hi'
 ): Promise<FeedbackInsightResult | null> {
+  // Pass ONLY public safe review text and ratings. Strip customer identity.
   const reviewEvidence = reviews.map((r, i) => ({
     index: i + 1,
     rating: r.rating,
-    text: r.review_text || '(Rating only, no text provided)',
+    text: r.review_text || '(Rating only, no review text provided)',
   }));
 
-  const systemPrompt = `You are the M63 Customer Feedback Intelligence Engine. Your sole task is to summarize ACTUAL customer reviews for an artisan product.
+  const systemPrompt = `You are the M63 Customer Feedback Intelligence Engine. Your sole task is to summarize ACTUAL verified customer reviews for an artisan product.
 
 CRITICAL GROUNDING RULES:
-1. Use ONLY the supplied customer reviews evidence below. Do NOT invent, assume, or hallucinate customer opinions, product complaints, or features not stated in the reviews.
+1. Use ONLY the supplied customer reviews evidence below. Do NOT invent, assume, or fabricate customer opinions, product complaints, or features not stated in the reviews.
 2. If a customer complaint or theme appears only ONCE, do NOT describe it as a general trend.
 3. Do NOT claim quality, delivery, or packaging issues unless explicitly written in the review texts.
 4. Output MUST be valid JSON strictly adhering to the schema below.
@@ -166,43 +239,5 @@ ${JSON.stringify(reviewEvidence, null, 2)}
     evidence_count: stats.total_reviews,
     confidence: stats.total_reviews >= 5 ? 'HIGH' : 'MEDIUM',
     limitations: Array.isArray(parsed.limitations) ? parsed.limitations : [`Based on ${stats.total_reviews} verified customer reviews.`],
-  };
-}
-
-/**
- * Deterministic fallback when Gemini API is unconfigured or unavailable.
- */
-function buildDeterministicFeedbackInsight(
-  stats: DeterministicReviewStats,
-  reviews: ProductReviewRecord[],
-  language: 'en' | 'ta' | 'hi'
-): FeedbackInsightResult {
-  const posThemes: string[] = [];
-  const impThemes: string[] = [];
-
-  for (const r of reviews) {
-    if (r.review_text) {
-      if (r.rating >= 4 && posThemes.length < 3) {
-        posThemes.push(r.review_text);
-      } else if (r.rating <= 3 && impThemes.length < 3) {
-        impThemes.push(r.review_text);
-      }
-    }
-  }
-
-  const summary =
-    language === 'ta'
-      ? `${stats.total_reviews} சரிபார்க்கப்பட்ட வாடிக்கையாளர் மதிப்புரைகளின்படி, சராசரி மதிப்பீடு 5க்கு ${stats.average_rating} ஆகும் (${stats.positive_percentage}% நேர்மறையான அனுபவம்).`
-      : language === 'hi'
-      ? `${stats.total_reviews} सत्यापित ग्राहक समीक्षाओं के आधार पर, औसत रेटिंग 5 में से ${stats.average_rating} है (${stats.positive_percentage}% सकारात्मक अनुभव)।`
-      : `Based on ${stats.total_reviews} verified customer reviews, the product has an average rating of ${stats.average_rating} out of 5 (${stats.positive_percentage}% positive satisfaction).`;
-
-  return {
-    summary,
-    positive_themes: posThemes,
-    improvement_themes: impThemes,
-    evidence_count: stats.total_reviews,
-    confidence: stats.total_reviews >= 5 ? 'HIGH' : 'MEDIUM',
-    limitations: [`Calculated deterministically from ${stats.total_reviews} verified customer reviews.`],
   };
 }

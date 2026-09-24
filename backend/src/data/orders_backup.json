@@ -475,8 +475,8 @@
     "id": "ord-1789843192617-4z1se",
     "m63_order_number": "M63-1877",
     "buyer_id": "55555555-5555-4555-a555-555555555555",
-    "artisan_id": "44444444-4444-4444-a444-444444444444",
-    "status": "PROCESSING",
+    "artisan_id": "2ad0c1fd-d764-4192-9c36-10bfee6078ae",
+    "status": "SHIPPED",
     "subtotal": 1300,
     "delivery_charge": 0,
     "total_amount": 1300,
@@ -497,9 +497,10 @@
       }
     ],
     "placed_at": "2026-09-19T18:39:52.617Z",
-    "updated_at": "2026-09-19T18:39:55.157Z",
+    "updated_at": "2026-09-21T07:48:53.026Z",
     "confirmed_at": "2026-09-19T18:39:54.801Z",
-    "processing_at": "2026-09-19T18:39:55.157Z"
+    "processing_at": "2026-09-19T18:39:55.157Z",
+    "shipped_at": "2026-09-21T07:48:53.026Z"
   },
   {
     "id": "ord-1789843207414-smsxi",

@@ -134,8 +134,18 @@ export function evaluateCandidates(
       tier = 'CONTEXTUAL';
       tierLabel = 'Contextual Reference (Not Used for Pricing)';
     } else {
-      // Gate is COMPATIBLE
-      if (rawScore >= PRICING_CONFIG.primarySimilarityThreshold) {
+      // Gate is COMPATIBLE: Enforce dual compatibility requirement for benchmark market pricing
+      const hasProductTypeMismatch = simRes.breakdown.productType.score < 0.40;
+      const hasIntendedUseMismatch = simRes.breakdown.intendedUse.score < 0.40;
+      const hasQuantityMismatch = simRes.breakdown.quantity.state === 'DIFFERENT' && (simRes.breakdown.quantity.score < 0.40);
+
+      if (hasProductTypeMismatch || hasIntendedUseMismatch || hasQuantityMismatch) {
+        // Downgrade to CONTEXTUAL so it does NOT influence benchmark pricing
+        finalScore = Math.min(rawScore, 0.52);
+        finalScore = Math.max(finalScore, 0.40);
+        tier = 'CONTEXTUAL';
+        tierLabel = 'Contextual Reference (Not Used for Pricing)';
+      } else if (rawScore >= PRICING_CONFIG.primarySimilarityThreshold) {
         // Protect against weak product identity matches
         if (simRes.breakdown.productType.score < 0.70 || simRes.breakdown.intendedUse.score < 0.70) {
           finalScore = Math.min(rawScore, 0.72);

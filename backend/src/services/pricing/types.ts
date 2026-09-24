@@ -97,8 +97,12 @@ export interface CostAnalysis {
   labourCost: number | null;
   otherExpenses: number | null;
   costState: 'COMPLETE' | 'PARTIAL' | 'UNAVAILABLE';
-  costFloor: number; // knownCost * (1 + minimumMarkup)
-  costAnchor: number; // knownCost * (1 + targetMarkup)
+  costBasedPrice: number; // Single canonical cost-based price F = knownCost * (1 + markupRate)
+  markupAmount: number; // knownCost * markupRate
+  markupRate: number; // Configured markup rate (e.g. 0.25 for 25%)
+  sustainablePriceFloor: number; // Equals costBasedPrice
+  costFloor: number; // Equals costBasedPrice (knownCost * (1 + markupRate))
+  costAnchor: number; // Alias for costBasedPrice
   minimumMarkupUsed: number;
   targetMarkupUsed: number;
   productionTime: number | null;
@@ -139,21 +143,28 @@ export interface ReconciliationResult {
   pricingBasis: PricingBasis;
   evidenceQualityAlpha: number; // 0..1
   marketEvidenceWeight: number; // alpha (0..1)
-  costAnchor: number;
+  costBasedPrice: number; // F = C * (1 + m)
+  costAnchor: number; // Alias for costBasedPrice
   marketReferencePrice: number | null;
-  marketAdjustment: number; // alpha * (marketRef - costAnchor)
-  suggestedPrice: number;
-  fairPriceMin: number;
-  fairPriceMax: number;
+  marketAdjustment: number; // alpha * (marketRef - costBasedPrice)
+  rawMarketAdjustedPrice: number; // F + alpha * (marketRef - F)
+  suggestedPrice: number; // max(costBasedPrice, rawMarketAdjustedPrice)
+  fairPriceMin: number | null;
+  fairPriceMax: number | null;
   isCostFloorActive: boolean;
+  costFloorApplied: boolean; // Alias for isCostFloorActive
   costFloorProtectionReason: string | null;
-  fairRangeType: 'MARKET_BASED' | 'COST_ANCHORED';
+  hasMarketCostMismatch: boolean;
+  marketCostMismatchWarning: string | null;
+  fairRangeType: 'MARKET_BASED' | 'COST_ANCHORED' | 'INSUFFICIENT_EVIDENCE';
   reconciliationFormula: string;
   reconciliationInputs: {
     costAnchor: number;
+    costBasedPrice: number;
     marketReference: number | null;
     alpha: number;
     adjustment: number;
+    rawMarketAdjustedPrice: number;
   };
   reconciliationExplanation: string;
   fairRangeMinReason: string;
@@ -162,7 +173,9 @@ export interface ReconciliationResult {
 
 export interface PricingConfidence {
   score: number; // 0..1
-  level: ConfidenceLevel;
+  level: ConfidenceLevel; // Overall Recommendation Confidence
+  costConfidence: ConfidenceLevel; // Cost Evidence Confidence
+  marketConfidence: ConfidenceLevel; // Market Evidence Confidence
   reasons: string[];
 }
 

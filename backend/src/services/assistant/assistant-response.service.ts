@@ -1,23 +1,81 @@
 import { env } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
-import { AssistantIntent, AssistantLanguage, BusinessDataResult } from './assistant.types.js';
+import { AssistantIntent, AssistantLanguage, BusinessDataResult, WebSourceItem } from './assistant.types.js';
 
 export class AssistantResponseService {
   /**
-   * Classifies user intent and detects language from natural language query
+   * Classifies user intent into one of 4 categories:
+   * 1. M63_BUSINESS (Supabase DB Grounded)
+   * 2. GENERAL_CONVERSATION (Friendly Conversational AI)
+   * 3. WEB_RESEARCH (Gemini Google Search Grounding)
+   * 4. MIXED_COMPARISON (M63 Verified Data + External Web Research)
    */
   classifyIntent(queryText: string): { intent: AssistantIntent; language: AssistantLanguage } {
-    const text = queryText.toLowerCase();
+    const text = queryText.toLowerCase().trim();
 
     // Language Detection by Unicode range & keywords
     let language: AssistantLanguage = 'en';
-    if (/[\u0B80-\u0BFF]/.test(queryText) || text.includes('வணக்கம்') || text.includes('பொருள்') || text.includes('விற்பனை') || text.includes('இருப்பு') || text.includes('சம்பாதிக்க') || text.includes('ஆர்டர்')) {
+    if (
+      /[\u0B80-\u0BFF]/.test(queryText) ||
+      text.includes('வணக்கம்') ||
+      text.includes('பொருள்') ||
+      text.includes('விற்பனை') ||
+      text.includes('இருப்பு') ||
+      text.includes('சம்பாதிக்க') ||
+      text.includes('ஆர்டர்') ||
+      text.includes('தேடு')
+    ) {
       language = 'ta';
-    } else if (/[\u0900-\u097F]/.test(queryText) || text.includes('नमस्ते') || text.includes('बिक्री') || text.includes('उत्पाद') || text.includes('स्टॉक') || text.includes('कमाई') || text.includes('ऑर्डर')) {
+    } else if (
+      /[\u0900-\u097F]/.test(queryText) ||
+      text.includes('नमस्ते') ||
+      text.includes('बिक्री') ||
+      text.includes('उत्पाद') ||
+      text.includes('स्टॉक') ||
+      text.includes('कमाई') ||
+      text.includes('ऑर्डर') ||
+      text.includes('खोजो')
+    ) {
       language = 'hi';
     }
 
-    // Intent Detection Keywords
+    // Category 4: Mixed Comparison Mode Keywords
+    if (
+      text.includes('compare') ||
+      text.includes('is my price reasonable') ||
+      text.includes('compared with online') ||
+      text.includes('ஒப்பீடு') ||
+      text.includes('ஒப்பிடு') ||
+      text.includes('ஆன்லைன் விலையுடன்') ||
+      text.includes('விலை ஒப்பீடு') ||
+      text.includes('तुलना')
+    ) {
+      return { intent: 'MIXED_COMPARISON', language };
+    }
+
+    // Category 3: Web Research Mode Keywords
+    if (
+      text.includes('online') ||
+      text.includes('search web') ||
+      text.includes('find online') ||
+      text.includes('available online') ||
+      text.includes('websites selling') ||
+      text.includes('other websites') ||
+      text.includes('market prices') ||
+      text.includes('latest trends') ||
+      text.includes('ஆன்லைன்') ||
+      text.includes('ஆன்லைனில்') ||
+      text.includes('இணையதளங்கள்') ||
+      text.includes('இணையத்தில்') ||
+      text.includes('தேடு') ||
+      text.includes('ऑनलाइन') ||
+      text.includes('खोजो') ||
+      text.includes('वेबसाइट')
+    ) {
+      return { intent: 'WEB_RESEARCH', language };
+    }
+
+    // Category 1: M63 Business Mode Keywords
     if (text.includes('sold the most') || text.includes('top product') || text.includes('best seller') || text.includes('அதிகமாக விற்ற') || text.includes('சிறந்த') || text.includes('सबसे ज्यादा बिकने')) {
       return { intent: 'TOP_PRODUCTS', language };
     }
@@ -33,58 +91,104 @@ export class AssistantResponseService {
     if (text.includes('how many product') || text.includes('total product') || text.includes('எத்தனை பொருள்') || text.includes('தயாரிப்புகள்') || text.includes('कितने उत्पाद')) {
       return { intent: 'PRODUCT_COUNT', language };
     }
-    if (text.includes('pricing') || text.includes('price') || text.includes('fair price') || text.includes('விலை') || text.includes('कीमत')) {
+    if (text.includes('pricing') || text.includes('fair price') || text.includes('suggested price') || text.includes('நியாயமான விலை') || text.includes('उचित मूल्य')) {
       return { intent: 'PRICING_GUIDANCE', language };
     }
     if (text.includes('category') || text.includes('categories') || text.includes('பிரிவு')) {
       return { intent: 'CATEGORY_PERFORMANCE', language };
     }
-    if (text.includes('earn') || text.includes('revenue') || text.includes('sales') || text.includes('வருவாய்') || text.includes('சம்பாத்தியம்') || text.includes('விற்பனை') || text.includes('कमाई') || text.includes('बिक्री')) {
+    if (text.includes('earn') || text.includes('revenue') || text.includes('my sales') || text.includes('வருவாய்') || text.includes('சம்பாத்தியம்') || text.includes('விற்பனை') || text.includes('कमाई') || text.includes('बिक्री')) {
       return { intent: 'SALES_SUMMARY', language };
     }
 
-    return { intent: 'BUSINESS_ANALYTICS', language };
+    // Category 2: General Conversation Keywords
+    if (
+      text.includes('hello') ||
+      text.includes('hi ') ||
+      text === 'hi' ||
+      text.includes('how are you') ||
+      text.includes('tell me a joke') ||
+      text.includes('joke') ||
+      text.includes('feeling') ||
+      text.includes('tired') ||
+      text.includes('stressed') ||
+      text.includes('explain ai') ||
+      text.includes('machine learning') ||
+      text.includes('who is') ||
+      text.includes('what is') ||
+      text.includes('motivation') ||
+      text.includes('let\'s talk') ||
+      text.includes('python') ||
+      text.includes('java') ||
+      text.includes('வணக்கம்') ||
+      text.includes('நலமா') ||
+      text.includes('ஜோக்') ||
+      text.includes('नमस्ते') ||
+      text.includes('कैसे हो') ||
+      text.includes('चुटकुला')
+    ) {
+      return { intent: 'GENERAL_CONVERSATION', language };
+    }
+
+    // Default fallback to GENERAL_CONVERSATION
+    return { intent: 'GENERAL_CONVERSATION', language };
   }
 
   /**
-   * Generates natural language response grounded strictly in verified business data
+   * Main response generation entry point across all 4 intelligence modes
    */
   async generateResponse(
     queryText: string,
     businessData: BusinessDataResult,
     requestedLang?: AssistantLanguage
-  ): Promise<{ textResponse: string; language: AssistantLanguage; suggestedQuestions: string[] }> {
-    const { intent, data, evidence } = businessData;
+  ): Promise<{ textResponse: string; language: AssistantLanguage; suggestedQuestions: string[]; sources?: WebSourceItem[] }> {
+    const intent = businessData.intent || this.classifyIntent(queryText).intent;
     const classified = this.classifyIntent(queryText);
 
-    // If query text is written in Tamil or Hindi script, prioritize detected language unless explicitly specified
     let language: AssistantLanguage = requestedLang || classified.language;
     if (classified.language !== 'en' && requestedLang === 'en') {
       language = classified.language;
     }
 
-    // Use Gemini for Natural Multilingual Summarization if API Key is configured
+    // Route Mode 3 & Mode 4 to Google Search Grounding Engine
+    if (intent === 'WEB_RESEARCH' || intent === 'MIXED_COMPARISON') {
+      return this.handleWebResearchMode(queryText, businessData, intent, language);
+    }
+
+    // Route Mode 2 to General Conversation Engine
+    if (intent === 'GENERAL_CONVERSATION') {
+      return this.handleGeneralConversationMode(queryText, language);
+    }
+
+    // Route Mode 1 to M63 Business Engine (Supabase Grounded)
+    return this.handleBusinessDataMode(queryText, businessData, language);
+  }
+
+  /**
+   * Mode 1: M63 Business Response Generator (Strict Database Grounding)
+   */
+  private async handleBusinessDataMode(
+    queryText: string,
+    businessData: BusinessDataResult,
+    language: AssistantLanguage
+  ): Promise<{ textResponse: string; language: AssistantLanguage; suggestedQuestions: string[] }> {
+    const { intent, data, evidence } = businessData;
+
     if (env.geminiApiKey) {
       try {
-        const aiResponse = await this.callGeminiResponseEngine(queryText, businessData, language);
+        const aiResponse = await this.callGeminiBusinessEngine(queryText, businessData, language);
         if (aiResponse) {
-          const hasTamil = /[\u0B80-\u0BFF]/.test(aiResponse);
-          const hasHindi = /[\u0900-\u097F]/.test(aiResponse);
-
-          if ((language === 'ta' && hasTamil) || (language === 'hi' && hasHindi) || language === 'en') {
-            return {
-              textResponse: aiResponse,
-              language,
-              suggestedQuestions: this.getSuggestedQuestions(intent, language),
-            };
-          }
+          return {
+            textResponse: aiResponse,
+            language,
+            suggestedQuestions: this.getSuggestedQuestions(intent, language),
+          };
         }
       } catch (err: any) {
-        logger.warn('[AssistantResponseService] Gemini reasoning fallback to deterministic template:', err.message);
+        logger.warn('[AssistantResponseService] Gemini business reasoning fallback to deterministic template:', err.message);
       }
     }
 
-    // Deterministic Response Engine (Grounded 100% in database evidence & native script)
     const textResponse = this.buildDeterministicResponse(intent, data, evidence, language);
     return {
       textResponse,
@@ -93,7 +197,257 @@ export class AssistantResponseService {
     };
   }
 
-  private async callGeminiResponseEngine(
+  /**
+   * Mode 2: General Conversation Engine (Friendly Conversational AI)
+   */
+  private async handleGeneralConversationMode(
+    queryText: string,
+    language: AssistantLanguage
+  ): Promise<{ textResponse: string; language: AssistantLanguage; suggestedQuestions: string[] }> {
+    const langMap = { en: 'English', ta: 'Tamil', hi: 'Hindi' };
+    const langName = langMap[language] || 'English';
+
+    if (env.geminiApiKey) {
+      try {
+        const prompt = `You are M63 Assistant, a friendly, intelligent, and warm AI companion for Indian master artisans.
+The user is engaging in general conversation.
+Respond naturally, helpfully, and conversationally. You can be friendly, informative, casual, or humorous as appropriate.
+DO NOT force the conversation back into M63 business topics unless relevant.
+
+CRITICAL LANGUAGE MANDATE:
+The response MUST be written strictly in ${langName} script (Tamil / Hindi / English).
+User query: "${queryText}"`;
+
+        const responseText = await this.callGeminiSimple(prompt);
+        if (responseText) {
+          return {
+            textResponse: responseText,
+            language,
+            suggestedQuestions: this.getSuggestedQuestions('GENERAL_CONVERSATION', language),
+          };
+        }
+      } catch (err: any) {
+        logger.warn('[AssistantResponseService] General conversation LLM call failed:', err.message);
+      }
+    }
+
+    const fallbackMap: Record<AssistantLanguage, string> = {
+      en: "Namaste! I am your M63 Assistant. I'm here to converse with you, answer general questions, or assist with your artisan business. How can I help you today?",
+      ta: "வணக்கம்! நான் உங்கள் M63 உதவியாளர். உங்களுடன் உரையாடவும், பொதுவான கேள்விகளுக்குப் பதிலளிக்கவும், உங்கள் கைவினை வணிகத்திற்கு உதவவும் நான் தயாராக உள்ளேன்.",
+      hi: "नमस्ते! मैं आपका M63 सहायक हूँ। मैं आपसे बात करने, सामान्य प्रश्नों के उत्तर देने और आपके व्यापार में मदद करने के लिए यहाँ हूँ।",
+    };
+
+    return {
+      textResponse: fallbackMap[language] || fallbackMap.en,
+      language,
+      suggestedQuestions: this.getSuggestedQuestions('GENERAL_CONVERSATION', language),
+    };
+  }
+
+  /**
+   * Mode 3 & Mode 4: Web Research Engine via Gemini Google Search Grounding
+   */
+  private async handleWebResearchMode(
+    queryText: string,
+    businessData: BusinessDataResult,
+    intent: AssistantIntent,
+    language: AssistantLanguage
+  ): Promise<{ textResponse: string; language: AssistantLanguage; suggestedQuestions: string[]; sources?: WebSourceItem[] }> {
+    if (!env.geminiApiKey) {
+      return this.returnWebFailureMessage(intent, language);
+    }
+
+    try {
+      const searchResult = await this.callGeminiWithGoogleSearch(queryText, businessData, intent, language);
+
+      if (!searchResult || !searchResult.textResponse || searchResult.textResponse.trim().length === 0) {
+        return this.returnWebFailureMessage(intent, language);
+      }
+
+      return {
+        textResponse: searchResult.textResponse,
+        language,
+        suggestedQuestions: this.getSuggestedQuestions(intent, language),
+        sources: searchResult.sources,
+      };
+    } catch (err: any) {
+      logger.error('[AssistantResponseService] Google Search Grounding error:', err.message);
+      return this.returnWebFailureMessage(intent, language);
+    }
+  }
+
+  /**
+   * Strict Web Search Failure Response Generator
+   */
+  private returnWebFailureMessage(
+    intent: AssistantIntent,
+    language: AssistantLanguage
+  ): { textResponse: string; language: AssistantLanguage; suggestedQuestions: string[]; sources: WebSourceItem[] } {
+    const failureTextMap: Record<AssistantLanguage, string> = {
+      en: 'Web research is temporarily unavailable. Please try again in a few moments.',
+      ta: 'தற்போது இணைய தேடல் கிடைக்கவில்லை. சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்.',
+      hi: 'अभी वेब खोज उपलब्ध नहीं है। कृपया थोड़ी देर बाद फिर कोशिश करें।',
+    };
+
+    return {
+      textResponse: failureTextMap[language] || failureTextMap.en,
+      language,
+      suggestedQuestions: this.getSuggestedQuestions(intent, language),
+      sources: [],
+    };
+  }
+
+  /**
+   * Executes Gemini API with Google Search Grounding (`tools: [{ googleSearch: {} }]`)
+   * Extracts text response and parses groundingMetadata for source citations.
+   */
+  private async callGeminiWithGoogleSearch(
+    queryText: string,
+    businessData: BusinessDataResult,
+    intent: AssistantIntent,
+    language: AssistantLanguage
+  ): Promise<{ textResponse: string; sources: WebSourceItem[] } | null> {
+    const langMap = { en: 'English', ta: 'Tamil', hi: 'Hindi' };
+    const langName = langMap[language] || 'English';
+    const isMixed = intent === 'MIXED_COMPARISON';
+
+    let systemPrompt = `You are M63 Assistant performing web research for an authentic Indian artisan.
+Your task is to search the external web using Google Search grounding and summarize current information in ${langName}.
+
+CRITICAL REQUIREMENTS:
+1. Provide a concise, clear summary of external market findings in ${langName} script.
+2. Use terminology such as "External Web Data", "Observed Online Prices", "External Market Products", or "Online Listings".
+3. NEVER claim external products belong to M63 or are sold by the artisan.
+4. NEVER invent or hallucinate market numbers not returned by the search engine.`;
+
+    if (isMixed) {
+      systemPrompt += `\n\nMIXED COMPARISON MANDATE:
+The user is comparing their verified M63 product against external market listings.
+Verified M63 Product Context:
+${JSON.stringify(businessData.data, null, 2)}
+
+In your response in ${langName}, clearly separate and label:
+- M63 Verified Data (Artisan's product & price)
+- External Web Data (Observed online market products & prices)`;
+    }
+
+    const models = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest', 'gemini-3.7-flash'];
+
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.geminiApiKey}`;
+
+        const requestBody: any = {
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: systemPrompt },
+                { text: `Artisan Web Query: "${queryText}"\nTarget Language: ${langName}` },
+              ],
+            },
+          ],
+          tools: [
+            {
+              googleSearch: {},
+            },
+          ],
+          generationConfig: {
+            temperature: 0.3,
+          },
+        };
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (response.ok) {
+          const resJson: any = await response.json();
+          const candidate = resJson?.candidates?.[0];
+          const rawText = candidate?.content?.parts?.[0]?.text;
+
+          if (rawText && rawText.trim()) {
+            const sources = this.extractSourcesFromGrounding(candidate?.groundingMetadata);
+            logger.info(`[AssistantResponseService] Google Search Grounding succeeded via model ${model} (${sources.length} sources)`);
+            return {
+              textResponse: rawText.trim(),
+              sources,
+            };
+          }
+        } else {
+          const errorText = await response.text().catch(() => '');
+          logger.warn(`[AssistantResponseService] Search Grounding model ${model} HTTP ${response.status}: ${errorText.substring(0, 150)}`);
+        }
+      } catch (err: any) {
+        logger.warn(`[AssistantResponseService] Search Grounding model ${model} failed:`, err.message);
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Normalizes raw Gemini groundingMetadata into clean, deduplicated application WebSourceItem[]
+   */
+  private extractSourcesFromGrounding(groundingMetadata: any): WebSourceItem[] {
+    if (!groundingMetadata) return [];
+
+    const sources: WebSourceItem[] = [];
+    const seenUrls = new Set<string>();
+
+    const chunks = groundingMetadata.groundingChunks || groundingMetadata.grounding_chunks || [];
+
+    for (const chunk of chunks) {
+      const uri = chunk?.web?.uri || chunk?.uri;
+      if (uri && !seenUrls.has(uri)) {
+        seenUrls.add(uri);
+
+        let title = chunk?.web?.title || chunk?.title;
+        if (!title || !title.trim()) {
+          try {
+            const urlObj = new URL(uri);
+            title = urlObj.hostname.replace(/^www\./, '');
+          } catch (e) {
+            title = 'Web Source';
+          }
+        }
+
+        sources.push({
+          title: title.trim(),
+          url: uri.trim(),
+        });
+      }
+    }
+
+    return sources.slice(0, 5);
+  }
+
+  private async callGeminiSimple(promptText: string): Promise<string | null> {
+    const models = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-flash-latest'];
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.geminiApiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: promptText }] }],
+            generationConfig: { temperature: 0.7 },
+          }),
+        });
+        if (response.ok) {
+          const json: any = await response.json();
+          const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text && text.trim()) return text.trim();
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  private async callGeminiBusinessEngine(
     queryText: string,
     businessData: BusinessDataResult,
     language: AssistantLanguage
@@ -268,26 +622,46 @@ STRICT DATA GROUNDING RULES:
 
   private getSuggestedQuestions(intent: AssistantIntent, language: AssistantLanguage): string[] {
     if (language === 'ta') {
+      if (intent === 'GENERAL_CONVERSATION') {
+        return ['ஒரு ஜோக் சொல்லு', 'செயற்கை நுண்ணறிவு பற்றி விளக்கு', 'எனது விற்பனை எவ்வாறு உள்ளது?', 'ஆன்லைனில் களிமண் பொருட்கள் தேடு'];
+      }
+      if (intent === 'WEB_RESEARCH' || intent === 'MIXED_COMPARISON') {
+        return ['ஆன்லைனில் கைவினைப் பொருட்கள் தேடு', 'எனது பொருளின் விலையை ஆன்லைனுடன் ஒப்பிடு', 'இந்த மாதம் எனது விற்பனை எவ்வாறு உள்ளது?'];
+      }
       return [
         'இந்த மாதம் எனது விற்பனை எவ்வாறு உள்ளது?',
         'எந்த பொருள் அதிகமாக விற்றுள்ளது?',
         'இருப்பு குறைவாக உள்ள பொருட்கள் எவை?',
-        'எனது சமீபத்திய ஆர்டர்களைக் காட்டு',
+        'ஆன்லைனில் கைவினைப் பொருட்கள் தேடு',
       ];
     }
     if (language === 'hi') {
+      if (intent === 'GENERAL_CONVERSATION') {
+        return ['एक मज़ेदार चुटकुला सुनाओ', 'AI को आसान भाषा में समझाओ', 'इस महीने मेरी बिक्री कैसी है?', 'ऑनलाइन हस्तनिर्मित उत्पाद खोजो'];
+      }
+      if (intent === 'WEB_RESEARCH' || intent === 'MIXED_COMPARISON') {
+        return ['ऑनलाइन मिट्टी के बर्तन खोजो', 'मेरी कीमत की तुलना ऑनलाइन से करो', 'इस महीने मेरी बिक्री कैसी है?'];
+      }
       return [
         'इस महीने मेरी बिक्री कैसी है?',
         'सबसे ज्यादा बिकने वाला उत्पाद कौन सा है?',
         'कम स्टॉक वाले उत्पाद कौन से हैं?',
-        'मेरे हालिया ऑर्डर दिखाएं',
+        'ऑनलाइन हस्तनिर्मित उत्पाद खोजो',
       ];
     }
+
+    if (intent === 'GENERAL_CONVERSATION') {
+      return ['Tell me a joke', 'Explain AI simply', 'How are my sales this month?', 'Find terracotta products online'];
+    }
+    if (intent === 'WEB_RESEARCH' || intent === 'MIXED_COMPARISON') {
+      return ['Find terracotta products online', 'Compare my product price with online', 'How are my sales this month?'];
+    }
+
     return [
       'How are my sales this month?',
       'Which product sold the most?',
       'Which products are low in stock?',
-      'Show my recent orders',
+      'Find terracotta products online',
     ];
   }
 }

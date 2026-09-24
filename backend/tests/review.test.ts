@@ -52,7 +52,7 @@ describe('M63 Verified Customer Feedback & Grounded Insight Tests', () => {
     const fallback = generateDeterministicFallback('Handcrafted Terracotta Pot', []);
     expect(fallback.evidence_count).toBe(0);
     expect(fallback.confidence).toBe('LOW');
-    expect(fallback.summary).toContain('No customer feedback yet');
+    expect(fallback.summary).toContain('No verified customer feedback available yet');
     expect(fallback.positive_themes).toEqual([]);
     expect(fallback.improvement_themes).toEqual([]);
   });

@@ -17,6 +17,8 @@ export interface SelectedComparableItem {
   matchTier: MatchTier;
   matchTierLabel: string;
   matchedAttributes: string[];
+  differingAttributes?: string[];
+  breakdown?: Record<string, any>;
   benchmark_eligible: boolean;
   is_outlier?: boolean;
   priceInfluenceLevel?: string;
@@ -127,6 +129,8 @@ export interface ArtisanPriceComparison {
 
 export interface CalculationBreakdown {
   known_production_cost: number | null;
+  markup_rate?: number;
+  markup_amount?: number;
   margin_rate?: number;
   base_margin: number;
   cost_state: CostState;
@@ -138,11 +142,19 @@ export interface CalculationBreakdown {
   eligible_comparable_count: number;
   contextual_excluded_count?: number;
   weighted_market_price?: number | null;
+  raw_market_adjusted_price?: number;
   market_evidence_adjustment: number;
-  fair_minimum: number;
+  is_cost_floor_active?: boolean;
+  cost_floor_applied?: boolean;
+  has_market_cost_mismatch?: boolean;
+  market_cost_mismatch_warning?: string | null;
+
+  fair_minimum: number | null;
   suggested_price: number;
-  fair_maximum: number;
+  fair_maximum: number | null;
   confidence?: ConfidenceLevel;
+  cost_confidence?: ConfidenceLevel;
+  market_confidence?: ConfidenceLevel;
   confidence_reason?: string;
   mathematical_formula_str: string;
   market_evidence_weight_pct?: number;
@@ -170,6 +182,10 @@ export interface FairPriceRecommendationResponse {
   fair_price_max: number | null;
   suggested_price: number | null;
   confidence: ConfidenceLevel;
+  cost_confidence?: ConfidenceLevel;
+  market_confidence?: ConfidenceLevel;
+  has_market_cost_mismatch?: boolean;
+  market_cost_mismatch_warning?: string | null;
   known_cost: number;
   cost_state?: CostState;
   pricing_basis?: PricingBasis;

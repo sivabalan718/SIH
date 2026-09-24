@@ -19,6 +19,7 @@ const MATERIAL_MARKETING_STOP_WORDS = new Set([
   'metal', 'iron', 'stone', 'marble', 'granite', 'glass', 'bamboo', 'jute', 'leather',
   'handmade', 'handcrafted', 'handwoven', 'handloom', 'traditional', 'authentic', 'premium',
   'beautiful', 'decorative', 'natural', 'pure', 'organic', 'vintage', 'rustic', 'antique',
+  'attractive', 'fine', 'stylish', 'elegant', 'exclusive', 'unique', 'luxury', 'luxurious',
   'set', 'pack', 'piece', 'pieces', 'combo', 'craft', 'art', 'design', 'indian', 'desi'
 ]);
 
@@ -44,6 +45,28 @@ export function extractCoreProductNouns(text?: string | null): string[] {
   const rawTokens = extractTokens(normalizeText(text));
   // Filter out numbers, single characters, and material/marketing stop words
   return rawTokens.filter((t) => t.length > 1 && !/^\d+$/.test(t) && !MATERIAL_MARKETING_STOP_WORDS.has(t));
+}
+
+export function extractQuantityFromText(text?: string | null): number | null {
+  if (!text) return null;
+  const lower = text.toLowerCase();
+
+  // Teapot + 4 cups pattern: "1 teapot + 4 cups" or "teapot + 4 cups"
+  const comboMatch = lower.match(/(?:(\d+)\s+)?(?:teapot|jug|pot|vase)\s*\+\s*(\d+)\s+(?:cups?|glasses?|bowls?|items?|pcs?)/i);
+  if (comboMatch) {
+    const mainCount = comboMatch[1] ? parseInt(comboMatch[1], 10) : 1;
+    const itemCount = parseInt(comboMatch[2], 10);
+    return mainCount + itemCount;
+  }
+
+  // "set of 6", "pack of 4", "combo of 3", "6 pcs", "set of 2"
+  const setMatch = lower.match(/(?:set|pack|combo|box)\s+of\s+(\d+)|(\d+)\s*(?:pcs|pieces|items|set)/i);
+  if (setMatch) {
+    const qty = parseInt(setMatch[1] || setMatch[2], 10);
+    if (qty > 0 && qty <= 100) return qty;
+  }
+
+  return null;
 }
 
 export function evaluateQuantitySimilarity(tQty?: number | null, cQty?: number | null): { score: number; state: MatchState } {
@@ -206,7 +229,9 @@ export function calculateProductSimilarity(
   );
 
   // 3. Quantity / Physical Scale (20% base)
-  const qtyRes = evaluateQuantitySimilarity(target.quantity, candidate.quantity || candidate.set_size);
+  const tQty = target.quantity || extractQuantityFromText(`${target.name || ''} ${target.description || ''}`);
+  const cQty = candidate.quantity || candidate.set_size || extractQuantityFromText(`${candidate.name || ''} ${candidate.description || ''}`);
+  const qtyRes = evaluateQuantitySimilarity(tQty, cQty);
 
   // 4. Material (16% base)
   const matRes = evaluateMaterialSimilarity(target.material, candidate.material);

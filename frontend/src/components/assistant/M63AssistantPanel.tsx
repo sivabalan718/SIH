@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, MicOff, Send, Volume2, Pause, Play, RotateCcw, X, Sparkles, Maximize2, Minimize2, Square } from 'lucide-react';
+import { Mic, MicOff, Send, Volume2, Pause, Play, RotateCcw, X, Sparkles, Maximize2, Minimize2, Square, Globe, ExternalLink } from 'lucide-react';
 import { AssistantResponse, AssistantLanguage } from '../../services/assistantService.js';
 
 interface MessageItem {
@@ -9,6 +9,7 @@ interface MessageItem {
   language?: AssistantLanguage;
   intent?: string;
   evidence?: Array<{ metric: string; value: string }>;
+  sources?: Array<{ title: string; url: string }>;
   rawTextByLang?: { en: string; ta: string; hi: string };
   audioDataUri?: string | null;
   timestamp: Date;
@@ -25,6 +26,7 @@ interface DictionaryContent {
   subtitle: string;
   welcomeMessage: string;
   verifiedEvidence: string;
+  webSources: string;
   placeholder: string;
   listeningPlaceholder: string;
   thinkingStatus: string;
@@ -47,9 +49,10 @@ const UI_DICTIONARY: Record<AssistantLanguage, DictionaryContent> = {
     subtitle: 'Verified Business Intelligence',
     welcomeMessage: 'Namaste! I am your M63 Business Assistant. Ask me about your sales, revenue, low stock items, or recent orders in English, தமிழ், or हिन्दी.',
     verifiedEvidence: 'VERIFIED EVIDENCE:',
+    webSources: 'WEB SOURCES:',
     placeholder: 'Ask a business question...',
     listeningPlaceholder: 'Listening to voice input in your language...',
-    thinkingStatus: '🧠 M63 is checking your verified business data...',
+    thinkingStatus: '🧠 M63 is processing your request...',
     micError: 'Microphone access unavailable. You can type your question instead.',
     speaking: 'Speaking response...',
     paused: 'Audio paused',
@@ -58,14 +61,14 @@ const UI_DICTIONARY: Record<AssistantLanguage, DictionaryContent> = {
     contextSuggestions: {
       dashboard: [
         'How are my sales this month?',
-        'Which product sold the most?',
-        'Which products are low in stock?',
-        'Show my recent orders',
+        'Tell me a joke',
+        'Find terracotta products online',
+        'Compare my product price with online',
       ],
       products: [
         'How many active products do I have?',
         'Which products are low in stock?',
-        'What is my best-selling creation?',
+        'Find handmade pottery online',
       ],
       orders: [
         'Show my recent orders',
@@ -84,9 +87,10 @@ const UI_DICTIONARY: Record<AssistantLanguage, DictionaryContent> = {
     subtitle: 'சரிபார்க்கப்பட்ட வணிக நுண்ணறிவு',
     welcomeMessage: 'வணக்கம்! நான் உங்கள் M63 வணிக உதவியாளர். உங்கள் விற்பனை, வருவாய், குறைந்த இருப்பு பொருட்கள் அல்லது சமீபத்திய ஆர்டர்கள் பற்றி தமிழ், ஆங்கிலம் அல்லது ஹிந்தியில் கேட்கலாம்.',
     verifiedEvidence: 'சரிபார்க்கப்பட்ட சான்றுகள்:',
+    webSources: 'இணைய ஆதாரங்கள்:',
     placeholder: 'ஒரு வணிக கேள்வியைக் கேட்கவும்...',
     listeningPlaceholder: 'குரல் உள்ளீட்டைக் கேட்கிறது (தமிழ்)...',
-    thinkingStatus: '🧠 M63 உங்கள் சரிபார்க்கப்பட்ட வணிக தரவை ஆய்வு செய்கிறது...',
+    thinkingStatus: '🧠 M63 உங்கள் கோரிக்கையை ஆய்வு செய்கிறது...',
     micError: 'மைக்ரோஃபோன் அணுகல் கிடைக்கவில்லை. உங்கள் கேள்வியை தட்டச்சு செய்யலாம்.',
     speaking: 'பதிலை பேசுகிறது...',
     paused: 'ஒலி நிறுத்தப்பட்டது',
@@ -95,14 +99,14 @@ const UI_DICTIONARY: Record<AssistantLanguage, DictionaryContent> = {
     contextSuggestions: {
       dashboard: [
         'இந்த மாதம் எனது விற்பனை எப்படி உள்ளது?',
-        'எந்த தயாரிப்பு அதிகம் விற்பனையானது?',
-        'எந்த பொருட்கள் இருப்பு குறைவாக உள்ளன?',
-        'எனது சமீபத்திய ஆர்டர்களைக் காட்டு',
+        'ஒரு ஜோக் சொல்லு',
+        'ஆன்லைனில் களிமண் பொருட்கள் தேடு',
+        'எனது பொருளின் விலையை ஆன்லைனுடன் ஒப்பிடு',
       ],
       products: [
         'என்னிடம் எத்தனை செயலில் உள்ள தயாரிப்புகள் உள்ளன?',
         'எந்த பொருட்கள் இருப்பு குறைவாக உள்ளன?',
-        'எனது சிறந்த விற்பனை படைப்பு எது?',
+        'ஆன்லைனில் கைவினைப் பொருட்கள் தேடு',
       ],
       orders: [
         'எனது சமீபத்திய ஆர்டர்களைக் காட்டு',
@@ -121,9 +125,10 @@ const UI_DICTIONARY: Record<AssistantLanguage, DictionaryContent> = {
     subtitle: 'सत्यापित व्यापार इंटेलिजेंस',
     welcomeMessage: 'नमस्ते! मैं आपका M63 बिजनेस असिस्टेंट हूँ। अपनी बिक्री, राजस्व, कम स्टॉक वाली वस्तुओं या हाल के ऑर्डर के बारे में हिंदी, तमिल या अंग्रेजी में पूछें।',
     verifiedEvidence: 'सत्यापित साक्ष्य:',
+    webSources: 'वेब स्रोत:',
     placeholder: 'एक व्यापार प्रश्न पूछें...',
     listeningPlaceholder: 'आवाज़ इनपुट सुन रहा है (हिंदी)...',
-    thinkingStatus: '🧠 M63 आपके सत्यापित व्यापार डेटा की जांच कर रहा है...',
+    thinkingStatus: '🧠 M63 आपके अनुरोध पर काम कर रहा है...',
     micError: 'माइक्रोफ़ोन एक्सेस अनुपलब्ध है। आप अपना प्रश्न टाइप कर सकते हैं।',
     speaking: 'उत्तर बोल रहा है...',
     paused: 'ऑडियो रोका गया',
@@ -132,14 +137,14 @@ const UI_DICTIONARY: Record<AssistantLanguage, DictionaryContent> = {
     contextSuggestions: {
       dashboard: [
         'इस महीने मेरी बिक्री कैसी है?',
-        'किस उत्पाद की सबसे अधिक बिक्री हुई?',
-        'किन उत्पादों का स्टॉक कम है?',
-        'मेरे हाल के ऑर्डर दिखाएं',
+        'एक मज़ेदार चुटकुला सुनाओ',
+        'ऑनलाइन हस्तनिर्मित उत्पाद खोजो',
+        'मेरी कीमत की तुलना ऑनलाइन से करो',
       ],
       products: [
         'मेरे पास कितने सक्रिय उत्पाद हैं?',
         'किन उत्पादों का स्टॉक कम है?',
-        'मेरी सबसे ज्यादा बिकने वाली रचना कौन सी है?',
+        'ऑनलाइन मिट्टी के बर्तन खोजो',
       ],
       orders: [
         'मेरे हाल के ऑर्डर दिखाएं',
@@ -435,6 +440,7 @@ export const M63AssistantPanel: React.FC<M63AssistantPanelProps> = ({ onClose, o
         language: response.language || selectedLanguage,
         intent: response.intent,
         evidence: response.evidence,
+        sources: response.sources,
         audioDataUri: response.audioDataUri,
         timestamp: new Date(),
       };
@@ -549,6 +555,7 @@ export const M63AssistantPanel: React.FC<M63AssistantPanelProps> = ({ onClose, o
         language: response.language || selectedLanguage,
         intent: response.intent,
         evidence: response.evidence,
+        sources: response.sources,
         audioDataUri: response.audioDataUri,
         timestamp: new Date(),
       };
@@ -845,6 +852,43 @@ export const M63AssistantPanel: React.FC<M63AssistantPanelProps> = ({ onClose, o
                         <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{getMetricLabel(ev.metric)}</span>
                         <strong style={{ fontSize: '0.9rem', color: '#F8FAFC', fontWeight: 700 }}>{ev.value}</strong>
                       </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Web Sources / Citations UI */}
+              {msg.sources && msg.sources.length > 0 && (
+                <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '1px solid rgba(255, 255, 255, 0.12)' }}>
+                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#38BDF8', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Globe size={13} />
+                    <span>{dict.webSources}</span>
+                  </span>
+                  <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {msg.sources.map((src, i) => (
+                      <a
+                        key={i}
+                        href={src.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          backgroundColor: 'rgba(15, 23, 42, 0.7)',
+                          padding: '4px 10px',
+                          borderRadius: '6px',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
+                          color: '#7DD3FC',
+                          fontSize: '0.75rem',
+                          textDecoration: 'none',
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Globe size={11} />
+                        <span>{src.title}</span>
+                        <ExternalLink size={10} />
+                      </a>
                     ))}
                   </div>
                 </div>

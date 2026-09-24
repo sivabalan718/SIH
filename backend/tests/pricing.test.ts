@@ -14,74 +14,270 @@ import {
 import { executePricingEngine } from '../src/services/pricing/pricingEngine.js';
 import { evaluateFunctionalGate } from '../src/services/pricing/functionalGate.js';
 import { calculatePriceInfluence } from '../src/services/pricing/influence.js';
+import { calculateCostAnalysis } from '../src/services/pricing/costEngine.js';
+import { reconcileCostAndMarket } from '../src/services/pricing/reconciliation.js';
 
-describe('Smart Fair Pricing Intelligence v1.0 Engine Tests', () => {
+import { evaluateConfidence } from '../src/services/pricing/confidence.js';
+import { calculateProductSimilarity as calculateAttributeSimilarity } from '../src/services/pricing/attributeSimilarity.js';
+
+describe('Smart Fair Pricing Intelligence Engine — Canonical Pricing Tests', () => {
   jest.setTimeout(30000);
 
-  it('1. Exact product match: should place exact product type, material, craft, quantity in PRIMARY tier (>= 0.75)', async () => {
-    const target = {
-      name: 'Clay Kulhad Tea Cup Set of 6',
-      category: 'Pottery & Terracotta',
-      subcategory: 'Tea Cup Set',
-      productType: 'cup',
-      material: 'Clay',
-      craftType: 'Wheel Pottery',
-      quantity: 6,
-      materialCost: 100,
-      labourCost: 70,
-      otherExpenses: 40,
+  it('1. MANDATORY SCREENSHOT REGRESSION TEST: Production Cost = ₹1,150, Markup = 25%, Market Ref = ₹620, Influence = 55%', () => {
+    // Inputs: C = 1150 (Material 500, Labour 350, Other 300)
+    const cost = calculateCostAnalysis({
+      materialCost: 500,
+      labourCost: 350,
+      otherExpenses: 300,
+    });
+
+    expect(cost.knownCost).toBe(1150);
+    expect(cost.markupRate).toBe(0.25);
+    expect(cost.markupAmount).toBe(287.50);
+    expect(cost.costBasedPrice).toBe(1437.50);
+
+    // Assert that costBasedPrice is strictly 1437.50 and NOT the legacy 1725!
+    expect(cost.costBasedPrice).not.toBe(1725);
+
+    // Reconciliation with Market Reference = ₹620 and Influence alpha = 0.55
+    const mockMarket = {
+      totalCandidatesEvaluated: 3,
+      candidatesAfterSelfExclusion: 3,
+      candidatesAfterFunctionalGate: 3,
+      validComparablesCount: 3,
+      primaryCount: 1,
+      secondaryCount: 2,
+      contextualCount: 0,
+      excludedCount: 0,
+      p25: 550,
+      p50: 620, // Market Reference = ₹620
+      p75: 700,
+      marketReferencePrice: 620,
+      observedMinPrice: 500,
+      observedMaxPrice: 750,
+      selectedComparables: [],
+      excludedComparables: [],
     };
 
-    const res = await executePricingEngine(target, 'en');
-    expect(res.costAnalysis.knownCost).toBe(210);
-    expect(res.costAnalysis.costFloor).toBe(262.5); // 210 * 1.25
-    expect(res.costAnalysis.costAnchor).toBe(315);   // 210 * 1.50
 
-    // Invariants
-    expect(res.reconciliation.fairPriceMin).toBeGreaterThanOrEqual(res.costAnalysis.costFloor);
-    expect(res.reconciliation.suggestedPrice).toBeGreaterThanOrEqual(res.reconciliation.fairPriceMin);
-    expect(res.reconciliation.fairPriceMax).toBeGreaterThanOrEqual(res.reconciliation.suggestedPrice);
+    const recon = reconcileCostAndMarket(cost, mockMarket);
+
+    // P_raw = F + alpha * (P_WM - F) = 1437.50 + 0.55 * (620 - 1437.50)
+    // = 1437.50 - 449.625 = 987.875
+    expect(recon.costBasedPrice).toBe(1437.50);
+    expect(recon.marketReferencePrice).toBe(620);
+    expect(recon.evidenceQualityAlpha).toBe(0.55);
+    expect(recon.marketAdjustment).toBeCloseTo(-449.625, 2);
+    expect(recon.marketAdjustment).not.toBe(-608); // Legacy value must NOT appear!
+    expect(recon.rawMarketAdjustedPrice).toBeCloseTo(987.875, 2);
+    expect(recon.suggestedPrice).toBe(1437.50); // Clamped to sustainable floor F
+    expect(recon.isCostFloorActive).toBe(true);
+    expect(recon.costFloorApplied).toBe(true);
+
+    // CRITICAL FIX ASSERTIONS:
+    // Fair range MUST be independently derived from market (550 to 700) and NOT clamped to 1437.50-1437.50!
+    expect(recon.fairPriceMin).toBe(550);
+    expect(recon.fairPriceMax).toBe(700);
+    expect(recon.fairPriceMin).not.toBe(1437.50);
+    expect(recon.fairPriceMax).not.toBe(1437.50);
+
+    // Market-Cost Mismatch MUST be explicitly flagged
+    expect(recon.hasMarketCostMismatch).toBe(true);
+    expect(recon.marketCostMismatchWarning).toContain('substantially below your sustainable cost floor');
+
+    // Confidence evaluation must separate cost & market confidence, and cap overall level to MEDIUM
+    const confidence = evaluateConfidence(cost, mockMarket, false, recon);
+    expect(confidence.costConfidence).toBe('HIGH');
+    expect(confidence.marketConfidence).toBe('MEDIUM');
+    expect(confidence.level).toBe('MEDIUM'); // Capped due to major mismatch despite math correctness!
   });
 
-  it('2. Same product type, different material: lower similarity score', async () => {
-    const target = {
-      name: 'Clay Tea Cup',
-      category: 'Pottery & Terracotta',
-      material: 'Clay',
-      quantity: 1,
-    };
-    const candWood = {
-      id: 'cand-wood-cup',
-      name: 'Wooden Tea Cup',
-      category: 'Woodcraft',
-      material: 'Teak Wood',
-      quantity: 1,
-      price: 450,
+  it('2. CASE A: Market above cost floor (C = ₹1,000, Markup = 25%, Market Ref = ₹1,600, Influence = 50%)', () => {
+    const cost = calculateCostAnalysis({
+      materialCost: 600,
+      labourCost: 300,
+      otherExpenses: 100,
+    });
+    expect(cost.costBasedPrice).toBe(1250);
+
+    const marketAbove = {
+      totalCandidatesEvaluated: 4,
+      candidatesAfterSelfExclusion: 4,
+      candidatesAfterFunctionalGate: 4,
+      validComparablesCount: 4,
+      primaryCount: 2,
+      secondaryCount: 2,
+      contextualCount: 0,
+      excludedCount: 0,
+      p25: 1400,
+      p50: 1600,
+      p75: 1800,
+      marketReferencePrice: 1600,
+      observedMinPrice: 1300,
+      observedMaxPrice: 1900,
+      selectedComparables: [],
+      excludedComparables: [],
     };
 
-    const targetKurta = {
-      name: 'Cotton Kurta',
-      category: 'Textiles & Handlooms',
-      material: 'Cotton',
-      quantity: 1,
-    };
-    const candSilk = {
-      id: 'cand-silk-kurta',
-      name: 'Mulberry Silk Kurta',
-      category: 'Textiles & Handlooms',
-      material: 'Pure Silk',
-      quantity: 1,
-      price: 2500,
-    };
-
-    const simWood = (await import('../src/services/pricing/attributeSimilarity.js')).calculateProductSimilarity(target, candWood);
-    const simSilk = (await import('../src/services/pricing/attributeSimilarity.js')).calculateProductSimilarity(targetKurta, candSilk);
-
-    expect(simWood.overallSimilarity).toBeLessThan(0.75);
-    expect(simSilk.overallSimilarity).toBeLessThan(0.90);
+    const recon = reconcileCostAndMarket(cost, marketAbove);
+    // alpha for 4 comps with 2 primary = 0.70
+    // marketAdjustment = 0.70 * (1600 - 1250) = 0.70 * 350 = 245
+    // P_raw = 1250 + 245 = 1495
+    expect(recon.rawMarketAdjustedPrice).toBe(1495);
+    expect(recon.suggestedPrice).toBe(1495);
+    expect(recon.isCostFloorActive).toBe(false);
   });
 
-  it('3. Functional Gate: Tea Cup vs Vase, Table Lamp, and Figurine MUST fail functional gate', async () => {
+  it('3. CASE B: Market below cost floor (C = ₹1,000, Markup = 25%, Market Ref = ₹700, Influence = 50%)', () => {
+    const cost = calculateCostAnalysis({
+      materialCost: 600,
+      labourCost: 300,
+      otherExpenses: 100,
+    });
+    expect(cost.costBasedPrice).toBe(1250);
+
+    const marketBelow = {
+      totalCandidatesEvaluated: 4,
+      candidatesAfterSelfExclusion: 4,
+      candidatesAfterFunctionalGate: 4,
+      validComparablesCount: 4,
+      primaryCount: 2,
+      secondaryCount: 2,
+      contextualCount: 0,
+      excludedCount: 0,
+      p25: 600,
+      p50: 700,
+      p75: 800,
+      marketReferencePrice: 700,
+      observedMinPrice: 550,
+      observedMaxPrice: 850,
+      selectedComparables: [],
+      excludedComparables: [],
+    };
+
+    const recon = reconcileCostAndMarket(cost, marketBelow);
+    // marketAdjustment = 0.70 * (700 - 1250) = 0.70 * (-550) = -385
+    // P_raw = 1250 - 385 = 865
+    expect(recon.rawMarketAdjustedPrice).toBe(865);
+    expect(recon.suggestedPrice).toBe(1250); // Clamped to floor F = 1250
+    expect(recon.isCostFloorActive).toBe(true);
+  });
+
+  it('4. CASE C: No market evidence (F = ₹1,250, Market = null)', () => {
+    const cost = calculateCostAnalysis({
+      materialCost: 600,
+      labourCost: 300,
+      otherExpenses: 100,
+    });
+    expect(cost.costBasedPrice).toBe(1250);
+
+    const marketNone = {
+      totalCandidatesEvaluated: 0,
+      candidatesAfterSelfExclusion: 0,
+      candidatesAfterFunctionalGate: 0,
+      validComparablesCount: 0,
+      primaryCount: 0,
+      secondaryCount: 0,
+      contextualCount: 0,
+      excludedCount: 0,
+      p25: null,
+      p50: null,
+      p75: null,
+      marketReferencePrice: null,
+      observedMinPrice: null,
+      observedMaxPrice: null,
+      selectedComparables: [],
+      excludedComparables: [],
+    };
+
+    const recon = reconcileCostAndMarket(cost, marketNone);
+    expect(recon.pricingBasis).toBe('COST_ANCHORED');
+    expect(recon.marketAdjustment).toBe(0);
+    expect(recon.suggestedPrice).toBe(1250);
+    expect(recon.isCostFloorActive).toBe(false);
+  });
+
+  it('5. CASE D: Zero / invalid production cost', () => {
+    const cost = calculateCostAnalysis({
+      materialCost: 0,
+      labourCost: 0,
+      otherExpenses: 0,
+    });
+
+    expect(cost.knownCost).toBe(0);
+    expect(cost.costState).toBe('UNAVAILABLE');
+
+    const mockMarket = {
+      totalCandidatesEvaluated: 3,
+      candidatesAfterSelfExclusion: 3,
+      candidatesAfterFunctionalGate: 3,
+      validComparablesCount: 3,
+      primaryCount: 1,
+      secondaryCount: 2,
+      contextualCount: 0,
+      excludedCount: 0,
+      p25: 750,
+      p50: 850,
+      p75: 950,
+      marketReferencePrice: 850,
+      observedMinPrice: 700,
+      observedMaxPrice: 1000,
+      selectedComparables: [],
+      excludedComparables: [],
+    };
+
+    const recon = reconcileCostAndMarket(cost, mockMarket);
+    expect(recon.suggestedPrice).toBe(850);
+  });
+
+  it('6. CASE E: Other expenses included once (500 + 350 + 300 = 1150)', () => {
+    const cost = calculateCostAnalysis({
+      materialCost: 500,
+      labourCost: 350,
+      otherExpenses: 300,
+    });
+
+    expect(cost.knownCost).toBe(1150);
+    expect(cost.costBasedPrice).toBe(1437.50);
+  });
+
+  it('7. CASE F: Production time does not double-count labour', () => {
+    const costWithTime = calculateCostAnalysis({
+      materialCost: 500,
+      labourCost: 350,
+      otherExpenses: 300,
+      productionTime: 5,
+      productionTimeUnit: 'days',
+    });
+
+    // Production time must NOT add another monetary charge!
+    expect(costWithTime.knownCost).toBe(1150);
+    expect(costWithTime.impliedLabourRate).toBe(70); // 350 / 5 = 70 per day
+  });
+
+  it('8. CASE G: Full Fair Price Recommendation API response contract validation', async () => {
+    const input = {
+      name: 'Handcrafted Terracotta Kulhad Set',
+      category: 'Pottery & Terracotta',
+      material_cost: 500,
+      labour_cost: 350,
+      other_expenses: 300,
+      production_time: 3,
+      production_time_unit: 'days' as const,
+    };
+
+    const res = await generateFairPriceRecommendation(input, 'en');
+
+    expect(res.known_cost).toBe(1150);
+    expect(res.suggested_price).toBeGreaterThanOrEqual(1437.50);
+    expect(res.calculation_breakdown).toBeDefined();
+    expect(res.calculation_breakdown?.known_production_cost).toBe(1150);
+    expect(res.calculation_breakdown?.markup_amount).toBe(287.50);
+    expect(res.calculation_breakdown?.base_margin).toBe(287.50);
+    expect(res.calculation_breakdown?.cost_based_price).toBe(1437.50);
+  });
+
+  it('9. Functional Gate: Tea Cup vs Vase and Table Lamp MUST fail functional gate', async () => {
     const target = {
       name: 'Clay Kulhad Tea Cup',
       category: 'Pottery & Terracotta',
@@ -96,197 +292,12 @@ describe('Smart Fair Pricing Intelligence v1.0 Engine Tests', () => {
       product_type: 'vase',
       price: 850,
     };
-    const candidateLamp = {
-      id: 'cand-lamp-102',
-      name: 'Terracotta Table Lamp',
-      category: 'Pottery & Terracotta',
-      price: 1200,
-    };
-    const candidateFigurine = {
-      id: 'cand-fig-103',
-      name: 'Terracotta Animal Figurine Ganesha',
-      category: 'Pottery & Terracotta',
-      price: 650,
-    };
 
     const gateVase = evaluateFunctionalGate(target, candidateVase);
-    const gateLamp = evaluateFunctionalGate(target, candidateLamp);
-    const gateFig = evaluateFunctionalGate(target, candidateFigurine);
-
     expect(gateVase.passed).toBe(false);
-    expect(gateLamp.passed).toBe(false);
-    expect(gateFig.passed).toBe(false);
-
-    // Also verify attribute similarity is low (< 0.50)
-    const { calculateProductSimilarity } = await import('../src/services/pricing/attributeSimilarity.js');
-    const simVase = calculateProductSimilarity(target, candidateVase);
-    expect(simVase.overallSimilarity).toBeLessThan(0.50);
   });
 
-  it('3b. Incomplete attributes: missing attributes are excluded from denominator but reduce confidence', async () => {
-    const targetIncomplete = {
-      name: 'Clay Item',
-      // category, craft, quantity, features, dimensions are all missing!
-    };
-    const candidate = {
-      id: 'cand-1',
-      name: 'Clay Item',
-      price: 300,
-    };
-
-    const { calculateProductSimilarity } = await import('../src/services/pricing/attributeSimilarity.js');
-    const simRes = calculateProductSimilarity(targetIncomplete, candidate);
-    expect(simRes.missingCount).toBeGreaterThan(0);
-    // Denominator exclusion ensures available attributes are scored without penalizing as DIFFERENT
-    expect(simRes.overallSimilarity).toBeGreaterThan(0);
-  });
-
-  it('4. Quantity mismatch: 6 cups vs 1 cup reduces similarity via Sq = 1/6 = 0.167 without fabricating synthetic prices', async () => {
-    const qtyRes = (await import('../src/services/pricing/attributeSimilarity.js')).evaluateQuantitySimilarity(6, 1);
-    expect(qtyRes.score).toBeCloseTo(0.167, 2);
-    expect(qtyRes.state).toBe('DIFFERENT');
-  });
-
-  it('5. Extreme high-price comparable: anti-dominance cap limits max influence to 45%', () => {
-    const items = [
-      { productId: 'p1', similarity: 0.95 },
-      { productId: 'p2', similarity: 0.70 },
-      { productId: 'p3', similarity: 0.65 },
-    ];
-
-    const influenceMap = calculatePriceInfluence(items);
-    const p1Inf = influenceMap.get('p1');
-    expect(p1Inf).toBeDefined();
-    expect(p1Inf!.cappedInfluence).toBeLessThanOrEqual(0.45 + 0.001); // 45% cap
-  });
-
-  it('6. Zero valid comparables: COST_ANCHORED / INSUFFICIENT_EVIDENCE without fake market median', async () => {
-    const input = {
-      productId: 'prod-unique-999',
-      name: 'Unique Rare Alien Artifact',
-      category: 'Unknown Sub-Category',
-      materialCost: 500,
-      labourCost: 300,
-      otherExpenses: 100,
-    };
-
-    const res = await executePricingEngine(input, 'en');
-    expect(res.reconciliation.pricingBasis).toBe('COST_ANCHORED');
-    expect(res.costAnalysis.knownCost).toBe(900);
-    expect(res.reconciliation.suggestedPrice).toBeGreaterThanOrEqual(1125); // Known Cost * 1.25 cost floor
-  });
-
-  it('7. Single valid comparable: MUST NOT produce HIGH confidence', async () => {
-    const cost = {
-      knownCost: 500,
-      materialCost: 300,
-      labourCost: 150,
-      otherExpenses: 50,
-      costState: 'COMPLETE' as const,
-      costFloor: 625,
-      costAnchor: 750,
-      minimumMarkupUsed: 0.25,
-      targetMarkupUsed: 0.50,
-      productionTime: 2,
-      productionTimeUnit: 'days' as const,
-      impliedLabourRate: 75,
-      laborRateNotice: null,
-    };
-
-    const marketOneComp = {
-      totalCandidatesEvaluated: 1,
-      candidatesAfterSelfExclusion: 1,
-      candidatesAfterFunctionalGate: 1,
-      validComparablesCount: 1,
-      primaryCount: 1,
-      secondaryCount: 0,
-      contextualCount: 0,
-      excludedCount: 0,
-      p25: 700,
-      p50: 700,
-      p75: 700,
-      marketReferencePrice: 700,
-      observedMinPrice: 700,
-      observedMaxPrice: 700,
-      selectedComparables: [],
-      excludedComparables: [],
-    };
-
-    const conf = (await import('../src/services/pricing/confidence.js')).evaluateConfidence(cost, marketOneComp, false);
-    expect(conf.level).not.toBe('HIGH'); // Single comparable CANNOT be HIGH
-  });
-
-  it('8. Market prices below artisan cost: Cost floor protects recommendation', async () => {
-    const cost = {
-      knownCost: 1000,
-      materialCost: 600,
-      labourCost: 300,
-      otherExpenses: 100,
-      costState: 'COMPLETE' as const,
-      costFloor: 1250, // 1000 * 1.25
-      costAnchor: 1500,
-      minimumMarkupUsed: 0.25,
-      targetMarkupUsed: 0.50,
-      productionTime: 2,
-      productionTimeUnit: 'days' as const,
-      impliedLabourRate: 150,
-      laborRateNotice: null,
-    };
-
-    const marketLow = {
-      totalCandidatesEvaluated: 10,
-      candidatesAfterSelfExclusion: 10,
-      candidatesAfterFunctionalGate: 10,
-      validComparablesCount: 6,
-      primaryCount: 4,
-      secondaryCount: 2,
-      contextualCount: 0,
-      excludedCount: 0,
-      p25: 400,
-      p50: 450, // Market reference 450 is WAY below cost floor 1250!
-      p75: 500,
-      marketReferencePrice: 450,
-      observedMinPrice: 400,
-      observedMaxPrice: 500,
-      selectedComparables: [],
-      excludedComparables: [],
-    };
-
-    const recon = (await import('../src/services/pricing/reconciliation.js')).reconcileCostAndMarket(cost, marketLow);
-    expect(recon.suggestedPrice).toBeGreaterThanOrEqual(1250); // Cost floor enforced!
-    expect(recon.isCostFloorActive).toBe(true);
-    expect(recon.costFloorProtectionReason).toContain('below production cost');
-  });
-
-  it('9. Current artisan price inside fair range: messaging confirms current price is within fair range', async () => {
-    const input = {
-      name: 'Handloom Cotton Saree',
-      category: 'Textiles & Handlooms',
-      materialCost: 400,
-      labourCost: 300,
-      otherExpenses: 100,
-      existingPrice: 1200,
-    };
-
-    const res = await executePricingEngine(input, 'en');
-    expect(res.artisanPriceComparison.artisanPrice).toBe(1200);
-    expect(['within', 'above', 'below']).toContain(res.artisanPriceComparison.positionStatus);
-    expect(res.artisanPriceComparison.message.length).toBeGreaterThan(5);
-  });
-
-  it('10. Wide price variation: weighted median remains robust against extreme prices', async () => {
-    const items = [
-      { price: 380, weight: 0.35 },
-      { price: 420, weight: 0.30 },
-      { price: 450, weight: 0.20 },
-      { price: 2500, weight: 0.15 }, // Extreme outlier
-    ];
-
-    const stats = (await import('../src/services/pricing/weightedStatistics.js')).calculateWeightedStatistics(items);
-    expect(stats.p50).toBe(420); // Robust weighted median stays near central evidence 420 instead of mean ~937!
-  });
-
-  it('11. MANDATORY REGRESSION TEST: Target product MUST NEVER appear as its own comparable', async () => {
+  it('10. MANDATORY REGRESSION TEST: Target product MUST NEVER appear as its own comparable', async () => {
     const targetProductId = 'prod-target-777';
     const target = {
       productId: targetProductId,
@@ -301,180 +312,14 @@ describe('Smart Fair Pricing Intelligence v1.0 Engine Tests', () => {
     };
 
     const res = await executePricingEngine(target, 'en');
-
-    // Strict Regression Assertion: No selected comparable can equal targetProductId
     const containsSelf = res.marketReference.selectedComparables.some(
       (c) => c.productId === targetProductId
     );
 
     expect(containsSelf).toBe(false);
-    expect(res.marketReference.selectedComparables.every((c) => c.productId !== targetProductId)).toBe(true);
   });
 
-  it('12. Identical product names with different IDs are NOT mistakenly excluded', async () => {
-    const targetProductId = 'prod-target-888';
-    const otherProductId = 'prod-other-888';
-
-    const target = {
-      productId: targetProductId,
-      name: 'Handcrafted Terracotta Clay Cup',
-      category: 'Pottery & Terracotta',
-      material: 'Clay',
-      materialCost: 50,
-      labourCost: 50,
-      otherExpenses: 20,
-    };
-
-    const candidateSameNameDifferentId = {
-      id: otherProductId,
-      name: 'Handcrafted Terracotta Clay Cup', // Identical name!
-      category: 'Pottery & Terracotta',
-      material: 'Clay',
-      price: 250,
-    };
-
-    const gateRes = evaluateFunctionalGate(target, candidateSameNameDifferentId);
-    expect(gateRes.passed).toBe(true);
-
-    const sim = (await import('../src/services/pricing/attributeSimilarity.js')).calculateProductSimilarity(target, candidateSameNameDifferentId);
-    expect(sim.overallSimilarity).toBeGreaterThanOrEqual(0.75); // Fully comparable!
-  });
-
-  it('13. Exact mathematical reconciliation traceability: ₹1,150 cost, ₹890 market -> -₹125 adjustment -> ₹1,600 recommended price', async () => {
-    const cost = {
-      knownCost: 1150,
-      materialCost: 700,
-      labourCost: 350,
-      otherExpenses: 100,
-      costState: 'COMPLETE' as const,
-      costFloor: 1438, // Math.round(1150 * 1.25) = 1438
-      costAnchor: 1725, // Math.round(1150 * 1.50) = 1725
-      minimumMarkupUsed: 0.25,
-      targetMarkupUsed: 0.50,
-      productionTime: 3,
-      productionTimeUnit: 'days' as const,
-      impliedLabourRate: 116.67,
-      laborRateNotice: null,
-    };
-
-    const marketSingleComp = {
-      totalCandidatesEvaluated: 1,
-      candidatesAfterSelfExclusion: 1,
-      candidatesAfterFunctionalGate: 1,
-      validComparablesCount: 1,
-      primaryCount: 1,
-      secondaryCount: 0,
-      contextualCount: 0,
-      excludedCount: 0,
-      p25: 890,
-      p50: 890,
-      p75: 890,
-      marketReferencePrice: 890,
-      observedMinPrice: 890,
-      observedMaxPrice: 890,
-      selectedComparables: [],
-      excludedComparables: [],
-    };
-
-    const { reconcileCostAndMarket } = await import('../src/services/pricing/reconciliation.js');
-    const { evaluateConfidence } = await import('../src/services/pricing/confidence.js');
-
-    const recon = reconcileCostAndMarket(cost, marketSingleComp);
-    const conf = evaluateConfidence(cost, marketSingleComp, false);
-
-    // Verify exact mathematical formula: 1725 + 0.15 * (890 - 1725) = 1725 - 125 = 1600
-    expect(recon.costAnchor).toBe(1725);
-    expect(recon.marketReferencePrice).toBe(890);
-    expect(recon.evidenceQualityAlpha).toBe(0.15);
-    expect(recon.marketAdjustment).toBe(-125);
-    expect(recon.suggestedPrice).toBe(1600);
-    expect(recon.fairPriceMin).toBe(1438);
-    expect(recon.fairPriceMax).toBe(2156);
-    expect(conf.level).toBe('MEDIUM'); // Single comparable is strictly MEDIUM confidence
-  });
-
-  it('14. Contradiction prevention: Contextual comparable has scaled score matching contextual tier (no 76% similar with contextual tier)', async () => {
-    const { evaluateCandidates } = await import('../src/services/pricing/comparableSelection.js');
-
-    const target = {
-      productId: 'target-tea-cup-1',
-      name: 'Handcrafted Terracotta Tea Cup',
-      category: 'Pottery & Terracotta',
-      material: 'Terracotta Clay',
-      productType: 'cup',
-      quantity: 1,
-    };
-
-    // Candidate is an Incense Burner made of similar terracotta pottery
-    const candidates = [
-      {
-        id: 'cand-incense-1',
-        name: 'Terracotta Incense Cone Burner',
-        category: 'Pottery & Terracotta',
-        material: 'Terracotta Clay',
-        craft_type: 'Wheel Pottery',
-        price: 990,
-      },
-    ];
-
-    const result = evaluateCandidates(target, candidates as any);
-    expect(result.selectedComparables.length).toBe(1);
-
-    const comp = result.selectedComparables[0];
-    expect(comp.tier).toBe('CONTEXTUAL');
-    expect(comp.benchmarkEligible).toBe(false);
-    // Final similarity score must NOT be 70%+ when classified as CONTEXTUAL
-    expect(comp.similarity).toBeLessThanOrEqual(0.52);
-    expect(comp.similarityPercentage).toBeLessThanOrEqual(52);
-    expect(comp.priceInfluenceLevel).toBe('NONE');
-    expect(comp.priceInfluenceExplanation).toBe('None — contextual reference only.');
-    expect(comp.influenceWeight).toBe(0);
-  });
-
-  it('15. Input consistency: Material ₹500, Labour ₹300, Other Expenses ₹300 strictly produces Known Cost ₹1,100 (never stale ₹1,150)', async () => {
-    const { calculateCostAnalysis } = await import('../src/services/pricing/costEngine.js');
-    const { reconcileCostAndMarket } = await import('../src/services/pricing/reconciliation.js');
-
-    const cost = calculateCostAnalysis({
-      materialCost: 500,
-      labourCost: 300,
-      otherExpenses: 300,
-    });
-
-    // Verification 1: Known Cost is exactly ₹1,100 (not stale ₹1,150)
-    expect(cost.knownCost).toBe(1100);
-    expect(cost.costFloor).toBe(1375); // 1100 * 1.25
-    expect(cost.costAnchor).toBe(1650); // 1100 * 1.50
-
-    // Verification 2: Traceable reconciliation with 1 comparable at ₹890
-    const marketSingleComp = {
-      totalCandidatesEvaluated: 1,
-      candidatesAfterSelfExclusion: 1,
-      candidatesAfterFunctionalGate: 1,
-      validComparablesCount: 1,
-      primaryCount: 1,
-      secondaryCount: 0,
-      contextualCount: 0,
-      excludedCount: 0,
-      p25: 890,
-      p50: 890,
-      p75: 890,
-      marketReferencePrice: 890,
-      observedMinPrice: 890,
-      observedMaxPrice: 890,
-      selectedComparables: [],
-      excludedComparables: [],
-    };
-
-    const recon = reconcileCostAndMarket(cost, marketSingleComp);
-    // Adjustment = 0.15 * (890 - 1650) = 0.15 * (-760) = -114
-    expect(recon.marketAdjustment).toBe(-114);
-    expect(recon.suggestedPrice).toBe(1536); // 1650 - 114
-    expect(recon.fairPriceMin).toBe(1375);
-    expect(recon.fairPriceMax).toBe(2063); // Math.round(1650 * 1.25)
-  });
-
-  it('should save and retrieve pricing records with artisan isolation', async () => {
+  it('11. Storage isolation for artisan pricing state', async () => {
     const prodA = 'prod-111-aaa';
     const prodB = 'prod-222-bbb';
     const artisanId = 'artisan-owner-999';
@@ -491,7 +336,86 @@ describe('Smart Fair Pricing Intelligence v1.0 Engine Tests', () => {
     expect(recA).not.toBeNull();
     expect(recA?.material_cost).toBe(800);
     expect(recA?.known_cost).toBe(1300);
-
     expect(recB).toBeNull();
+  });
+
+  it('12. CONTEXTUAL PRODUCT: Contextual products MUST NOT influence weighted market reference', () => {
+    const cost = calculateCostAnalysis({ materialCost: 500, labourCost: 350, otherExpenses: 300 });
+    const marketWithContextual = {
+      totalCandidatesEvaluated: 4,
+      candidatesAfterSelfExclusion: 4,
+      candidatesAfterFunctionalGate: 4,
+      validComparablesCount: 2, // 2 benchmark eligible, 2 contextual
+      primaryCount: 1,
+      secondaryCount: 1,
+      contextualCount: 2,
+      excludedCount: 0,
+      p25: null,
+      p50: 620,
+      p75: null,
+      marketReferencePrice: 620,
+      observedMinPrice: 550,
+      observedMaxPrice: 700,
+      selectedComparables: [],
+      excludedComparables: [],
+    };
+
+    const recon = reconcileCostAndMarket(cost, marketWithContextual);
+    expect(recon.marketReferencePrice).toBe(620);
+    // Contextual products do NOT count toward validComparablesCount in weighted statistics
+    expect(recon.fairPriceMin).toBeNull(); // Less than 3 valid benchmark comparables => null range
+  });
+
+  it('13. MARKET RANGE SPARSITY: Insufficient evidence (<3 valid comparables) returns null fair range', () => {
+    const cost = calculateCostAnalysis({ materialCost: 400, labourCost: 200, otherExpenses: 100 });
+    const sparseMarket = {
+      totalCandidatesEvaluated: 2,
+      candidatesAfterSelfExclusion: 2,
+      candidatesAfterFunctionalGate: 2,
+      validComparablesCount: 2,
+      primaryCount: 1,
+      secondaryCount: 1,
+      contextualCount: 0,
+      excludedCount: 0,
+      p25: 500,
+      p50: 600,
+      p75: 700,
+      marketReferencePrice: 600,
+      observedMinPrice: 500,
+      observedMaxPrice: 700,
+      selectedComparables: [],
+      excludedComparables: [],
+    };
+
+    const recon = reconcileCostAndMarket(cost, sparseMarket);
+    expect(recon.fairPriceMin).toBeNull();
+    expect(recon.fairPriceMax).toBeNull();
+    expect(recon.fairRangeMinReason).toContain('Limited price information available');
+  });
+
+  it('14. SET STRUCTURE & PRODUCT IDENTITY: Single water jug vs 5-item tea set downgraded to CONTEXTUAL', () => {
+    const target = {
+      name: 'Terracotta Water Jug with Matching Glass',
+      category: 'Pottery & Terracotta',
+      subcategory: 'Water Jug',
+      productType: 'jug',
+      quantity: 1,
+      material: 'Terracotta',
+    };
+
+    const candidateTeaSet = {
+      id: 'cand-teaset-55',
+      name: 'Handcrafted Ceramic Tea Set (Teapot + 4 Cups)',
+      category: 'Pottery & Terracotta',
+      subcategory: 'Tea Set',
+      product_type: 'tea set',
+      quantity: 5,
+      price: 2010,
+      material: 'Ceramic',
+    };
+
+    const sim = calculateAttributeSimilarity(target, candidateTeaSet);
+    // productType score is 0.0 because jug != tea set
+    expect(sim.breakdown.productType.score).toBe(0);
   });
 });

@@ -38,7 +38,7 @@ export async function executePricingEngine(
   const reconciliation = reconcileCostAndMarket(costAnalysis, marketReference);
 
   // 5. Multi-factor Deterministic Confidence Engine
-  const confidence = evaluateConfidence(costAnalysis, marketReference, factValidation.high_impact_conflict);
+  const confidence = evaluateConfidence(costAnalysis, marketReference, factValidation.high_impact_conflict, reconciliation);
 
   // 6. Data Trust Matrix & Evidence Provenance
   const { trustMatrix, provenance } = buildTrustAndProvenance(input, costAnalysis, marketReference);
