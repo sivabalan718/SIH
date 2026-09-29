@@ -2,9 +2,10 @@ import { env } from '../../config/env.js';
 import { logger } from '../../utils/logger.js';
 import { uploadToCloudinary } from './cloudinary.service.js';
 import {
+  processProductImage,
   runAdaptiveEnhancerPipeline,
   AdaptiveEnhancementResult,
-} from '../image/adaptive-image-enhancer.service.js';
+} from '../image/m63-image-enhancer.service.js';
 
 export interface EnhancementResult {
   success: boolean;
@@ -19,6 +20,8 @@ export interface EnhancementResult {
   qualityAfter?: { exposure: string; sharpness: string; background: string };
   improvementsApplied?: string[];
   message?: string;
+  fallbackTriggered?: boolean;
+  processingMode?: string;
   adaptiveDetails?: {
     orientation: string;
     hasClearBase: boolean;
@@ -43,8 +46,16 @@ export async function enhanceProductPhoto(
       `[M63] [AdaptiveStudio] Initiating adaptive photo enhancement pipeline (User: ${userId}, Product: ${productId}, Option: ${backgroundOption})`
     );
 
-    // 1. Execute genuinely free adaptive local image processing pipeline
-    const adaptiveResult = await runAdaptiveEnhancerPipeline(buffer, backgroundOption, colorHex);
+    // 1. Execute new M63 image processing engine
+    const adaptiveResult = await processProductImage(buffer, backgroundOption, colorHex);
+
+    // Never store a placeholder for an image that could not be decoded.
+    if (adaptiveResult.inputUnusable) {
+      return {
+        success: false,
+        message: 'This photo could not be read. Please upload a clear JPG or PNG photo — your original is safe.',
+      };
+    }
 
     const enhancedBase64 = `data:${adaptiveResult.mimeType};base64,${adaptiveResult.enhancedBuffer.toString('base64')}`;
 
@@ -77,17 +88,20 @@ export async function enhanceProductPhoto(
     }
 
     // Determine quality ratings from actual image analysis
+    const meanLum = adaptiveResult.analysis?.meanLuminance ?? 128;
+    const edgeEng = adaptiveResult.analysis?.edgeEnergy ?? 20;
+
     const exposureRatingBefore =
-      adaptiveResult.analysis.meanLuminance < 85
+      meanLum < 85
         ? 'Underexposed'
-        : adaptiveResult.analysis.meanLuminance > 185
+        : meanLum > 185
         ? 'Overexposed'
         : 'Acceptable';
 
     const sharpnessRatingBefore =
-      adaptiveResult.analysis.edgeEnergy < 15
+      edgeEng < 15
         ? 'Soft'
-        : adaptiveResult.analysis.edgeEnergy > 30
+        : edgeEng > 30
         ? 'Sharp'
         : 'Good';
 
@@ -98,31 +112,38 @@ export async function enhanceProductPhoto(
       enhancedImageBase64: enhancedBase64,
       backgroundOption: adaptiveResult.backgroundOption,
       backgroundColor: adaptiveResult.backgroundColorHex,
-      productDetected: true,
-      backgroundRemoved: true,
+      productDetected: adaptiveResult.processingMode === 'STUDIO',
+      backgroundRemoved: adaptiveResult.processingMode === 'STUDIO',
+      fallbackTriggered: adaptiveResult.fallbackTriggered,
+      processingMode: adaptiveResult.processingMode,
       qualityBefore: {
         exposure: exposureRatingBefore,
         sharpness: sharpnessRatingBefore,
-        background: 'Distracting / Ambient',
+        background: 'Original scene',
       },
       qualityAfter: {
-        exposure: 'Studio Balanced',
-        sharpness: 'Artisan Detail Enhanced',
-        background: 'Clean Catalogue Ready',
+        exposure: 'Adaptively balanced',
+        sharpness: 'Adaptively sharpened',
+        background:
+          adaptiveResult.processingMode === 'STUDIO'
+            ? 'Clean studio background'
+            : adaptiveResult.processingMode === 'ORIGINAL_BACKGROUND'
+            ? 'Original background kept'
+            : 'Framed (background kept)',
       },
-      improvementsApplied: adaptiveResult.improvementsApplied,
-      adaptiveDetails: {
+      improvementsApplied: adaptiveResult.improvementsApplied || [],
+      adaptiveDetails: adaptiveResult.geometry && adaptiveResult.composition && adaptiveResult.analysis ? {
         orientation: adaptiveResult.geometry.orientation,
         hasClearBase: adaptiveResult.geometry.hasClearBase,
         scaleFactor: adaptiveResult.composition.scaleFactor,
         margins: {
-          horizontal: adaptiveResult.composition.marginHorizontalPercent,
-          vertical: adaptiveResult.composition.marginVerticalPercent,
+          horizontal: adaptiveResult.composition.marginHorizontalPercent ?? 10,
+          vertical: adaptiveResult.composition.marginVerticalPercent ?? 10,
         },
         meanLuminance: adaptiveResult.analysis.meanLuminance,
         contrastStdDev: adaptiveResult.analysis.contrastStdDev,
         edgeEnergy: adaptiveResult.analysis.edgeEnergy,
-      },
+      } : undefined,
       message: adaptiveResult.message,
     };
   } catch (err: any) {

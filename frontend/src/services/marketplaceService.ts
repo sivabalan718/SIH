@@ -22,6 +22,10 @@ export interface MarketplaceProductItem {
   care_instructions: string;
   available_languages: string[];
   created_at: string;
+  rating_average?: number;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
+  review_count?: number;
 }
 
 export interface MarketplaceFilterQuery {
@@ -29,6 +33,7 @@ export interface MarketplaceFilterQuery {
   category?: string;
   craft_type?: string;
   material?: string;
+  artisan_id?: string;
   min_price?: number;
   max_price?: number;
   sort?: 'recommended' | 'price_asc' | 'price_desc' | 'newest';
@@ -45,6 +50,7 @@ export async function fetchMarketplaceProducts(
   if (filter.category) params.append('category', filter.category);
   if (filter.craft_type) params.append('craft_type', filter.craft_type);
   if (filter.material) params.append('material', filter.material);
+  if (filter.artisan_id) params.append('artisan_id', filter.artisan_id);
   if (filter.min_price) params.append('min_price', String(filter.min_price));
   if (filter.max_price) params.append('max_price', String(filter.max_price));
   if (filter.sort) params.append('sort', filter.sort);

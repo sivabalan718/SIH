@@ -10,6 +10,7 @@ import routes from './routes/index.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { sendError } from './utils/response.js';
 import { logger } from './utils/logger.js';
+import { handleRazorpayWebhook } from './controllers/payment.controller.js';
 
 export const app = express();
 
@@ -20,10 +21,12 @@ app.use(
     origin: env.clientOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Guest-Cart-Id'],
   })
 );
-app.use(express.json());
+// Razorpay webhook needs the exact raw body for signature verification (before express.json)
+app.post('/api/v1/payments/webhook', express.raw({ type: 'application/json', limit: '1mb' }), handleRazorpayWebhook);
+app.use(express.json({ limit: '1mb' }));
 
 // Health Check Endpoint
 app.get('/health', (req, res) => {

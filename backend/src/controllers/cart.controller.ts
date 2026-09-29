@@ -3,14 +3,42 @@ import { getBuyerCart, addItemToCart, updateCartItemQuantity, removeCartItem, cl
 import { sendSuccess, sendError } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
 
+const GUEST_ID_RE = /^guest_[A-Za-z0-9-]{16,64}$/;
+
+/** Per-device random guest cart id (unguessable), sent by the frontend as X-Guest-Cart-Id. */
+function getGuestId(req: Request): string | null {
+  const raw = req.headers['x-guest-cart-id'];
+  return typeof raw === 'string' && GUEST_ID_RE.test(raw) ? raw : null;
+}
+
 function getBuyerId(req: Request): string {
   const user = (req as any).user;
-  const artisan = (req as any).artisan;
-  return user?.id || artisan?.id || (req.headers['x-guest-cart-id'] as string) || 'guest-buyer';
+  if (user?.id) return user.id;
+  const guest = getGuestId(req);
+  if (!guest) throw Object.assign(new Error('Missing cart session. Please refresh the page.'), { statusCode: 400 });
+  return guest;
+}
+
+/** After sign-in, move anything added as a guest into the account cart (once). */
+async function mergeGuestCartIfAny(req: Request): Promise<void> {
+  const user = (req as any).user;
+  const guest = getGuestId(req);
+  if (!user?.id || !guest) return;
+  try {
+    const guestCart = await getBuyerCart(guest);
+    if (guestCart.items.length === 0) return;
+    for (const item of guestCart.items) {
+      if (item.quantity > 0) await addItemToCart(user.id, item.product_id, item.quantity).catch(() => {});
+    }
+    await clearBuyerCart(guest);
+  } catch (e: any) {
+    logger.warn(`[Cart] Guest cart merge skipped: ${e?.message}`);
+  }
 }
 
 export async function handleGetCart(req: Request, res: Response): Promise<void> {
   try {
+    await mergeGuestCartIfAny(req);
     const buyerId = getBuyerId(req);
     const { lang } = req.query;
     const cart = await getBuyerCart(buyerId, (lang as any) || 'en');
@@ -18,7 +46,7 @@ export async function handleGetCart(req: Request, res: Response): Promise<void> 
     sendSuccess(res, { cart });
   } catch (error: any) {
     logger.error('handleGetCart failed:', error);
-    sendError(res, 'CART_ERROR', error.message || 'Failed to retrieve cart.', 500);
+    sendError(res, 'CART_ERROR', error.message || 'Failed to retrieve cart.', error.statusCode || 500);
   }
 }
 
@@ -32,7 +60,12 @@ export async function handleAddToCart(req: Request, res: Response): Promise<void
       return;
     }
 
-    const cart = await addItemToCart(buyerId, productId, Number(quantity) || 1);
+    const qty = quantity === undefined ? 1 : Number(quantity);
+    if (!Number.isInteger(qty) || qty < 1 || qty > 100) {
+      sendError(res, 'VALIDATION_ERROR', 'Quantity must be a whole number between 1 and 100.', 400);
+      return;
+    }
+    const cart = await addItemToCart(buyerId, String(productId), qty);
 
     sendSuccess(res, { cart, message: 'Item added to cart.' });
   } catch (error: any) {
@@ -47,7 +80,12 @@ export async function handleUpdateCartItem(req: Request, res: Response): Promise
     const { productId } = req.params;
     const { quantity } = req.body;
 
-    const cart = await updateCartItemQuantity(buyerId, productId, Number(quantity));
+    const qty = Number(quantity);
+    if (!Number.isInteger(qty) || qty < 1 || qty > 100) {
+      sendError(res, 'VALIDATION_ERROR', 'Quantity must be a whole number between 1 and 100.', 400);
+      return;
+    }
+    const cart = await updateCartItemQuantity(buyerId, productId, qty);
 
     sendSuccess(res, { cart, message: 'Cart item updated.' });
   } catch (error: any) {

@@ -25,6 +25,12 @@ export interface MarketplaceProductItem {
   care_instructions: string;
   available_languages: string[];
   created_at: string;
+  rating_average?: number;
+  /** Artisan-set original price; only present when genuinely higher than price. */
+  mrp?: number | null;
+  /** Category-aware structured attributes captured at registration (never invented). */
+  attributes?: Record<string, string>;
+  review_count?: number;
 }
 
 export interface MarketplaceFilterQuery {
@@ -32,11 +38,64 @@ export interface MarketplaceFilterQuery {
   category?: string;
   craft_type?: string;
   material?: string;
+  artisan_id?: string;
   min_price?: number;
   max_price?: number;
   sort?: 'recommended' | 'price_asc' | 'price_desc' | 'newest';
   limit?: number;
   offset?: number;
+}
+
+function genuineMrp(prod: any): number | null {
+  const mrp = Number(prod?.mrp);
+  const price = Number(prod?.price);
+  return Number.isFinite(mrp) && mrp > price ? mrp : null;
+}
+
+function cleanAttributes(raw: any): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (raw && typeof raw === 'object') {
+    for (const [k, v] of Object.entries(raw)) {
+      if (v !== null && v !== undefined && String(v).trim()) out[k] = String(v).trim();
+    }
+  }
+  return out;
+}
+
+/** Real rating aggregates from verified reviews (single query for a page of products). */
+async function getRatingSummaries(productIds: string[]): Promise<Map<string, { average: number; count: number }>> {
+  const summaries = new Map<string, { average: number; count: number }>();
+  if (productIds.length === 0) return summaries;
+  try {
+    const { data, error } = await getSupabaseAdmin().from('product_reviews').select('product_id, rating').in('product_id', productIds);
+    if (error || !data) return summaries;
+    const acc = new Map<string, { sum: number; count: number }>();
+    for (const r of data as Array<{ product_id: string; rating: number }>) {
+      const cur = acc.get(r.product_id) || { sum: 0, count: 0 };
+      cur.sum += Number(r.rating) || 0;
+      cur.count++;
+      acc.set(r.product_id, cur);
+    }
+    for (const [id, v] of acc) summaries.set(id, { average: Math.round((v.sum / v.count) * 10) / 10, count: v.count });
+  } catch (e: any) {
+    logger.warn('[MarketplaceService] Rating summary unavailable:', e?.message);
+  }
+  return summaries;
+}
+
+function matchesMarketplaceFilter(p: any, f: MarketplaceFilterQuery): boolean {
+  const has = (v: any, needle: string) => String(v || '').toLowerCase().includes(needle.toLowerCase());
+  if (f.category && f.category !== 'All' && p.category !== f.category) return false;
+  if (f.artisan_id && p.artisan_id !== f.artisan_id) return false;
+  if (f.craft_type && !has(p.craft_type, f.craft_type)) return false;
+  if (f.material && !has(p.material, f.material)) return false;
+  if (f.min_price && Number(p.price) < f.min_price) return false;
+  if (f.max_price && Number(p.price) > f.max_price) return false;
+  if (f.search && f.search.trim()) {
+    const t = f.search.trim();
+    if (![p.name, p.category, p.craft_type, p.material, p.description].some((v) => has(v, t))) return false;
+  }
+  return true;
 }
 
 /**
@@ -55,6 +114,10 @@ export async function getMarketplaceProducts(
 
   if (filter.category && filter.category !== 'All') {
     query = query.eq('category', filter.category);
+  }
+
+  if (filter.artisan_id) {
+    query = query.eq('artisan_id', filter.artisan_id);
   }
 
   if (filter.craft_type) {
@@ -89,9 +152,8 @@ export async function getMarketplaceProducts(
     query = query.order('created_at', { ascending: false });
   }
 
-  const limit = filter.limit || 50;
-  const offset = filter.offset || 0;
-  query = query.range(offset, offset + limit - 1);
+  const limit = Math.min(Math.max(filter.limit || 50, 1), 100);
+  const offset = Math.max(filter.offset || 0, 0);
 
   let { data, error, count } = await query;
 
@@ -113,18 +175,30 @@ export async function getMarketplaceProducts(
     memList = fallbackProds.filter((p) => p.status === 'PUBLISHED');
   } catch (e) {}
 
+  // DB rows and local-fallback rows are merged, so filters, sort and pagination are applied
+  // once over the merged set (otherwise fallback rows would bypass every filter).
   const combinedMap = new Map<string, any>();
   for (const p of [...dbList, ...memList]) {
-    if (p && p.id && p.status === 'PUBLISHED') {
+    // DB rows (with the artisans join) win over local-fallback copies of the same product.
+    if (p && p.id && !combinedMap.has(p.id) && p.status === 'PUBLISHED' && matchesMarketplaceFilter(p, filter)) {
       combinedMap.set(p.id, p);
     }
   }
 
-  let productsList: any[] = Array.from(combinedMap.values());
+  const sortedList: any[] = Array.from(combinedMap.values()).sort((a, b) => {
+    if (filter.sort === 'price_asc') return Number(a.price) - Number(b.price);
+    if (filter.sort === 'price_desc') return Number(b.price) - Number(a.price);
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
+  count = sortedList.length;
+  let productsList: any[] = sortedList.slice(offset, offset + limit);
 
   // Batch-fetch all catalogues in a single database/memory pass
   const productIds = productsList.map((p) => p.id);
-  const cataloguesMap = await getBatchCatalogueContent(productIds, language);
+  const [cataloguesMap, ratings] = await Promise.all([
+    getBatchCatalogueContent(productIds, language),
+    getRatingSummaries(productIds),
+  ]);
 
   const items: MarketplaceProductItem[] = productsList.map((prod) => {
     const catalogue = cataloguesMap.get(prod.id);
@@ -132,7 +206,8 @@ export async function getMarketplaceProducts(
     const artisanInfo = prod.artisans || {};
     const artisanName = artisanInfo.name || 'Master Artisan';
     const locationParts = [artisanInfo.locality, artisanInfo.district, artisanInfo.state].filter(Boolean);
-    const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : 'Tamil Nadu, India';
+    // No artisan location is captured yet — never invent one.
+    const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : '';
 
     // Canonical Smart Catalogue presentation priority
     const displayName = catalogue?.title || prod.name;
@@ -184,7 +259,11 @@ export async function getMarketplaceProducts(
       craft_information: catalogue?.description || '',
       care_instructions: catalogue?.care_instructions || '',
       available_languages: ['en', 'ta', 'hi'],
+      mrp: genuineMrp(prod),
+      attributes: cleanAttributes(prod.attributes),
       created_at: prod.created_at || new Date().toISOString(),
+      rating_average: ratings.get(prod.id)?.average,
+      review_count: ratings.get(prod.id)?.count || 0,
     };
   });
 
@@ -233,7 +312,8 @@ export async function getMarketplaceProductById(
   const artisanInfo = prod.artisans || {};
   const artisanName = artisanInfo.name || 'Master Artisan';
   const locationParts = [artisanInfo.locality, artisanInfo.district, artisanInfo.state].filter(Boolean);
-  const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : 'Tamil Nadu, India';
+  // No artisan location is captured yet — never invent one.
+    const artisanLocation = locationParts.length > 0 ? locationParts.join(', ') : '';
 
   // Canonical Smart Catalogue presentation priority
   const displayName = catalogue?.title || prod.name;
@@ -285,6 +365,8 @@ export async function getMarketplaceProductById(
     craft_information: catalogue?.description || '',
     care_instructions: catalogue?.care_instructions || '',
     available_languages: ['en', 'ta', 'hi'],
+    mrp: genuineMrp(prod),
+    attributes: cleanAttributes(prod.attributes),
     created_at: prod.created_at || new Date().toISOString(),
   };
 }

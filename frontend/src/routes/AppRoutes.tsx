@@ -22,6 +22,17 @@ import { BuyerOrdersPage } from '../pages/BuyerOrdersPage.js';
 import { ArtisanOrdersPage } from '../pages/ArtisanOrdersPage.js';
 import { AnalyticsPage } from '../pages/AnalyticsPage.js';
 import { useAuth } from '../contexts/AuthContext.js';
+import { ShopLayout } from '../components/shop/ShopLayout.js';
+import { ShopHome } from '../pages/shop/ShopHome.js';
+import { ShopDiscover } from '../pages/shop/ShopDiscover.js';
+import { ShopProductPage } from '../pages/shop/ShopProductPage.js';
+import { ShopAccount } from '../pages/shop/ShopAccount.js';
+import { ShopAssistant } from '../pages/shop/ShopAssistant.js';
+import { ShopCart } from '../pages/shop/ShopCart.js';
+import { ShopCheckout } from '../pages/shop/ShopCheckout.js';
+import { ShopOrders } from '../pages/shop/ShopOrders.js';
+import { ShopOrderDetail } from '../pages/shop/ShopOrderDetail.js';
+import { ShopOrderSuccess } from '../pages/shop/ShopOrderSuccess.js';
 
 export const AppRoutes: React.FC = () => {
   const { user } = useAuth();
@@ -29,13 +40,26 @@ export const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public / Commerce Marketplace Routes */}
-      <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/marketplace/product/:productId" element={<MarketplaceProductDetail />} />
-      <Route path="/marketplace/cart" element={<CartPage />} />
-      <Route path="/marketplace/checkout" element={<CheckoutPage />} />
-      <Route path="/marketplace/order-success/:orderId" element={<OrderSuccessPage />} />
-      <Route path="/marketplace/orders" element={<BuyerOrdersPage />} />
-      <Route path="/marketplace/profile" element={<CustomerProfilePage />} />
+      <Route path="/marketplace" element={<ShopLayout />}>
+        <Route index element={<ShopHome />} />
+        <Route path="discover" element={<ShopDiscover />} />
+        <Route path="product/:productId" element={<ShopProductPage />} />
+        <Route path="account" element={<ShopAccount />} />
+        <Route path="ai" element={<ShopAssistant />} />
+        <Route path="cart" element={<ShopCart />} />
+        <Route path="checkout" element={<ShopCheckout />} />
+        <Route path="order-success/:orderId" element={<ShopOrderSuccess />} />
+        <Route path="orders" element={<ShopOrders />} />
+        <Route path="orders/:orderId" element={<ShopOrderDetail />} />
+        <Route path="profile" element={<CustomerProfilePage />} />
+      </Route>
+      {/* Previous desktop gallery kept available */}
+      <Route path="/marketplace/gallery" element={<Marketplace />} />
+      <Route path="/marketplace/gallery/product/:productId" element={<MarketplaceProductDetail />} />
+      <Route path="/marketplace/gallery/cart" element={<CartPage />} />
+      <Route path="/marketplace/gallery/checkout" element={<CheckoutPage />} />
+      <Route path="/marketplace/gallery/order-success/:orderId" element={<OrderSuccessPage />} />
+      <Route path="/marketplace/gallery/orders" element={<BuyerOrdersPage />} />
 
       {/* Customer Dedicated Authentication Routes */}
       <Route

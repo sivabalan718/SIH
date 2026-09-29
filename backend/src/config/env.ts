@@ -22,6 +22,10 @@ export interface EnvConfig {
   cloudinaryCloudName: string;
   cloudinaryApiKey: string;
   cloudinaryApiSecret: string;
+  // Razorpay (server-only)
+  razorpayKeyId: string;
+  razorpayKeySecret: string;
+  razorpayWebhookSecret: string;
 }
 
 export function loadEnv(): EnvConfig {
@@ -69,6 +73,9 @@ export function loadEnv(): EnvConfig {
     cloudinaryCloudName,
     cloudinaryApiKey,
     cloudinaryApiSecret,
+    razorpayKeyId: (process.env.RAZORPAY_KEY_ID || '').trim(),
+    razorpayKeySecret: (process.env.RAZORPAY_KEY_SECRET || '').trim(),
+    razorpayWebhookSecret: (process.env.RAZORPAY_WEBHOOK_SECRET || '').trim(),
   };
 }
 

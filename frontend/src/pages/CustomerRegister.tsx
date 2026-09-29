@@ -81,7 +81,8 @@ export const CustomerRegister: React.FC = () => {
         preferredLanguage: formData.preferredLanguage,
       });
 
-      navigate('/marketplace');
+      const next = new URLSearchParams(window.location.search).get('next') || '';
+      navigate(/^\/marketplace(\/[\w\-/?=&%.]*)?$/.test(next) ? next : '/marketplace');
     } catch (err: any) {
       setServerError(err.message || 'Unable to create customer account. Please try again.');
     } finally {

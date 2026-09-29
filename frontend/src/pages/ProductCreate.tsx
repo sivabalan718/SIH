@@ -94,6 +94,8 @@ export const ProductCreate: React.FC = () => {
   const [isImprovingPhoto, setIsImprovingPhoto] = useState(false);
   const [enhancedImageBase64, setEnhancedImageBase64] = useState<string | null>(null);
   const [enhancedBlob, setEnhancedBlob] = useState<Blob | null>(null);
+  // True only after the artisan explicitly taps "Use Enhanced".
+  const [enhancedSelected, setEnhancedSelected] = useState(false);
   const [showEnhanceModal, setShowEnhanceModal] = useState(false);
   const [showStudioSettingsModal, setShowStudioSettingsModal] = useState(false);
   const [improvementsApplied, setImprovementsApplied] = useState<string[]>([]);
@@ -256,6 +258,8 @@ export const ProductCreate: React.FC = () => {
     setPhotoNoticeMessage(null);
     setEnhancedImageBase64(null);
     setEnhancedBlob(null);
+    setEnhancedSelected(false);
+    setCurrentImageUrl(null);
 
     if (!file) {
       setQualityRating(null);
@@ -327,15 +331,17 @@ export const ProductCreate: React.FC = () => {
   const handleSelectEnhanced = () => {
     if (enhancedImageBase64) {
       setCurrentImageUrl(enhancedImageBase64);
+      setEnhancedSelected(true);
     }
     setShowEnhanceModal(false);
     setPhotoNoticeMessage('✨ Enhanced photo selected for catalogue listing.');
   };
 
-  // Keep Original Image
+  // Keep Original Image (also reverts a previously accepted enhanced photo)
   const handleSelectOriginal = () => {
     setShowEnhanceModal(false);
-    setEnhancedBlob(null);
+    setEnhancedSelected(false);
+    setCurrentImageUrl(originalImageUrl || null);
     setPhotoNoticeMessage('Original photo retained for catalogue listing.');
   };
 
@@ -516,11 +522,13 @@ export const ProductCreate: React.FC = () => {
       if (selectedFile && productIdToUse) {
         const uploadedOriginalUrl = await uploadProductImage(productIdToUse, selectedFile, 'original');
         setOriginalImageUrl(uploadedOriginalUrl);
-        setCurrentImageUrl(uploadedOriginalUrl);
+        if (!enhancedSelected) setCurrentImageUrl(uploadedOriginalUrl);
       }
 
-      if (enhancedBlob && productIdToUse) {
+      // Upload the enhanced version only if the artisan chose "Use Enhanced".
+      if (enhancedSelected && enhancedBlob && productIdToUse) {
         const uploadedEnhancedUrl = await uploadProductImage(productIdToUse, enhancedBlob, 'enhanced');
+        setEnhancedImageBase64(uploadedEnhancedUrl);
         setCurrentImageUrl(uploadedEnhancedUrl);
       }
 
@@ -613,7 +621,7 @@ export const ProductCreate: React.FC = () => {
         await uploadProductImage(productIdToUse, selectedFile, 'original');
       }
 
-      if (enhancedBlob && productIdToUse) {
+      if (enhancedSelected && enhancedBlob && productIdToUse) {
         await uploadProductImage(productIdToUse, enhancedBlob, 'enhanced');
       }
 
@@ -655,7 +663,12 @@ export const ProductCreate: React.FC = () => {
     }
   };
 
-  const imagePreviewUrl = currentImageUrl || (selectedFile ? URL.createObjectURL(selectedFile) : null);
+  // Stable preview of the untouched original (one object URL per selected file).
+  const originalPreviewUrl = useMemo(() => (selectedFile ? URL.createObjectURL(selectedFile) : null), [selectedFile]);
+  useEffect(() => () => {
+    if (originalPreviewUrl) URL.revokeObjectURL(originalPreviewUrl);
+  }, [originalPreviewUrl]);
+  const imagePreviewUrl = currentImageUrl || originalPreviewUrl;
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1297,9 +1310,9 @@ export const ProductCreate: React.FC = () => {
               <X size={20} />
             </button>
             <ImageEnhanceComparison
-              originalUrl={imagePreviewUrl}
+              originalUrl={originalPreviewUrl || originalImageUrl || ''}
               enhancedUrl={enhancedImageBase64}
-              activeVariant={currentImageUrl === enhancedImageBase64 ? 'enhanced' : 'original'}
+              activeVariant={enhancedSelected ? 'enhanced' : 'original'}
               onSelectOriginal={handleSelectOriginal}
               onSelectEnhanced={handleSelectEnhanced}
               onTryAgain={handleOpenStudioSettings}

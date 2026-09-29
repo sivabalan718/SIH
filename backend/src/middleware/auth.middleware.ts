@@ -78,6 +78,27 @@ export async function requireCustomerAuth(req: Request, res: Response, next: Nex
   }
 }
 
+/**
+ * Attach the signed-in user (artisan or customer) when a valid Bearer token is present.
+ * Never rejects: guests continue as guests, so public commerce flows keep working.
+ */
+export async function optionalAuth(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.split(' ')[1] : undefined;
+  if (!token) return next();
+  try {
+    const { data, error } = await getSupabaseAdmin().auth.getUser(token);
+    if (!error && data.user) {
+      req.user = data.user;
+      (req as any).artisan = await findArtisanBySupabaseUserId(data.user.id);
+      (req as any).customer = await getCustomerProfile(data.user.id);
+    }
+  } catch (err: any) {
+    logger.warn('optionalAuth token check failed:', err?.message);
+  }
+  next();
+}
+
 export async function requireAnyAuth(req: Request, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;

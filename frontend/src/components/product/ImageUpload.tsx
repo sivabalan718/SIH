@@ -47,7 +47,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     }
   }, [selectedFile]);
 
-  const displayImage = localPreview || currentImageUrl;
+  // The parent's chosen image (e.g. the accepted enhanced photo) wins over the raw file preview.
+  const displayImage = currentImageUrl || localPreview;
 
   const handleFile = (file: File) => {
     if (!['image/jpeg', 'image/png', 'image/webp', 'image/jpg'].includes(file.type.toLowerCase())) {

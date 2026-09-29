@@ -35,6 +35,28 @@ export function setStoredTokens(accessToken: string | null, refreshToken?: strin
   }
 }
 
+const GUEST_CART_KEY = 'm63_guest_cart_id';
+let guestCartIdMemo: string | null = null;
+
+/** Unguessable random id for this device's guest cart. */
+export function getGuestCartId(): string {
+  if (guestCartIdMemo) return guestCartIdMemo;
+  try {
+    const saved = localStorage.getItem(GUEST_CART_KEY);
+    if (saved && /^guest_[A-Za-z0-9-]{16,64}$/.test(saved)) return (guestCartIdMemo = saved);
+  } catch {
+    // storage blocked — fall back to a per-session id
+  }
+  const rand = typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+  guestCartIdMemo = `guest_${rand}`;
+  try {
+    localStorage.setItem(GUEST_CART_KEY, guestCartIdMemo);
+  } catch {
+    // ignore
+  }
+  return guestCartIdMemo;
+}
+
 let isRefreshing = false;
 let refreshSubscribers: ((newToken: string) => void)[] = [];
 
@@ -60,6 +82,8 @@ export async function apiRequest<T = any>(
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
+  // Private per-device guest cart (merged into the account cart after sign-in)
+  headers['X-Guest-Cart-Id'] = getGuestCartId();
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,

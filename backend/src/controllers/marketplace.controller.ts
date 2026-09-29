@@ -5,13 +5,14 @@ import { logger } from '../utils/logger.js';
 
 export async function handleGetMarketplaceProducts(req: Request, res: Response): Promise<void> {
   try {
-    const { search, category, craft_type, material, min_price, max_price, sort, limit, offset, lang } = req.query;
+    const { search, category, craft_type, material, artisan_id, min_price, max_price, sort, limit, offset, lang } = req.query;
 
     const filter: MarketplaceFilterQuery = {
       search: search ? String(search) : undefined,
       category: category ? String(category) : undefined,
       craft_type: craft_type ? String(craft_type) : undefined,
       material: material ? String(material) : undefined,
+      artisan_id: artisan_id ? String(artisan_id) : undefined,
       min_price: min_price ? Number(min_price) : undefined,
       max_price: max_price ? Number(max_price) : undefined,
       sort: (sort as any) || 'recommended',

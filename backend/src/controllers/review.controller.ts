@@ -9,11 +9,11 @@ import { generateFeedbackInsight } from '../services/ai/feedback-intelligence.se
 import { sendSuccess, sendError } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
 
+/** Reviews belong to the signed-in account that placed the order (never a header value). */
 function getUserId(req: Request): string {
   const user = (req as any).user;
-  const artisan = (req as any).artisan;
-  const customer = (req as any).customer;
-  return customer?.id || user?.id || artisan?.id || (req.headers['x-guest-buyer-id'] as string) || 'guest-user';
+  if (!user?.id) throw Object.assign(new Error('Please sign in to review your purchases.'), { statusCode: 401 });
+  return user.id;
 }
 
 function getArtisanId(req: Request): string {

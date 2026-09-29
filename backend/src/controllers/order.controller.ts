@@ -11,29 +11,56 @@ import {
 import { sendSuccess, sendError } from '../utils/response.js';
 import { logger } from '../utils/logger.js';
 
+/** The buyer is always the authenticated account (set by requireAnyAuth) — never a header. */
 function getUserId(req: Request): string {
-  const user = (req as any).user;
-  const artisan = (req as any).artisan;
-  return artisan?.id || user?.id || (req.headers['x-guest-buyer-id'] as string) || 'guest-user';
+  return (req as any).user.id;
 }
 
+/** Artisan routes run behind requireAuth, so the artisan workspace is always present. */
 function getArtisanId(req: Request): string {
-  const artisan = (req as any).artisan;
-  const user = (req as any).user;
-  return artisan?.id || user?.id || 'all';
+  return (req as any).artisan.id;
 }
+
+const PHONE_RE = /^[6-9]\d{9}$/;
+const PIN_RE = /^\d{6}$/;
 
 export async function handleCreateOrder(req: Request, res: Response): Promise<void> {
   try {
     const buyerId = getUserId(req);
-    const { shippingInfo, customItems, idempotencyKey } = req.body;
+    const { shippingInfo, customItems, idempotencyKey, paymentMethod } = req.body || {};
 
-    if (!shippingInfo || !shippingInfo.name || !shippingInfo.phone || !shippingInfo.address) {
+    if (!shippingInfo || !String(shippingInfo.name || '').trim() || !shippingInfo.phone || !String(shippingInfo.address || '').trim()) {
       sendError(res, 'VALIDATION_ERROR', 'Name, phone number, and delivery address are required for checkout.', 400);
       return;
     }
+    const phone = String(shippingInfo.phone).replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '');
+    if (!PHONE_RE.test(phone)) {
+      sendError(res, 'VALIDATION_ERROR', 'Please enter a valid 10-digit Indian mobile number.', 400);
+      return;
+    }
+    if (shippingInfo.postal_code && !PIN_RE.test(String(shippingInfo.postal_code).trim())) {
+      sendError(res, 'VALIDATION_ERROR', 'Please enter a valid 6-digit PIN code.', 400);
+      return;
+    }
+    if (paymentMethod !== undefined && paymentMethod !== 'ONLINE' && paymentMethod !== 'COD') {
+      sendError(res, 'VALIDATION_ERROR', 'Unsupported payment method.', 400);
+      return;
+    }
+    if (customItems !== undefined && !Array.isArray(customItems)) {
+      sendError(res, 'VALIDATION_ERROR', 'Invalid items.', 400);
+      return;
+    }
 
-    const result = await createOrder(buyerId, shippingInfo, customItems, idempotencyKey);
+    const cleanShipping = {
+      name: String(shippingInfo.name).trim().slice(0, 100),
+      phone,
+      address: String(shippingInfo.address).trim().slice(0, 300),
+      city: shippingInfo.city ? String(shippingInfo.city).trim().slice(0, 80) : undefined,
+      district: shippingInfo.district ? String(shippingInfo.district).trim().slice(0, 80) : undefined,
+      postal_code: shippingInfo.postal_code ? String(shippingInfo.postal_code).trim() : undefined,
+    };
+
+    const result = await createOrder(buyerId, cleanShipping, customItems, idempotencyKey, paymentMethod === 'ONLINE' ? 'ONLINE' : 'COD');
 
     sendSuccess(res, result, 201);
   } catch (error: any) {

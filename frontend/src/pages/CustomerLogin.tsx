@@ -426,7 +426,9 @@ export const CustomerLogin: React.FC = () => {
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       setLeaving(true);
       await new Promise((r) => setTimeout(r, reduced ? 0 : 700));
-      navigate('/marketplace');
+      // Return to where the shopper was (e.g. checkout); only in-app marketplace paths allowed.
+      const next = new URLSearchParams(window.location.search).get('next') || '';
+      navigate(/^\/marketplace(\/[\w\-/?=&%.]*)?$/.test(next) ? next : '/marketplace');
     } catch (err: any) {
       setServerError(err?.message || 'Invalid email or password.');
       triggerShake();

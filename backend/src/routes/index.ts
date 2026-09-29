@@ -8,11 +8,14 @@ import { cartRouter } from './cart.routes.js';
 import { orderRouter } from './order.routes.js';
 import { analyticsRouter } from './analytics.routes.js';
 import { reviewRouter } from './review.routes.js';
+import { paymentRouter } from './payment.routes.js';
 
 import assistantRoutes from './assistant.routes.js';
 
 const router = Router();
 
+// Public review routes first: /products/:id/reviews must not hit the artisan-only products router.
+router.use('/', reviewRouter);
 router.use('/auth', authRoutes);
 router.use('/artisan', artisanRoutes);
 router.use('/products', productRoutes);
@@ -22,6 +25,6 @@ router.use('/marketplace', marketplaceRouter);
 router.use('/cart', cartRouter);
 router.use('/orders', orderRouter);
 router.use('/analytics', analyticsRouter);
-router.use('/', reviewRouter);
+router.use('/payments', paymentRouter);
 
 export default router;
