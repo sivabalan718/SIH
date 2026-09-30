@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PhotoPicker } from '../shop/PhotoPicker.js';
 import { Star, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../ui/Button.js';
 import { submitReview } from '../../services/reviewService.js';
@@ -25,6 +26,8 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewText, setReviewText] = useState<string>('');
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [submittedSuccess, setSubmittedSuccess] = useState<boolean>(false);
@@ -46,6 +49,7 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
         order_item_id: orderItemId,
         rating,
         review_text: reviewText.trim() || undefined,
+        photo_urls: photos,
       });
 
       setSubmittedSuccess(true);
@@ -245,12 +249,20 @@ export const ReviewModal: React.FC<ReviewModalProps> = ({
               </span>
             </div>
 
+            {/* Customer photos (optional) */}
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                Add photos <span style={{ fontWeight: 400, color: '#64748B' }}>(Optional, up to 3 — helps other buyers)</span>
+              </label>
+              <PhotoPicker value={photos} onChange={setPhotos} onBusy={setUploadingPhotos} />
+            </div>
+
             {/* Actions */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
               <Button type="button" variant="secondary" onClick={onClose} disabled={submitting}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" loading={submitting} icon={submitting ? <Loader2 className="animate-spin" size={16} /> : undefined}>
+              <Button type="submit" variant="primary" loading={submitting} disabled={uploadingPhotos} icon={submitting ? <Loader2 className="animate-spin" size={16} /> : undefined}>
                 Submit Review
               </Button>
             </div>

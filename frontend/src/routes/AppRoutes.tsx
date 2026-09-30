@@ -23,6 +23,7 @@ import { ArtisanOrdersPage } from '../pages/ArtisanOrdersPage.js';
 import { AnalyticsPage } from '../pages/AnalyticsPage.js';
 import { useAuth } from '../contexts/AuthContext.js';
 import { ShopLayout } from '../components/shop/ShopLayout.js';
+import { NotificationsPage } from '../pages/NotificationsPage.js';
 import { ShopHome } from '../pages/shop/ShopHome.js';
 import { ShopDiscover } from '../pages/shop/ShopDiscover.js';
 import { ShopProductPage } from '../pages/shop/ShopProductPage.js';
@@ -51,6 +52,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="order-success/:orderId" element={<ShopOrderSuccess />} />
         <Route path="orders" element={<ShopOrders />} />
         <Route path="orders/:orderId" element={<ShopOrderDetail />} />
+        <Route path="notifications" element={<NotificationsPage variant="shop" />} />
         <Route path="profile" element={<CustomerProfilePage />} />
       </Route>
       {/* Previous desktop gallery kept available */}
@@ -89,7 +91,8 @@ export const AppRoutes: React.FC = () => {
           user ? (
             <Navigate to={user.role === 'ARTISAN' ? '/artisan/dashboard' : '/marketplace'} replace />
           ) : (
-            <Navigate to="/marketplace" replace />
+            // Signed-out users start at artisan registration (login and shop links are on that page)
+            <Navigate to="/register" replace />
           )
         }
       />
@@ -104,11 +107,12 @@ export const AppRoutes: React.FC = () => {
           <Route path="products/:productId" element={<ProductDetail />} />
           <Route path="orders" element={<ArtisanOrdersPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="notifications" element={<NotificationsPage variant="artisan" />} />
         </Route>
       </Route>
 
       {/* Fallback 404 */}
-      <Route path="*" element={<Navigate to="/marketplace" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

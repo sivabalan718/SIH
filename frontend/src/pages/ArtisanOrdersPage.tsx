@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Check, Truck, AlertCircle, Package, MapPin, User, CheckCircle2 } from 'lucide-react';
 import { Button } from '../components/ui/Button.js';
+import { ArtisanRequestsPanel } from '../components/orders/ArtisanRequestsPanel.js';
 import { fetchArtisanOrders, updateOrderStatus, OrderRecord, OrderStatus } from '../services/orderService.js';
 
 export const ArtisanOrdersPage: React.FC = () => {
@@ -57,7 +58,7 @@ export const ArtisanOrdersPage: React.FC = () => {
   const shippedCount = orders.filter((o) => o.status === 'SHIPPED').length;
 
   return (
-    <div style={{ padding: '24px', backgroundColor: 'var(--m63-bg-canvas)', minHeight: '100vh' }}>
+    <div style={{ padding: 'clamp(12px, 4vw, 24px)', backgroundColor: 'var(--m63-bg-canvas)', minHeight: '100vh' }}>
       {/* Header Banner */}
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
@@ -74,6 +75,8 @@ export const ArtisanOrdersPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <ArtisanRequestsPanel />
 
       {/* Stats Summary Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>

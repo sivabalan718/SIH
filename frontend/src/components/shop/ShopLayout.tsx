@@ -1,8 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Compass, Home, Mic, Search, ShoppingCart, Sparkles, User, X } from 'lucide-react';
+import { ArrowLeft, Bell, Compass, Home, LogOut, Mic, Search, ShoppingCart, Sparkles, User, X } from 'lucide-react';
+import { useUnreadNotifications } from '../../pages/NotificationsPage.js';
 import { fetchBuyerCart } from '../../services/cartService.js';
-import { CART_EVENT, TOAST_EVENT } from '../../utils/shopStore.js';
+import { useAuth } from '../../contexts/AuthContext.js';
+import { setEntryRole } from '../../pages/StartScreen.js';
+import { CART_EVENT, TOAST_EVENT, syncWishlistWithAccount } from '../../utils/shopStore.js';
 import '../../styles/shop.css';
 
 const NAV = [
@@ -48,6 +51,13 @@ export const ShopLayout: React.FC = () => {
   const [query, setQuery] = useState(params.get('q') || '');
   const [cartCount, setCartCount] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
+  const { user, logout } = useAuth();
+  const unread = useUnreadNotifications(Boolean(user), path);
+
+  // Signed in: the wishlist follows the account (device items are merged in once)
+  useEffect(() => {
+    if (user) syncWishlistWithAccount();
+  }, [user?.id]);
 
   const loadCartCount = () =>
     fetchBuyerCart()
@@ -82,6 +92,17 @@ export const ShopLayout: React.FC = () => {
     };
   }, []);
 
+  /** Leave the marketplace for the artisan login. A signed-in customer is signed out first,
+   *  otherwise the login page would send them straight back to the marketplace. */
+  const exitToArtisanLogin = async () => {
+    if (user?.role === 'CUSTOMER') {
+      if (!window.confirm('Exit the marketplace? You will be signed out of your customer account.')) return;
+      await logout().catch(() => undefined);
+    }
+    setEntryRole('ARTISAN');
+    navigate('/login', { replace: true });
+  };
+
   const submitSearch = (text: string) => {
     const q = text.trim();
     navigate(q ? `/marketplace/discover?q=${encodeURIComponent(q)}` : '/marketplace/discover');
@@ -95,6 +116,9 @@ export const ShopLayout: React.FC = () => {
     <div className={`shop${isProductPage ? ' shop--no-nav' : ''}`}>
       <header className="shop-header">
         <div className="shop-header__row">
+          <button className="shop-exit" aria-label="Exit marketplace to artisan login" title="Exit to artisan login" onClick={exitToArtisanLogin}>
+            <LogOut size={16} />
+          </button>
           {!isHome && (
             <button className="shop-header__icon shop-header__back" aria-label="Go back" onClick={() => navigate(-1)}>
               <ArrowLeft size={22} />
@@ -104,6 +128,21 @@ export const ShopLayout: React.FC = () => {
             M63 <small>Handmade</small>
           </button>
           <div className="shop-header__spacer" />
+          {/* Desktop navigation (the bottom bar is used on phones) */}
+          <nav className="shop-topnav" aria-label="Marketplace">
+            {NAV.filter((n) => n.label !== 'Cart').map(({ to, label, icon: Icon, match }) => (
+              <button key={to} className="shop-topnav__item" aria-current={match(path) ? 'page' : undefined} onClick={() => navigate(to)}>
+                <Icon size={17} />
+                {label}
+              </button>
+            ))}
+          </nav>
+          {user && (
+            <button className="shop-header__icon" aria-label={`Notifications, ${unread} unread`} onClick={() => navigate('/marketplace/notifications')}>
+              <Bell size={21} />
+              {unread > 0 && <span className="shop-badge">{unread > 99 ? '99+' : unread}</span>}
+            </button>
+          )}
           <button className="shop-header__icon" aria-label={`Cart, ${cartCount} items`} onClick={() => navigate('/marketplace/cart')}>
             <ShoppingCart size={22} />
             {cartCount > 0 && <span className="shop-badge">{cartCount > 99 ? '99+' : cartCount}</span>}

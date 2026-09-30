@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { PanelLeft, PanelLeftClose, ArrowLeft } from 'lucide-react';
+import { PanelLeft, PanelLeftClose, ArrowLeft, Bell } from 'lucide-react';
+import { useUnreadNotifications } from '../../pages/NotificationsPage.js';
 import { Sidebar } from './Sidebar.js';
 import { M63Assistant } from '../assistant/M63Assistant.js';
 
@@ -8,6 +9,7 @@ export const ProtectedLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const unread = useUnreadNotifications(true, location.pathname);
 
   const isAnalytics = location.pathname.includes('/analytics');
   const isDashboard = location.pathname.includes('/dashboard');
@@ -38,14 +40,18 @@ export const ProtectedLayout: React.FC = () => {
     >
       {/* Top Header Bar with Back Button & Open Sidebar Pill Button */}
       <header
+        className="m63-workspace-header"
         style={{
-          height: '60px',
+          // Starts below the phone's status bar (safe area), then a comfortable 64px bar
+          minHeight: 'calc(64px + var(--sat))',
+          paddingTop: 'var(--sat)',
           backgroundColor: headerBg,
           borderBottom: headerBorder,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 20px',
+          paddingLeft: '16px',
+          paddingRight: '20px',
           position: 'sticky',
           top: 0,
           zIndex: 30,
@@ -63,8 +69,8 @@ export const ProtectedLayout: React.FC = () => {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '38px',
-              height: '38px',
+              width: '44px',
+              height: '44px',
               backgroundColor: isDarkPage ? (isAnalytics ? '#25162E' : '#1A2724') : '#F1F5F9',
               border: isDarkPage ? (isAnalytics ? '1px solid #3A2346' : '1px solid #2D423F') : '1px solid #CBD5E1',
               borderRadius: '50%',
@@ -74,7 +80,7 @@ export const ProtectedLayout: React.FC = () => {
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={22} />
           </button>
 
           {/* Pill Toggle Button for Sidebar */}
@@ -87,8 +93,8 @@ export const ProtectedLayout: React.FC = () => {
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '36px',
-              height: '36px',
+              width: '44px',
+              height: '44px',
               backgroundColor: pillBtnBg,
               color: '#FFFFFF',
               border: 'none',
@@ -98,13 +104,38 @@ export const ProtectedLayout: React.FC = () => {
               transition: 'all 0.2s ease',
             }}
           >
-            {sidebarOpen ? <PanelLeftClose size={18} /> : <PanelLeft size={18} />}
+            {sidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeft size={20} />}
           </button>
         </div>
 
-        {/* Brand Label */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', color: isDarkPage ? '#9CA6A2' : '#64748B', fontWeight: 600 }}>
+        {/* Brand Label + notifications */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            type="button"
+            onClick={() => navigate('/artisan/notifications')}
+            aria-label={`Notifications, ${unread} unread`}
+            style={{
+              position: 'relative',
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: isDarkPage ? (isAnalytics ? '#25162E' : '#1A2724') : '#F1F5F9',
+              border: isDarkPage ? (isAnalytics ? '1px solid #3A2346' : '1px solid #2D423F') : '1px solid #CBD5E1',
+              color: isDarkPage ? '#F3EFE7' : '#0F172A',
+              cursor: 'pointer',
+            }}
+          >
+            <Bell size={20} />
+            {unread > 0 && (
+              <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#dc2626', color: '#fff', fontSize: 11, fontWeight: 700, display: 'grid', placeItems: 'center' }}>
+                {unread > 99 ? '99+' : unread}
+              </span>
+            )}
+          </button>
+          <span className="m63-workspace-header-label" style={{ fontSize: '0.85rem', color: isDarkPage ? '#9CA6A2' : '#64748B', fontWeight: 600 }}>
             M63 Artisan Workspace
           </span>
         </div>
@@ -115,6 +146,7 @@ export const ProtectedLayout: React.FC = () => {
 
       {/* Main Workspace Area */}
       <main
+        className="m63-workspace-main"
         style={{
           padding: isDarkPage ? '0' : '24px 20px 40px 20px',
           maxWidth: isDarkPage ? '100%' : '1200px',
@@ -136,6 +168,10 @@ export const ProtectedLayout: React.FC = () => {
         @keyframes slideInLeft {
           from { transform: translateX(-100%); }
           to { transform: translateX(0); }
+        }
+        @media (max-width: 640px) {
+          .m63-workspace-main[style*="24px 20px"] { padding: 16px 12px 88px 12px !important; }
+          .m63-workspace-header-label { font-size: 0.78rem !important; }
         }
       `}</style>
     </div>

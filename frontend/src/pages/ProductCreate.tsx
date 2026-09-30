@@ -11,6 +11,7 @@ import { Select } from '../components/ui/Select.js';
 import { Button } from '../components/ui/Button.js';
 import { Modal } from '../components/ui/Modal.js';
 import { ImageUpload } from '../components/product/ImageUpload.js';
+import { MarketplaceDetailsFields, MarketplaceDetails, toMarketplacePayload, mrpError } from '../components/product/MarketplaceDetailsFields.js';
 import { ImageEnhanceComparison } from '../components/product/ImageEnhanceComparison.js';
 import { SmartStudioSettingsModal } from '../components/product/SmartStudioSettingsModal.js';
 import { SmartCatalogueSection } from '../components/product/SmartCatalogueSection.js';
@@ -81,6 +82,8 @@ export const ProductCreate: React.FC = () => {
     stock_quantity: '1',
     production_time: '',
   });
+  // Marketplace details: genuine M.R.P. and category-aware attributes (optional)
+  const [marketDetails, setMarketDetails] = useState<MarketplaceDetails>({ mrp: '', attributes: {} });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
@@ -467,6 +470,12 @@ export const ProductCreate: React.FC = () => {
       errors.stock_quantity = 'Please enter a valid stock quantity.';
     }
 
+    const mrpErr = mrpError(marketDetails.mrp, formData.price);
+    if (mrpErr) {
+      errors.mrp = mrpErr;
+      setGeneralError(`M.R.P.: ${mrpErr}.`);
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -499,6 +508,7 @@ export const ProductCreate: React.FC = () => {
           features: formData.features,
           price: priceNum,
           stock_quantity: stockNum,
+          ...toMarketplacePayload(marketDetails),
         });
       } else {
         // Create new draft
@@ -513,6 +523,7 @@ export const ProductCreate: React.FC = () => {
           features: formData.features,
           price: priceNum,
           stock_quantity: stockNum,
+          ...toMarketplacePayload(marketDetails),
         });
         productIdToUse = newProduct.id;
         setActiveProductId(newProduct.id);
@@ -599,6 +610,7 @@ export const ProductCreate: React.FC = () => {
           features: formData.features,
           price: priceNum,
           stock_quantity: stockNum,
+          ...toMarketplacePayload(marketDetails),
         });
       } else {
         const newProduct = await createProduct({
@@ -612,6 +624,7 @@ export const ProductCreate: React.FC = () => {
           features: formData.features,
           price: priceNum,
           stock_quantity: stockNum,
+          ...toMarketplacePayload(marketDetails),
         });
         productIdToUse = newProduct.id;
         setActiveProductId(newProduct.id);
@@ -1099,6 +1112,14 @@ export const ProductCreate: React.FC = () => {
                 />
               </div>
             </div>
+
+            <MarketplaceDetailsFields
+              category={formData.category}
+              price={formData.price}
+              value={marketDetails}
+              onChange={setMarketDetails}
+              lang={questionLanguage}
+            />
 
             {/* ✨ Smart Fair Pricing Intelligence Section */}
             <div style={{ marginTop: '24px' }}>

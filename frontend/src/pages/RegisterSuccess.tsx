@@ -17,7 +17,7 @@ export const RegisterSuccess: React.FC = () => {
 
   return (
     <div
-      className="m63-sans"
+      className="m63-sans m63-safe-top"
       style={{
         position: 'relative',
         minHeight: '100vh',

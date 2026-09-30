@@ -27,6 +27,8 @@ function mapProduct(raw: any): Product {
     originalImageUrl: raw.original_image_url,
     enhancedImageUrl: raw.enhanced_image_url,
     selectedBackground: raw.selected_background,
+    mrp: raw.mrp !== null && raw.mrp !== undefined ? Number(raw.mrp) : null,
+    attributes: raw.attributes || {},
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
     publishedAt: raw.published_at,

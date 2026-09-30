@@ -245,7 +245,7 @@ export const ShopCheckout: React.FC = () => {
   const addressSummary = [addr.address, addr.city, addr.district, addr.postal_code].filter(Boolean).join(', ');
 
   return (
-    <div>
+    <div className="shop-narrow">
       <Steps step={step} />
 
       {notice && (

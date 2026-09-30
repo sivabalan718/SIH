@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, ChevronRight, Globe, LogIn, LogOut, MapPin, Package, User, UserPlus } from 'lucide-react';
+import { ArrowRight, Bell, ChevronRight, Globe, LogIn, LogOut, MapPin, Package, User, UserPlus } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext.js';
 import { describeOrder, fetchBuyerOrders, OrderRecord } from '../../services/orderService.js';
 import { useCatalogIndex } from '../../components/shop/useCatalogIndex.js';
 import { handleProductImageError } from '../../utils/imageFallback.js';
 import { getRecentlyViewed, getShopLang, getWishlist, setShopLang, useShopStore } from '../../utils/shopStore.js';
 import { SupportedLang } from '../../utils/marketplaceI18n.js';
+import { setEntryRole } from '../StartScreen.js';
 
 const LANGS: Array<{ value: SupportedLang; label: string }> = [
   { value: 'en', label: 'EN' },
@@ -51,7 +52,7 @@ export const ShopAccount: React.FC = () => {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
-    <div>
+    <div className="shop-narrow">
       <section className="hub-top">
         <div className="hub-hello">
           <span className="hub-hello__avatar">
@@ -166,6 +167,15 @@ export const ShopAccount: React.FC = () => {
           </span>
           <ChevronRight size={18} />
         </button>
+        {user && (
+          <button className="list-row" onClick={() => navigate('/marketplace/notifications')}>
+            <span>
+              <Bell size={18} style={{ verticalAlign: '-4px', marginRight: 10 }} />
+              Notifications & settings
+            </span>
+            <ChevronRight size={18} />
+          </button>
+        )}
         <button className="list-row" onClick={() => navigate(user ? '/marketplace/profile' : '/customer/login?next=/marketplace/profile')}>
           <span>
             <MapPin size={18} style={{ verticalAlign: '-4px', marginRight: 10 }} />
@@ -180,7 +190,22 @@ export const ShopAccount: React.FC = () => {
           </span>
           <span className="pcard__meta">{LANGS.find((l) => l.value === lang)?.label}</span>
         </div>
-        {user ? (
+        {user?.role !== 'ARTISAN' && (
+          <button
+            className="list-row"
+            onClick={() => {
+              setEntryRole('ARTISAN');
+              navigate('/login');
+            }}
+          >
+            <span>
+              <UserPlus size={18} style={{ verticalAlign: '-4px', marginRight: 10 }} />
+              Are you an artisan? Sell on M63
+            </span>
+            <ChevronRight size={18} />
+          </button>
+        )}
+        {user && (
           <button
             className="list-row"
             onClick={async () => {
@@ -191,14 +216,6 @@ export const ShopAccount: React.FC = () => {
             <span>
               <LogOut size={18} style={{ verticalAlign: '-4px', marginRight: 10 }} />
               Sign out
-            </span>
-            <ChevronRight size={18} />
-          </button>
-        ) : (
-          <button className="list-row" onClick={() => navigate('/login')}>
-            <span>
-              <UserPlus size={18} style={{ verticalAlign: '-4px', marginRight: 10 }} />
-              Are you an artisan? Sell on M63
             </span>
             <ChevronRight size={18} />
           </button>

@@ -11,14 +11,22 @@ import { errorHandler } from './middleware/error.middleware.js';
 import { sendError } from './utils/response.js';
 import { logger } from './utils/logger.js';
 import { handleRazorpayWebhook } from './controllers/payment.controller.js';
+import { ensureMarketplaceCatalogues } from './services/catalogue-backfill.service.js';
 
 export const app = express();
 
 // Security & Parsing Middleware
 app.use(helmet());
+// Web client(s) from CLIENT_ORIGIN (comma-separated) + the Capacitor mobile app's WebView origins.
+const allowedOrigins = new Set([
+  ...env.clientOrigin.split(',').map((o) => o.trim()).filter(Boolean),
+  'capacitor://localhost',
+  'http://localhost',
+  'https://localhost',
+]);
 app.use(
   cors({
-    origin: env.clientOrigin,
+    origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Guest-Cart-Id'],
@@ -47,7 +55,13 @@ app.use(errorHandler);
 
 // Start server if main module
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(env.port, () => {
+  app.listen(env.port, '0.0.0.0', () => {
     logger.info(`M63 Backend API server running on port ${env.port} (${env.nodeEnv})`);
+    // Make sure every published product has a Smart Catalogue (EN/TA/HI). Runs in the background.
+    if (process.env.M63_CATALOGUE_AUTOFILL !== 'false') {
+      setTimeout(() => {
+        ensureMarketplaceCatalogues().catch((e) => logger.warn(`[CatalogueBackfill] Startup run failed: ${e?.message}`));
+      }, 5000);
+    }
   });
 }

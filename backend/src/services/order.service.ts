@@ -5,6 +5,7 @@ import { logger } from '../utils/logger.js';
 import { getBuyerCart, clearBuyerCart, CartItem } from './cart.service.js';
 import { getMarketplaceProductById } from './marketplace.service.js';
 import { updateProduct } from './product.service.js';
+import { notifyOrderPlaced, notifyOrderStatus } from './notification.service.js';
 
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED';
@@ -330,6 +331,7 @@ export async function createOrder(
   }
 
   if (!customItems || customItems.length === 0) await clearBuyerCart(buyerId);
+  for (const o of createdOrders) notifyOrderPlaced(o);
 
   logger.info(`[OrderService] Created ${createdOrders.length} order(s) (${paymentMethod}) for buyer ${buyerId}, group ${checkoutGroupId}`);
   return { orders: createdOrders, checkout_group_id: checkoutGroupId };
@@ -473,6 +475,7 @@ export async function updateOrderStatus(artisanId: string, orderId: string, newS
     extra.paid_at = new Date().toISOString();
   }
   const updated = await persistStatus(order, newStatus, extra);
+  notifyOrderStatus(updated, newStatus);
   logger.info(`[OrderService] Order ${orderId} → ${newStatus}`);
   return updated;
 }
@@ -487,6 +490,7 @@ async function cancelAndRelease(order: OrderRecord, reason: string): Promise<Ord
   }
   const updated = await persistStatus(order, 'CANCELLED', extra);
   for (const item of order.items) await adjustStock(item.product_id, item.artisan_id, item.quantity).catch(() => {});
+  notifyOrderStatus(updated, 'CANCELLED');
   return updated;
 }
 

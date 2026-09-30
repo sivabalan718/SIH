@@ -37,6 +37,37 @@ button, input, select, textarea {
   font-size: inherit;
 }
 
+/* ---------- Device safe areas (status bar / gesture bar) ----------
+   Capacitor 8 injects --safe-area-inset-* on Android edge-to-edge; browsers/iOS use env(). */
+:root {
+  --sat: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --sab: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+}
+
+/* Full-screen pages without an app header (login / registration) stay clear of the status bar.
+   A transparent border adds the space without overriding each page's own padding. */
+.lx-root, .m63-safe-top {
+  border-top: var(--sat) solid transparent;
+  border-bottom: var(--sab) solid transparent;
+}
+
+/* ---------- Responsive safety net (all pages, desktop ↔ mobile) ---------- */
+/* No page may scroll sideways; `clip` (unlike `hidden`) keeps position: sticky working. */
+html, body { overflow-x: clip; }
+img, video, canvas, iframe { max-width: 100%; }
+input, select, textarea { max-width: 100%; }
+/* Long product names, URLs and IDs wrap instead of pushing the layout wider */
+p, h1, h2, h3, h4, h5, h6, li, td, th, label { overflow-wrap: break-word; }
+/* Wide tables scroll inside their own box */
+table { max-width: 100%; }
+
+@media (max-width: 640px) {
+  /* 16px inputs stop iOS/Android from zooming the page on focus */
+  input, select, textarea { font-size: 16px; }
+  /* Modals and dialogs fit small screens */
+  [role='dialog'] { max-width: calc(100vw - 16px); }
+}
+
 /* Accessibility Focus Ring */
 :focus-visible {
   outline: 2px solid var(--m63-primary);

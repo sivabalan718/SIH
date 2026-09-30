@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShoppingBag } from 'lucide-react';
+import { setEntryRole } from '../../pages/StartScreen.js';
 
 export const CustomerFloatingEntry: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +42,10 @@ export const CustomerFloatingEntry: React.FC = () => {
       {/* Floating Action Button */}
       <button
         type="button"
-        onClick={() => navigate('/customer/login')}
+        onClick={() => {
+          setEntryRole('CUSTOMER');
+          navigate('/marketplace');
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         aria-label="Shop on M63 Marketplace"

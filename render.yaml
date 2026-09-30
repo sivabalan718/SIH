@@ -1,0 +1,44 @@
+# Render Blueprint — deploys the M63 backend API (Render dashboard → New → Blueprint → pick this repo).
+# Secrets are NOT stored here: every `sync: false` value is typed into the Render dashboard.
+services:
+  - type: web
+    name: m63-backend
+    runtime: node
+    rootDir: backend
+    plan: free # Image enhancement (background removal) is memory-heavy; use a 2 GB plan if it runs out of memory.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: CLIENT_ORIGIN
+        sync: false # e.g. https://your-frontend.example.com (comma-separate several). The mobile app is always allowed.
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_LLM_MODEL
+        sync: false
+      - key: GEMINI_TRANSCRIPTION_MODEL
+        sync: false
+      - key: M63_AI_MOCK_MODE
+        value: 'false'
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false

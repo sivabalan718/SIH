@@ -1,4 +1,6 @@
 import { getSupabaseAdmin } from '../config/supabase.js';
+import { getCustomerProfile } from './customer.service.js';
+import { isOurPhotoUrl } from './order-request.service.js';
 import { logger } from '../utils/logger.js';
 import { getBuyerOrders } from './order.service.js';
 import { getMarketplaceProductById } from './marketplace.service.js';
@@ -21,6 +23,8 @@ export interface SubmitReviewInput {
   order_item_id: string;
   rating: number;
   review_text?: string;
+  /** Customer photos uploaded through M63 (max 3) */
+  photo_urls?: unknown;
 }
 
 export interface ReviewEligibilityResult {
@@ -132,6 +136,17 @@ export async function checkReviewEligibility(
  * Submit verified customer review for a delivered order item.
  * Single source of truth is Supabase database (`product_reviews`).
  */
+/** First name only (privacy), e.g. "Kavitha S." → "Kavitha". */
+async function reviewerDisplayName(customerId: string): Promise<string> {
+  try {
+    const profile = await getCustomerProfile(customerId);
+    const first = profile?.name?.trim().split(/\s+/)[0];
+    return first ? first.slice(0, 40) : 'Verified Customer';
+  } catch {
+    return 'Verified Customer';
+  }
+}
+
 export async function submitProductReview(
   customerId: string,
   input: SubmitReviewInput
@@ -198,7 +213,8 @@ export async function submitProductReview(
     artisan_id: matchedItem.artisan_id,
     rating: input.rating,
     review_text: reviewText,
-    customer_name: 'Verified Customer',
+    customer_name: await reviewerDisplayName(customerId),
+    photo_urls: Array.isArray(input.photo_urls) ? input.photo_urls.filter(isOurPhotoUrl).slice(0, 3) : [],
     created_at: now,
     updated_at: now,
   };
@@ -282,7 +298,8 @@ export async function getProductReviewStats(productId: string): Promise<Determin
     average_rating,
     positive_percentage,
     rating_distribution: distribution,
-    recent_reviews: allReviews,
+    // Public-safe: never expose customer/order identifiers
+    recent_reviews: allReviews.map(({ customer_id, order_id, order_item_id, ...pub }: any) => pub),
   };
 }
 

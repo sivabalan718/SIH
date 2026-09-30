@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SupportedLang } from './marketplaceI18n.js';
+import { getStoredToken } from '../services/api.js';
+import { addAccountWishlist, mergeAccountWishlist, removeAccountWishlist } from '../services/engagementService.js';
 
 /**
  * Per-device customer conveniences (wishlist, recently viewed). Stored locally and wrapped in
@@ -36,7 +38,21 @@ export function toggleWishlist(productId: string): boolean {
   const list = getWishlist();
   const saved = !list.includes(productId);
   write(WISHLIST_KEY, saved ? [productId, ...list] : list.filter((id) => id !== productId));
+  // Signed in: also save to the account so the wishlist follows the customer across devices
+  if (getStoredToken()) {
+    (saved ? addAccountWishlist(productId) : removeAccountWishlist(productId)).then((ids) => write(WISHLIST_KEY, ids)).catch(() => undefined);
+  }
   return saved;
+}
+
+/** After sign-in: merge items saved on this device into the account, then use the account list. */
+export async function syncWishlistWithAccount(): Promise<void> {
+  if (!getStoredToken()) return;
+  try {
+    write(WISHLIST_KEY, await mergeAccountWishlist(getWishlist()));
+  } catch {
+    // account wishlist unavailable — keep the device list
+  }
 }
 
 export function getRecentlyViewed(): string[] {

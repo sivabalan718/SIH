@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { app } from '../src/app.js';
 import { getSupabaseAdmin } from '../src/config/supabase.js';
-import { createProduct, publishProduct } from '../src/services/product.service.js';
+import { createProduct, publishProduct, updateProduct } from '../src/services/product.service.js';
 import { createOrder, getArtisanOrders } from '../src/services/order.service.js';
 import {
   computePaymentSignature,
@@ -25,13 +25,17 @@ describe('M63 Razorpay payments', () => {
   let productId = '';
   let cheapProductId = '';
 
+  // Publishing requires a product photo
+  const makePublished = async (name: string, price: number, category: string) => {
+    const p = await createProduct(artisanId, { name, description: 'Handmade test item used by the payment tests.', price, stock_quantity: 50, category });
+    await updateProduct(p.id, artisanId, { primary_image_url: 'https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb' } as any);
+    await publishProduct(p.id, artisanId);
+    return p.id;
+  };
+
   beforeAll(async () => {
-    const p = await createProduct(artisanId, { name: 'Payment Test Clay Cup', description: 'Test item', price: 450, stock_quantity: 50, category: 'Pottery' });
-    await publishProduct(p.id, artisanId).catch(() => undefined);
-    productId = p.id;
-    const cheap = await createProduct(artisanId, { name: 'Payment Test Thread', description: 'Test item', price: 0.5, stock_quantity: 50, category: 'Textiles' });
-    await publishProduct(cheap.id, artisanId).catch(() => undefined);
-    cheapProductId = cheap.id;
+    productId = await makePublished('Payment Test Clay Cup', 450, 'Pottery');
+    cheapProductId = await makePublished('Payment Test Thread', 0.5, 'Textiles');
   }, 60000);
 
   afterAll(async () => {

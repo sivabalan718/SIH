@@ -117,7 +117,7 @@ export const ShopCart: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="shop-narrow">
       {cart && cart.items.length > 0 ? (
         <>
           <section className="cart-head">

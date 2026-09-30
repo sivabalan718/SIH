@@ -8,6 +8,7 @@ import { ShopProductCard } from '../../components/shop/ShopProductCard.js';
 import { rankSimilar, useCatalogIndex } from '../../components/shop/useCatalogIndex.js';
 import { useVoiceInput } from '../../components/shop/ShopLayout.js';
 import { formatINR, getShopLang, useShopStore } from '../../utils/shopStore.js';
+import { parseShopperQuery } from '../../services/engagementService.js';
 
 /**
  * M63 AI (customer). Every answer is computed from verified marketplace data — listings,
@@ -153,6 +154,7 @@ export const ShopAssistant: React.FC = () => {
   const contextId = params.get('product');
   const contextProduct = useMemo(() => index.find((p) => p.id === contextId) || null, [index, contextId]);
   const [input, setInput] = useState('');
+  const [thinking, setThinking] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -225,19 +227,60 @@ export const ShopAssistant: React.FC = () => {
     };
   };
 
+  /**
+   * Gemini only rewrites the shopper's words (English/Tamil/Hindi) into a canonical English query.
+   * The answer is still computed from real listings by the deterministic logic above.
+   */
+  const understand = async (q: string): Promise<string> => {
+    if (contextProduct) return q; // product questions are answered from the listing text directly
+    const categories = Array.from(new Set(index.map((p) => p.category).filter(Boolean)));
+    const parsed = await parseShopperQuery(q, categories);
+    if (!parsed) return q;
+    switch (parsed.intent) {
+      case 'ORDERS':
+        return 'where is my order';
+      case 'OFFERS':
+        return 'any offers';
+      case 'TOP_RATED':
+        return 'top rated';
+      case 'HELP':
+        return 'help';
+      case 'SEARCH':
+      case 'SIMILAR': {
+        const words = [...parsed.keywords, parsed.material || '', parsed.category || ''].join(' ').replace(/\s+/g, ' ').trim();
+        const price =
+          parsed.min_price != null && parsed.max_price != null
+            ? ` between ${parsed.min_price} and ${parsed.max_price}`
+            : parsed.max_price != null
+            ? ` under ${parsed.max_price}`
+            : parsed.min_price != null
+            ? ` above ${parsed.min_price}`
+            : '';
+        return words || price ? `${words}${price}${parsed.in_stock_only ? ' in stock' : ''}` : q;
+      }
+      default:
+        return q;
+    }
+  };
+
   const ask = async (text: string) => {
     const q = text.trim();
     if (!q) return;
     setInput('');
     setMessages((m) => [...m, { from: 'user', text: q }]);
-    const answer = await reply(q);
-    setMessages((m) => [...m, answer]);
+    setThinking(true);
+    try {
+      const answer = await reply(await understand(q));
+      setMessages((m) => [...m, answer]);
+    } finally {
+      setThinking(false);
+    }
   };
 
   const voice = useVoiceInput((t) => ask(t));
 
   return (
-    <div className="ai">
+    <div className="ai shop-narrow">
       <div className="ai__log" aria-live="polite">
         {contextProduct && (
           <button className="shop-chip" style={{ alignSelf: 'flex-start' }} onClick={() => navigate(`/marketplace/product/${contextProduct.id}`)}>
@@ -270,6 +313,11 @@ export const ShopAssistant: React.FC = () => {
                 {s}
               </button>
             ))}
+          </div>
+        )}
+        {thinking && (
+          <div className="ai__msg ai__msg--bot" aria-live="polite">
+            Looking through M63 listings…
           </div>
         )}
         <div ref={endRef} />

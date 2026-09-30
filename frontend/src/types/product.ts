@@ -20,6 +20,8 @@ export interface Product {
   originalImageUrl: string | null;
   enhancedImageUrl?: string | null;
   selectedBackground?: string | null;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
   publishedAt: string | null;
@@ -36,6 +38,8 @@ export interface CreateProductPayload {
   features?: string[];
   price: number;
   stock_quantity: number;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
 }
 
 export interface UpdateProductPayload {
@@ -49,6 +53,8 @@ export interface UpdateProductPayload {
   features?: string[];
   price?: number;
   stock_quantity?: number;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
 }
 
 export interface ProductStats {

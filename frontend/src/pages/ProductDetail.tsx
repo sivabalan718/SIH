@@ -12,6 +12,7 @@ import {
   selectProductImageVariant,
 } from '../services/productService.js';
 import { SmartStudioSettingsModal, CatalogueBackgroundOption } from '../components/product/SmartStudioSettingsModal.js';
+import { MarketplaceDetailsFields, MarketplaceDetails, toMarketplacePayload } from '../components/product/MarketplaceDetailsFields.js';
 import { ImageEnhanceComparison } from '../components/product/ImageEnhanceComparison.js';
 import { ProductStatusBadge } from '../components/product/ProductStatusBadge.js';
 import { Input } from '../components/ui/Input.js';
@@ -65,6 +66,7 @@ export const ProductDetail: React.FC = () => {
     price: '',
     stock_quantity: '0',
   });
+  const [marketDetails, setMarketDetails] = useState<MarketplaceDetails>({ mrp: '', attributes: {} });
 
   // Phase 5: Smart Catalogue State & Style
   const [catalogueMap, setCatalogueMap] = useState<Record<CatalogueLanguage, GeneratedCatalogueContent | null>>({
@@ -123,6 +125,7 @@ export const ProductDetail: React.FC = () => {
         price: data.price.toString(),
         stock_quantity: data.stockQuantity.toString(),
       });
+      setMarketDetails({ mrp: data.mrp ? String(data.mrp) : '', attributes: data.attributes || {} });
 
       // Retrieve saved catalogue from DB
       try {
@@ -194,6 +197,7 @@ export const ProductDetail: React.FC = () => {
         features: formData.features,
         price: priceNum,
         stock_quantity: stockNum,
+        ...toMarketplacePayload(marketDetails),
       });
 
       // 3. Persist all generated/edited catalogue versions to DB
@@ -538,6 +542,13 @@ export const ProductDetail: React.FC = () => {
               onChange={(e) => handleChange('stock_quantity', e.target.value)}
             />
           </div>
+
+          <MarketplaceDetailsFields
+            category={formData.category}
+            price={formData.price}
+            value={marketDetails}
+            onChange={setMarketDetails}
+          />
 
           {/* ✨ Smart Fair Pricing Intelligence Section */}
           <div style={{ marginTop: '24px' }}>

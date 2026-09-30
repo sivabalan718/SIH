@@ -69,23 +69,21 @@ export async function registerArtisan(
     const isAlreadyExists = msg.toLowerCase().includes('already') && (msg.toLowerCase().includes('registered') || msg.toLowerCase().includes('exists'));
 
     if (isAlreadyExists) {
-      // User is already registered in Supabase Auth (e.g. as a customer).
-      const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
-      const existingUser = listData?.users?.find(u => u.email?.toLowerCase() === normalizedEmail);
+      // The email already has an account (e.g. a customer). An artisan workspace may be attached
+      // ONLY after proving ownership with the account's current password — never overwrite it.
+      const { data: signIn, error: signInError } = await getSupabaseAnon().auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
 
-      if (existingUser) {
-        supabaseUserId = existingUser.id;
-        logger.info(`[AuthService] Re-using existing Auth user ${supabaseUserId} (${normalizedEmail}) for artisan role`);
-
+      if (!signInError && signIn?.user) {
+        supabaseUserId = signIn.user.id;
+        logger.info(`[AuthService] Attaching artisan workspace to existing account ${supabaseUserId} after password verification`);
         await supabaseAdmin.auth.admin.updateUserById(supabaseUserId, {
-          password,
-          user_metadata: {
-            ...existingUser.user_metadata,
-            has_artisan_account: true,
-          },
+          user_metadata: { ...signIn.user.user_metadata, has_artisan_account: true },
         });
       } else {
-        const error: any = new Error('An account with this email address already exists. Please log in.');
+        const error: any = new Error('An account with this email already exists. Use that account’s password to add an artisan workspace, or use a different email.');
         error.code = 'EMAIL_ALREADY_EXISTS';
         error.statusCode = 409;
         throw error;
@@ -165,23 +163,15 @@ export async function loginArtisan(
     password,
   });
 
-  // If authentication fails but artisan profile exists, auto-sync password via admin to guarantee credentials stability
-  if (authRes.error || !authRes.data.session) {
-    logger.warn(`Initial signInWithPassword failed for ${targetEmail}: ${authRes.error?.message}. Syncing credentials via admin...`);
+  // SECURITY: a wrong password must fail. (Previously the typed password was written over the
+  // account's password, letting anyone who knew an email / M63 ID sign in.) The only automatic
+  // repair allowed is confirming an unconfirmed email — it never changes the password.
+  if (authRes.error && /not confirmed/i.test(authRes.error.message || '')) {
     try {
-      const supabaseAdmin = getSupabaseAdmin();
-      await supabaseAdmin.auth.admin.updateUserById(matchedArtisan.supabase_user_id, {
-        password: password,
-        email_confirm: true,
-      });
-
-      // Retry authentication with synced credentials
-      authRes = await supabaseAnon.auth.signInWithPassword({
-        email: targetEmail,
-        password,
-      });
-    } catch (syncErr: any) {
-      logger.error('Credential sync error:', syncErr?.message);
+      await getSupabaseAdmin().auth.admin.updateUserById(matchedArtisan.supabase_user_id, { email_confirm: true });
+      authRes = await supabaseAnon.auth.signInWithPassword({ email: targetEmail, password });
+    } catch (confirmErr: any) {
+      logger.error('Email confirmation repair failed:', confirmErr?.message);
     }
   }
 
@@ -286,25 +276,24 @@ export async function registerCustomer(input: CreateCustomerInput & { password: 
     const isAlreadyExists = msg.toLowerCase().includes('already') && (msg.toLowerCase().includes('registered') || msg.toLowerCase().includes('exists'));
 
     if (isAlreadyExists) {
-      // User is already registered in Supabase Auth (e.g. as an artisan).
-      // Retrieve the existing Supabase auth user to attach their customer profile.
-      const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
-      const existingUser = listData?.users?.find(u => u.email?.toLowerCase() === normalizedEmail);
+      // The email already has an account (e.g. an artisan). A customer profile may be attached
+      // ONLY if the person proves they own it with the account's current password.
+      // Never overwrite the existing password — that would allow account takeover.
+      const { data: signIn, error: signInError } = await getSupabaseAnon().auth.signInWithPassword({
+        email: normalizedEmail,
+        password: input.password,
+      });
 
-      if (existingUser) {
-        supabaseUserId = existingUser.id;
-        logger.info(`[AuthService] Re-using existing Auth user ${supabaseUserId} (${normalizedEmail}) for customer role`);
-
-        // Synchronize password & grant customer metadata flag
+      if (!signInError && signIn?.user) {
+        supabaseUserId = signIn.user.id;
+        logger.info(`[AuthService] Attaching customer profile to existing account ${supabaseUserId} after password verification`);
         await supabaseAdmin.auth.admin.updateUserById(supabaseUserId, {
-          password: input.password,
-          user_metadata: {
-            ...existingUser.user_metadata,
-            has_customer_account: true,
-          },
+          user_metadata: { ...signIn.user.user_metadata, has_customer_account: true },
         });
       } else {
-        const error: any = new Error('An account with this email address already exists. Please log in.');
+        const error: any = new Error(
+          'An account with this email already exists. Sign in with that account’s password to add a customer profile, or use a different email.'
+        );
         error.code = 'EMAIL_ALREADY_EXISTS';
         error.statusCode = 409;
         throw error;

@@ -49,6 +49,12 @@ const catalogueSchema = z.object({
  * AI Smart Catalogue Generation Service (Phase 5.1 Content Expansion & Synthesis Engine)
  * Transforms structured product facts into rich, descriptive, customer-facing catalogue content.
  */
+/** After a quota/rate-limit error, skip Gemini for a while instead of failing every request. */
+let geminiCooldownUntil = 0;
+export function isGeminiCoolingDown(): boolean {
+  return Date.now() < geminiCooldownUntil;
+}
+
 export async function generateCatalogueContent(
   input: StructuredProductInput,
   language: CatalogueLanguage = 'en',
@@ -56,6 +62,9 @@ export async function generateCatalogueContent(
   sectionToRegenerate?: string
 ): Promise<GeneratedCatalogueContent> {
   const apiKey = env.geminiApiKey;
+  if (apiKey && isGeminiCoolingDown()) {
+    return generateFallbackCatalogue(input, language, style);
+  }
   if (!apiKey) {
     logger.warn('[CatalogueGen] Gemini API Key not configured; returning structured fallback');
     return generateFallbackCatalogue(input, language, style);
@@ -161,7 +170,12 @@ Respond ONLY with a valid JSON object strictly matching this schema:
 
         if (!res.ok) {
           const errText = await res.text();
-          logger.warn(`[CatalogueGen] Model ${model} returned error ${res.status}: ${errText}`);
+          logger.warn(`[CatalogueGen] Model ${model} returned error ${res.status}: ${errText.slice(0, 200)}`);
+          if (res.status === 429) {
+            geminiCooldownUntil = Date.now() + 15 * 60 * 1000;
+            logger.warn('[CatalogueGen] Gemini quota reached - using the faithful generator for 15 minutes.');
+            break;
+          }
           continue;
         }
 
@@ -198,184 +212,145 @@ Respond ONLY with a valid JSON object strictly matching this schema:
 }
 
 /**
- * Rich Deterministic Fallback Generator
- * Generates distinct natural text for PROFESSIONAL, SIMPLE, and TRADITIONAL styles in EN, TA, and HI
+ * Faithful deterministic generator (used when Gemini is unavailable or over quota).
+ * Uses ONLY what the artisan recorded: their own description and features verbatim, plus
+ * structured fields. It never adds quality claims, techniques or care advice that were not given.
  */
+const SPEC_LABELS: Record<string, Record<CatalogueLanguage, string>> = {
+  material: { en: 'Material', ta: 'பொருள்', hi: 'सामग्री' },
+  craft: { en: 'Craft Technique', ta: 'கைவினை முறை', hi: 'शिल्प तकनीक' },
+  category: { en: 'Category', ta: 'வகை', hi: 'श्रेणी' },
+  subcategory: { en: 'Type', ta: 'உப வகை', hi: 'प्रकार' },
+  color: { en: 'Colour', ta: 'நிறம்', hi: 'रंग' },
+  productionTime: { en: 'Making Time', ta: 'தயாரிப்பு நேரம்', hi: 'निर्माण समय' },
+  size: { en: 'Size', ta: 'அளவு', hi: 'आकार' },
+  dimensions: { en: 'Dimensions', ta: 'பரிமாணங்கள்', hi: 'माप' },
+  weight: { en: 'Weight', ta: 'எடை', hi: 'वज़न' },
+  customization: { en: 'Customisation', ta: 'தனிப்பயனாக்கம்', hi: 'अनुकूलन' },
+};
+
+const ATTRIBUTE_LABELS: Record<string, Record<CatalogueLanguage, string>> = {
+  dimensions: SPEC_LABELS.dimensions,
+  capacity: { en: 'Capacity', ta: 'கொள்ளளவு', hi: 'क्षमता' },
+  set_size: { en: 'Set / Pack', ta: 'தொகுப்பு', hi: 'सेट / पैक' },
+  weight: SPEC_LABELS.weight,
+  finish: { en: 'Finish', ta: 'மேற்பூச்சு', hi: 'फ़िनिश' },
+  size: SPEC_LABELS.size,
+  length: { en: 'Length', ta: 'நீளம்', hi: 'लंबाई' },
+  intended_use: { en: 'Use', ta: 'பயன்பாடு', hi: 'उपयोग' },
+  occasion: { en: 'Occasion', ta: 'சந்தர்ப்பம்', hi: 'अवसर' },
+  customization: SPEC_LABELS.customization,
+};
+
+const firstSentence = (text: string) => {
+  const t = text.trim().replace(/\s+/g, ' ');
+  const m = t.match(/^(.{20,220}?[.!?।])(\s|$)/);
+  return m ? m[1] : t.slice(0, 220);
+};
+
 function generateFallbackCatalogue(
   input: StructuredProductInput,
   language: CatalogueLanguage,
   style: CatalogueStyle
 ): GeneratedCatalogueContent {
-  const name = input.name || 'Artisan Product';
-  const mat = input.material;
-  const craft = input.craft_type;
-  const cat = input.category || 'Craft';
-  const color = input.color;
-  const prodTime = input.production_time;
+  const name = (input.name || '').trim() || 'Handmade product';
+  const artisanText = (input.description || '').trim();
+  const { material: mat, craft_type: craft, category: cat, subcategory: sub, color, production_time: prodTime } = input;
+  const attrs: Record<string, string> = { ...(input.other_attributes || {}) };
+  if (input.dimensions && !attrs.dimensions) attrs.dimensions = input.dimensions;
+  if (input.size && !attrs.size) attrs.size = input.size;
+  if (input.weight && !attrs.weight) attrs.weight = input.weight;
+  const care = (input.care_instructions || attrs.care || '').trim();
+  const customization = (input.customization_info || attrs.customization || '').trim();
 
+  // Specifications: recorded facts only
   const specs: Record<string, string> = {};
-  if (mat) specs[language === 'ta' ? 'பொருள்' : language === 'hi' ? 'सामग्री' : 'Material'] = mat;
-  if (craft) specs[language === 'ta' ? 'கைவினை முறை' : language === 'hi' ? 'शिल्प तकनीक' : 'Craft Technique'] = craft;
-  if (cat) specs[language === 'ta' ? 'வகை' : language === 'hi' ? 'श्रेणी' : 'Category'] = cat;
-  if (color) specs[language === 'ta' ? 'நிறம்' : language === 'hi' ? 'रंग' : 'Colour'] = color;
-  if (prodTime) specs[language === 'ta' ? 'தயாரிப்பு நேரம்' : language === 'hi' ? 'निर्माण समय' : 'Production Time'] = prodTime;
+  const put = (label: string, v?: string) => {
+    if (v && String(v).trim()) specs[label] = String(v).trim();
+  };
+  put(SPEC_LABELS.material[language], mat);
+  put(SPEC_LABELS.craft[language], craft);
+  put(SPEC_LABELS.category[language], cat);
+  put(SPEC_LABELS.subcategory[language], sub);
+  put(SPEC_LABELS.color[language], color);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'care' || k === 'customization') continue;
+    put(ATTRIBUTE_LABELS[k]?.[language] || k.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()), v);
+  }
+  put(SPEC_LABELS.customization[language], customization);
+  put(SPEC_LABELS.productionTime[language], prodTime);
 
-  // --- TAMIL FALLBACK ---
-  if (language === 'ta') {
-    if (style === 'SIMPLE') {
-      return {
-        title: `${color ? `${color} ` : ''}${name}`,
-        shortDescription: `இது ${craft ? `${craft} முறையில் ` : ''}${mat ? `${mat} பயன்படுத்தி ` : ''}செய்யப்பட்ட ${name}.`,
-        description: `${name} திறமையான கைவினைஞர்களால் செய்யப்பட்டது. ${mat ? `இது ${mat} பொருளால் ஆனது.` : ''} ${craft ? `பாரம்பரிய ${craft} முறையில் உருவாக்கப்பட்டுள்ளது.` : ''} ${prodTime ? `இதை செய்ய சுமார் ${prodTime} ஆகிறது.` : ''}`,
-        highlights: [
-          craft ? `${craft} கைவினை முறை` : 'கைவினை தயாரிப்பு',
-          mat ? `${mat} பொருள்` : 'தரமான பொருள்',
-          color ? `${color} வண்ணம்` : 'அழகிய வடிவமைப்பு',
-        ],
-        specifications: specs,
-        careInstructions: mat?.toLowerCase().includes('cotton') || mat?.toLowerCase().includes('பருத்தி')
-          ? 'குளிர்ந்த நீரில் தனியாக துவைக்கவும்.'
-          : 'மென்மையாக பராமரிக்கவும்.',
-        tags: [name, craft || 'கைவினை', cat].filter(Boolean) as string[],
-      };
-    }
+  const features = (input.features || []).map((f) => f.trim()).filter(Boolean);
+  const tags = [name, craft, mat, cat, sub].filter(Boolean) as string[];
 
-    if (style === 'TRADITIONAL') {
-      return {
-        title: `பாரம்பரிய ${craft ? `${craft} ` : ''}${name}`,
-        shortDescription: `பாரம்பரிய ${craft ? `${craft} ` : ''}முறையில் ${mat ? `${mat} கொண்டு ` : ''}நெய்யப்பட்ட ${name}.`,
-        description: `இந்த ${name} பாரம்பரிய கைவினை கலைத்திறனை பிரதிபலிக்கிறது. ${mat ? `${mat} பொருளைக் கொண்டு ` : ''}${craft ? `${craft} முறையில் ` : ''}கவனமாக தயாரிக்கப்பட்டுள்ளது. ${prodTime ? `ஒவ்வொரு தயாரிப்பும் உருவாக்க சுமார் ${prodTime} தேவைப்படுகிறது.` : ''} இது கைவினைஞரின் பிரத்யேக உழைப்பை காட்டுகிறது.`,
-        highlights: [
-          craft ? `பாரம்பரிய ${craft} கலை` : 'பாரம்பரிய கைவினை கலை',
-          mat ? `உன்னதமான ${mat} பொருள்` : 'தரமான பொருள்',
-          prodTime ? `${prodTime} கைவினை உழைப்பு` : 'சிறப்பான தயாரிப்பு',
-        ],
-        specifications: specs,
-        careInstructions: 'குளிர்ந்த நீரில் மென்மையாக அலசி நிழலில் உலர்த்தவும்.',
-        tags: [name, craft, mat, cat].filter(Boolean) as string[],
-      };
-    }
-
-    // Professional Tamil
+  if (language === 'ta' || language === 'hi') {
+    const L =
+      language === 'ta'
+        ? {
+            made: `${name} — கைவினைஞரால் கையால் செய்யப்பட்டது.`,
+            mat: mat ? `பொருள்: ${mat}.` : '',
+            craft: craft ? `கைவினை முறை: ${craft}.` : '',
+            color: color ? `நிறம்: ${color}.` : '',
+            time: prodTime ? `தயாரிப்பு நேரம்: ${prodTime}.` : '',
+            note: 'கைவினைஞரின் விவரம்',
+            handmade: 'கையால் செய்யப்பட்டது',
+          }
+        : {
+            made: `${name} — कारीगर द्वारा हाथ से बनाया गया।`,
+            mat: mat ? `सामग्री: ${mat}।` : '',
+            craft: craft ? `शिल्प तकनीक: ${craft}।` : '',
+            color: color ? `रंग: ${color}।` : '',
+            time: prodTime ? `निर्माण समय: ${prodTime}।` : '',
+            note: 'कारीगर का विवरण',
+            handmade: 'हस्तनिर्मित',
+          };
+    const factual = [L.made, L.mat, L.craft, L.color, L.time].filter(Boolean).join(' ');
     return {
-      title: `${craft ? `${craft} ` : ''}${color ? `${color} ` : ''}${name}`,
-      shortDescription: `உயர்தர ${mat ? `${mat} ` : ''}${craft ? `${craft} ` : ''}${name}. சந்தை பயன்பாட்டிற்கு ஏற்ற சிறப்பான வடிவமைப்பு.`,
-      description: `இந்த ${name} வணிக ரீதியிலான சந்தை தரத்திற்கு ஏற்ப வடிவமைக்கப்பட்டுள்ளது. ${mat ? `${mat} மூலப்பொருட்களைக் கொண்டும் ` : ''}${craft ? `${craft} முறையிலும் ` : ''}உருவாக்கப்பட்டுள்ளது. ${prodTime ? `தயாரிப்பு காலம்: ${prodTime}.` : ''} நீடித்து உழைக்கும் சிறந்த கலைப்படைப்பு.`,
-      highlights: [
-        craft ? `${craft} கைவினை திறன்` : 'சிறந்த கைவினை திறன்',
-        mat ? `${mat} மூலப்பொருள்` : 'தரமான பொருள்',
-        'சந்தை பயன்பாட்டிற்கு ஏற்ற வடிவமைப்பு',
-      ],
+      title: name,
+      shortDescription: [L.made, L.mat || L.craft].filter(Boolean).join(' '),
+      // The artisan's own words are kept (untranslated) rather than invented in translation.
+      description: artisanText ? `${factual}\n\n${L.note}: ${artisanText}` : factual,
+      highlights: [L.handmade, craft, mat, ...features].filter(Boolean).slice(0, 5) as string[],
       specifications: specs,
-      careInstructions: 'உலர்ந்த நிலையில் பராமரிக்கவும்.',
-      tags: [name, craft, mat, cat].filter(Boolean) as string[],
+      careInstructions: care,
+      tags,
     };
   }
 
-  // --- HINDI FALLBACK ---
-  if (language === 'hi') {
-    if (style === 'SIMPLE') {
-      return {
-        title: `${color ? `${color} ` : ''}${name}`,
-        shortDescription: `यह ${craft ? `${craft} तकनीक से ` : ''}${mat ? `${mat} का उपयोग करके ` : ''}बनाया गया ${name} है।`,
-        description: `${name} कुशल कारीगरों द्वारा तैयार किया गया है। ${mat ? `यह ${mat} सामग्री से बना है।` : ''} ${craft ? `इसे ${craft} शैली में बुना गया है।` : ''} ${prodTime ? `इसे बनाने में लगभग ${prodTime} का समय लगता है।` : ''}`,
-        highlights: [
-          craft ? `${craft} शिल्प शैली` : 'हस्तनिर्मित उत्पाद',
-          mat ? `${mat} सामग्री` : 'गुणवत्तापूर्ण सामग्री',
-          'सटीक हस्तकला',
-        ],
-        specifications: specs,
-        careInstructions: mat?.toLowerCase().includes('cotton') || mat?.toLowerCase().includes('सूती')
-          ? 'ठंडे पानी में अलग से धोएं।'
-          : 'सावधानी से देखभाल करें।',
-        tags: [name, craft || 'हस्तशिल्प', cat].filter(Boolean) as string[],
-      };
-    }
+  // English
+  const facts: string[] = [];
+  if (mat) facts.push(`Made from ${mat}`);
+  if (craft) facts.push(`${mat ? 'using' : 'Made using'} ${craft}`);
+  const factSentence = facts.length ? `${facts.join(' ')}.` : '';
+  const lowerText = artisanText.toLowerCase();
+  const shortDescription =
+    artisanText.length >= 20
+      ? firstSentence(artisanText)
+      : `Handmade ${name}${mat ? ` in ${mat}` : ''}${craft ? `, crafted with ${craft}` : ''}.`;
+  const descriptionParts = [
+    artisanText,
+    // Only add structured facts the artisan's text does not already mention
+    factSentence && !(mat && lowerText.includes(mat.toLowerCase())) ? factSentence : '',
+    color && !lowerText.includes(color.toLowerCase()) ? `Colour: ${color}.` : '',
+    customization ? `Customisation: ${customization}.` : '',
+    prodTime ? `Each piece takes about ${prodTime} to make.` : '',
+  ].filter(Boolean);
+  const description = descriptionParts.join(' ') || `${name} is handmade by an M63 artisan.`;
 
-    if (style === 'TRADITIONAL') {
-      return {
-        title: `पारंपरिक ${craft ? `${craft} ` : ''}${name}`,
-        shortDescription: `पारंपरिक ${craft ? `${craft} ` : ''}कला से ${mat ? `${mat} पर ` : ''}निर्मित ${name}।`,
-        description: `यह ${name} पारंपरिक शिल्प कौशल और हस्तकला की धरोहर को दर्शाता है। ${mat ? `${mat} सामग्री ` : ''}${craft ? `और ${craft} तकनीक से ` : ''}इसे बहुत ध्यान से तैयार किया गया है। ${prodTime ? `प्रत्येक कृति को पूरा करने में लगभग ${prodTime} का समय लगता है।` : ''}`,
-        highlights: [
-          craft ? `पारंपरिक ${craft} कला` : 'पारंपरिक हस्तशिल्प',
-          mat ? `शुद्ध ${mat} सामग्री` : 'उत्कृष्ट सामग्री',
-          prodTime ? `${prodTime} की हस्तनिर्मित मेहनत` : 'कारीगरी',
-        ],
-        specifications: specs,
-        careInstructions: 'ठंडे पानी में हाथ से धोएं और छाया में सुखाएं।',
-        tags: [name, craft, mat, cat].filter(Boolean) as string[],
-      };
-    }
+  const highlights = [
+    ...features,
+    craft ? `${style === 'TRADITIONAL' ? 'Traditional ' : ''}${craft}` : '',
+    mat || '',
+    'Handmade by the artisan',
+  ].filter(Boolean);
 
-    // Professional Hindi
-    return {
-      title: `${craft ? `${craft} ` : ''}${color ? `${color} ` : ''}${name}`,
-      shortDescription: `उच्च गुणवत्ता वाला ${mat ? `${mat} ` : ''}${craft ? `${craft} ` : ''}${name}। मार्केटप्लेस के लिए उपयुक्त।`,
-      description: `यह ${name} बाजार के उच्च मानकों के अनुसार तैयार किया गया है। ${mat ? `इसमें ${mat} का उपयोग किया गया है ` : ''}${craft ? `और ${craft} तकनीक से फिनिशिंग दी गई है।` : ''} ${prodTime ? `उत्पादन समय: ${prodTime}।` : ''} टिकाऊ और आकर्षक डिजाइन।`,
-      highlights: [
-        craft ? `${craft} शिल्प कौशल` : 'उत्कृष्ट शिल्प',
-        mat ? `${mat} सामग्री` : 'गुणवत्ता सामग्री',
-        'व्यावसायिक गुणवत्ता',
-      ],
-      specifications: specs,
-      careInstructions: 'सुखाने के लिए सीधी धूप से बचाएं।',
-      tags: [name, craft, mat, cat].filter(Boolean) as string[],
-    };
-  }
-
-  // --- ENGLISH FALLBACK ---
-  if (style === 'SIMPLE') {
-    return {
-      title: `${color ? `${color} ` : ''}${name}`,
-      shortDescription: `This is a ${mat ? `${mat} ` : ''}${name} made using ${craft || 'traditional handcraft'} techniques.`,
-      description: `This ${name} is made by hand by skilled artisans. ${mat ? `It is made from ${mat} material.` : ''} ${craft ? `It uses a ${craft} technique.` : ''} ${color ? `It features a ${color} design.` : ''} ${prodTime ? `It takes about ${prodTime} to complete each piece.` : ''}`,
-      highlights: [
-        craft ? `${craft} technique` : 'Handcrafted design',
-        mat ? `${mat} fabric` : 'Quality material',
-        color ? `${color} colour pattern` : 'Artisan crafted',
-        ...(input.features || []),
-      ].slice(0, 5),
-      specifications: specs,
-      careInstructions: mat?.toLowerCase().includes('cotton')
-        ? 'Hand wash separately in cold water.'
-        : 'Handle gently.',
-      tags: [name, craft, mat, cat].filter(Boolean) as string[],
-    };
-  }
-
-  if (style === 'TRADITIONAL') {
-    return {
-      title: `Handcrafted ${craft ? `${craft} ` : ''}${name}`,
-      shortDescription: `A traditional ${mat ? `${mat} ` : ''}${name} created through authentic ${craft || 'artisan'} craftsmanship.`,
-      description: `This ${name} reflects the rich character of traditional handcrafting. ${mat ? `Woven using fine ${mat}, ` : ''}${craft ? `and formed through skilled ${craft} techniques, ` : ''}each piece carries the unique mark of artisan dedication. ${prodTime ? `The detailed making process takes approximately ${prodTime} to complete.` : ''}`,
-      highlights: [
-        craft ? `Traditional ${craft} heritage` : 'Artisan craftsmanship',
-        mat ? `Authentic ${mat}` : 'Hand-selected material',
-        prodTime ? `Crafted over ${prodTime}` : 'Handmade character',
-        ...(input.features || []),
-      ].slice(0, 5),
-      specifications: specs,
-      careInstructions: 'Hand wash gently in cold water and line dry in shade.',
-      tags: [name, craft, mat, cat].filter(Boolean) as string[],
-    };
-  }
-
-  // Professional English Default
   return {
-    title: `Handcrafted ${color ? `${color} ` : ''}${craft ? `${craft} ` : ''}${name}`,
-    shortDescription: `A professionally crafted ${mat ? `${mat} ` : ''}${name} featuring traditional ${craft || 'artisan'} techniques.`,
-    description: `This ${name} is a high-quality catalogue item combining authentic craftsmanship with durable design. ${mat ? `Constructed from ${mat}, ` : ''}${craft ? `it incorporates traditional ${craft} methods ` : ''}to achieve a refined visual texture and structure. ${prodTime ? `Each unit requires approximately ${prodTime} of dedicated artisan production.` : ''}`,
-    highlights: [
-      craft ? `${craft} craftsmanship` : 'Artisan craftsmanship',
-      mat ? `Premium ${mat} material` : 'Quality material',
-      color ? `${color} palette` : 'Refined design',
-      ...(input.features || []),
-    ].slice(0, 5),
+    title: name,
+    shortDescription,
+    description,
+    highlights: Array.from(new Set(highlights)).slice(0, 5),
     specifications: specs,
-    careInstructions: mat?.toLowerCase().includes('cotton')
-      ? 'Hand wash separately in cold water and dry away from direct sunlight.'
-      : 'Handle with care.',
-    tags: [name, craft, mat, cat].filter(Boolean) as string[],
+    careInstructions: care,
+    tags,
   };
 }

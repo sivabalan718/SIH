@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">M63</string>
+    <string name="title_activity_main">M63</string>
+    <string name="package_name">com.m63.app</string>
+    <string name="custom_url_scheme">com.m63.app</string>
+</resources>

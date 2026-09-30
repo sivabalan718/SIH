@@ -42,17 +42,20 @@ export const CustomerRegister: React.FC = () => {
     }
     if (!formData.password) {
       errs.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      errs.password = 'Password must be at least 6 characters';
+    } else if (formData.password.length < 8 || !/[A-Za-z]/.test(formData.password) || !/\d/.test(formData.password)) {
+      errs.password = 'Use at least 8 characters with a letter and a number';
     }
     if (formData.password !== formData.confirmPassword) {
       errs.confirmPassword = 'Passwords do not match';
     }
-    if (!formData.mobile.trim()) errs.mobile = 'Mobile number is required';
-    if (!formData.address.trim()) errs.address = 'Delivery address line is required';
+    const mobileDigits = formData.mobile.replace(/\D/g, '').replace(/^91(?=\d{10}$)/, '');
+    if (!mobileDigits) errs.mobile = 'Mobile number is required';
+    else if (!/^[6-9]\d{9}$/.test(mobileDigits)) errs.mobile = 'Enter a valid 10-digit Indian mobile number';
+    if (formData.address.trim().length < 8) errs.address = 'Enter house number, street and area';
     if (!formData.city.trim()) errs.city = 'City is required';
     if (!formData.state.trim()) errs.state = 'State is required';
     if (!formData.postalCode.trim()) errs.postalCode = 'PIN code is required';
+    else if (!/^\d{6}$/.test(formData.postalCode.trim())) errs.postalCode = 'PIN code must be 6 digits';
 
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -92,7 +95,7 @@ export const CustomerRegister: React.FC = () => {
 
   return (
     <div
-      className="m63-sans"
+      className="m63-sans m63-safe-top"
       style={{
         position: 'relative',
         minHeight: '100vh',

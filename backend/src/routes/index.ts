@@ -9,6 +9,7 @@ import { orderRouter } from './order.routes.js';
 import { analyticsRouter } from './analytics.routes.js';
 import { reviewRouter } from './review.routes.js';
 import { paymentRouter } from './payment.routes.js';
+import { assistantPublicRouter, notificationRouter, uploadRouter, wishlistRouter } from './engagement.routes.js';
 
 import assistantRoutes from './assistant.routes.js';
 
@@ -26,5 +27,9 @@ router.use('/cart', cartRouter);
 router.use('/orders', orderRouter);
 router.use('/analytics', analyticsRouter);
 router.use('/payments', paymentRouter);
+router.use('/wishlist', wishlistRouter);
+router.use('/notifications', notificationRouter);
+router.use('/uploads', uploadRouter);
+router.use('/marketplace/assistant', assistantPublicRouter);
 
 export default router;

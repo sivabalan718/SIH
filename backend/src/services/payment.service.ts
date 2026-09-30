@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import { getSupabaseAdmin } from '../config/supabase.js';
 import { logger } from '../utils/logger.js';
 import { getBuyerOrderById, getOrdersByCheckoutGroup, ONLINE_PAYMENT_WINDOW_MS, OrderRecord } from './order.service.js';
+import { notifyPaymentReceived } from './notification.service.js';
 
 /**
  * Razorpay Standard Checkout — server side.
@@ -220,6 +221,7 @@ export async function verifyPayment(buyerId: string, input: VerifyPaymentInput):
   if (error) throw httpError('Payment received but the order could not be updated. Our team will reconcile it.', 500, 'ORDER_UPDATE_FAILED');
 
   logger.info(`[Payments] Verified ${razorpay_payment_id} for ${razorpay_order_id}`);
+  for (const o of rows as any[]) notifyPaymentReceived(o);
   return { orders: rows.map((o: any) => ({ id: o.id, m63_order_number: o.m63_order_number })), already_processed: false };
 }
 
@@ -237,6 +239,18 @@ export async function recordPaymentFailure(buyerId: string, razorpayOrderId: str
     .neq('payment_status', 'PAID');
 }
 
+/** Refund a captured Razorpay payment (full or partial amount, in paise). */
+export async function refundPayment(paymentId: string, amountPaise: number, notes: Record<string, string>): Promise<{ id: string; amount: number }> {
+  if (!RZP_PAYMENT_RE.test(paymentId)) throw httpError('Invalid payment reference for refund.', 400);
+  try {
+    const refund: any = await getRazorpay().payments.refund(paymentId, { amount: amountPaise, speed: 'normal', notes });
+    return { id: refund.id, amount: Number(refund.amount) };
+  } catch (e: any) {
+    if (e instanceof Error && (e as any).statusCode) throw e;
+    throw httpError(e?.error?.description || 'Razorpay could not process the refund.', 502, 'REFUND_FAILED');
+  }
+}
+
 /** Razorpay webhook (optional): authoritative server-to-server confirmation. */
 export async function handleWebhook(rawBody: Buffer, signature: string | undefined): Promise<void> {
   if (!env.razorpayWebhookSecret) throw httpError('Webhook secret not configured.', 503);
@@ -250,11 +264,13 @@ export async function handleWebhook(rawBody: Buffer, signature: string | undefin
   const supabase = getSupabaseAdmin();
 
   if (event.event === 'payment.captured' || event.event === 'order.paid') {
-    await supabase
+    const { data: newlyPaid } = await supabase
       .from('orders')
       .update({ payment_status: 'PAID', razorpay_payment_id: payment?.id, paid_at: new Date().toISOString(), payment_failure_reason: null })
       .eq('razorpay_order_id', orderId)
-      .neq('payment_status', 'PAID');
+      .neq('payment_status', 'PAID')
+      .select();
+    for (const o of newlyPaid || []) notifyPaymentReceived(o as any); // deduped if verify already notified
   } else if (event.event === 'payment.failed') {
     await supabase
       .from('orders')

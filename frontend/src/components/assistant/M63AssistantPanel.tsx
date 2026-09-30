@@ -582,11 +582,11 @@ export const M63AssistantPanel: React.FC<M63AssistantPanelProps> = ({ onClose, o
     <div
       style={{
         position: 'fixed',
-        inset: isFullScreen ? '0' : 'auto 24px 85px auto',
+        inset: isFullScreen ? '0' : 'auto 16px 85px auto',
         width: isFullScreen ? '100vw' : 'calc(100vw - 32px)',
         maxWidth: isFullScreen ? '100vw' : '460px',
-        height: isFullScreen ? '100vh' : '620px',
-        maxHeight: isFullScreen ? '100vh' : 'calc(100vh - 110px)',
+        height: isFullScreen ? '100dvh' : '620px',
+        maxHeight: isFullScreen ? '100dvh' : 'calc(100dvh - 110px)',
         backgroundColor: 'rgba(9, 13, 22, 0.97)',
         backdropFilter: 'blur(24px)',
         borderRadius: isFullScreen ? '0px' : '24px',
@@ -598,6 +598,10 @@ export const M63AssistantPanel: React.FC<M63AssistantPanelProps> = ({ onClose, o
         zIndex: 99999,
         color: '#F8FAFC',
         transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+        // Full screen on a phone: keep header/input clear of the status and gesture bars
+        paddingTop: isFullScreen ? 'var(--sat)' : 0,
+        paddingBottom: isFullScreen ? 'var(--sab)' : 0,
+        boxSizing: 'border-box',
       }}
     >
       {/* Panel Header */}

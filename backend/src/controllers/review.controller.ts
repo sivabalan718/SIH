@@ -50,7 +50,7 @@ export async function handleCheckReviewEligibility(req: Request, res: Response):
 export async function handleSubmitReview(req: Request, res: Response): Promise<void> {
   try {
     const buyerId = getUserId(req);
-    const { order_item_id, rating, review_text } = req.body;
+    const { order_item_id, rating, review_text, photo_urls } = req.body;
 
     if (!order_item_id) {
       sendError(res, 'VALIDATION_ERROR', 'Order item ID is required.', 400);
@@ -66,6 +66,7 @@ export async function handleSubmitReview(req: Request, res: Response): Promise<v
       order_item_id,
       rating,
       review_text,
+      photo_urls,
     });
 
     sendSuccess(res, result, 201);

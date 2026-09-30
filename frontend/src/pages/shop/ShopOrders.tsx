@@ -53,7 +53,7 @@ export const ShopOrders: React.FC = () => {
   });
 
   return (
-    <div>
+    <div className="shop-narrow">
       <section className="cart-head" style={{ paddingBottom: 12 }}>
         <h1>Your Orders</h1>
         <div className="shop-search" style={{ margin: '12px 0 0', boxShadow: 'inset 0 0 0 1px #d6d3d1' }}>

@@ -75,9 +75,12 @@ export const DeckHeader: React.FC<Props> = ({ period, setPeriod, lang, setLang, 
         {story && (
           <p className="ix-story" key={story} aria-label={story}>
             {story.split(' ').map((w, i) => (
-              <span key={i} className="ix-word" style={cv({ '--i': i })} aria-hidden="true">
-                {w}{' '}
-              </span>
+              // The space must sit outside the inline-block word, or browsers drop it
+              <React.Fragment key={i}>
+                <span className="ix-word" style={cv({ '--i': i })} aria-hidden="true">
+                  {w}
+                </span>{' '}
+              </React.Fragment>
             ))}
           </p>
         )}

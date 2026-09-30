@@ -44,7 +44,7 @@ export const ShopOrderSuccess: React.FC = () => {
   const verifiedPaid = allPaid && (location.state as any)?.paid !== false;
 
   return (
-    <div>
+    <div className="shop-narrow">
       <section className="co-section" style={{ textAlign: 'center', paddingTop: 28 }}>
         <CheckCircle2 size={56} color="#0f766e" style={{ margin: '0 auto 10px' }} />
         <h1 className="co-title" style={{ marginBottom: 6 }}>

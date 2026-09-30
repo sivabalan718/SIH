@@ -7,6 +7,7 @@ import { addToBuyerCart } from '../../services/cartService.js';
 import { checkReviewEligibility, ReviewEligibilityResult } from '../../services/reviewService.js';
 import { runPayment } from '../../services/paymentService.js';
 import { ReviewModal } from '../../components/reviews/ReviewModal.js';
+import { OrderRequestSection } from '../../components/shop/OrderRequestSection.js';
 import { handleProductImageError } from '../../utils/imageFallback.js';
 import { formatINR, notifyCartUpdated, showToast } from '../../utils/shopStore.js';
 
@@ -169,7 +170,7 @@ export const ShopOrderDetail: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="shop-narrow">
       {notice && (
         <div className={`notice notice--${notice.tone} no-print`} role="status">
           <AlertCircle size={17} style={{ flex: 'none', marginTop: 1 }} />
@@ -256,6 +257,8 @@ export const ShopOrderDetail: React.FC = () => {
           })}
         </section>
       )}
+
+      <OrderRequestSection order={order} />
 
       <section className="co-section">
         <h2 className="pdp__h">Order info</h2>

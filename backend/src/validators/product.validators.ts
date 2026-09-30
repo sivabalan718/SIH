@@ -5,7 +5,17 @@ const VALID_CATEGORIES = [
   'Woodcraft', 'Textiles', 'Home Decor', 'Traditional Art', 'Other',
 ] as const;
 
-export const createProductSchema = z.object({
+
+/** Category-aware structured details (dimensions, capacity, set size, finish, care, customisation...). */
+const attributesSchema = z
+  .record(z.string().trim().min(1).max(40), z.string().trim().max(200))
+  .refine((o) => Object.keys(o).length <= 20, 'Too many product details');
+
+/** Original price (M.R.P.) - a discount is shown only when it is higher than the selling price. */
+const mrpSchema = z.number().min(0, 'M.R.P. cannot be negative').max(9999999999, 'M.R.P. is too large').nullable();
+
+export const createProductSchema = z
+  .object({
   name: z
     .string({ required_error: 'Product name is required' })
     .trim()
@@ -53,7 +63,10 @@ export const createProductSchema = z.object({
     .int('Stock quantity must be a whole number')
     .min(0, 'Stock quantity cannot be negative')
     .max(999999, 'Stock quantity is too large'),
-});
+  mrp: mrpSchema.optional(),
+  attributes: attributesSchema.optional(),
+})
+  .refine((d) => d.mrp == null || d.mrp >= d.price, { message: 'M.R.P. must be equal to or higher than the selling price', path: ['mrp'] });
 
 export const updateProductSchema = z.object({
   name: z
@@ -106,6 +119,8 @@ export const updateProductSchema = z.object({
     .min(0, 'Stock quantity cannot be negative')
     .max(999999, 'Stock quantity is too large')
     .optional(),
+  mrp: mrpSchema.optional(),
+  attributes: attributesSchema.optional(),
 });
 
 export { VALID_CATEGORIES };

@@ -10,6 +10,7 @@ export interface ProductReviewItem {
   rating: number;
   review_text: string | null;
   customer_name: string;
+  photo_urls?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -65,6 +66,7 @@ export async function submitReview(input: {
   order_item_id: string;
   rating: number;
   review_text?: string;
+  photo_urls?: string[];
 }): Promise<ProductReviewItem> {
   const result = await apiRequest<{ data: ProductReviewItem }>('/reviews', {
     method: 'POST',

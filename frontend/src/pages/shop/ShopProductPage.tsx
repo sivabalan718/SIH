@@ -111,7 +111,19 @@ export const ShopProductPage: React.FC = () => {
   const out = product.stock_quantity <= 0;
   const maxQty = Math.max(1, product.stock_quantity);
   const reviewCount = reviews?.total_reviews || 0;
-  const specs = Object.entries(product.specifications || {}).filter(([, v]) => v && String(v).trim());
+  // Smart Catalogue specifications + any artisan-entered details not already listed
+  const ATTR_LABELS: Record<string, string> = {
+    dimensions: 'Size / dimensions', weight: 'Weight', set_size: 'Set / pack', finish: 'Finish', capacity: 'Capacity',
+    intended_use: 'Used for', length: 'Length', occasion: 'Occasion', framing: 'Framing', age_group: 'Suitable age',
+    customization: 'Customisation',
+  };
+  const baseSpecs = Object.entries(product.specifications || {}).filter(([, v]) => v && String(v).trim());
+  const specValues = new Set(baseSpecs.map(([, v]) => String(v).trim().toLowerCase()));
+  const extraSpecs = Object.entries(product.attributes || {})
+    .filter(([k, v]) => k !== 'care' && v && !specValues.has(String(v).trim().toLowerCase()))
+    .map(([k, v]) => [ATTR_LABELS[k] || k.replace(/_/g, ' '), v] as [string, string]);
+  const specs = [...baseSpecs, ...extraSpecs];
+  const careText = product.care_instructions || product.attributes?.care || '';
 
   const addToCart = async (goToCart: boolean) => {
     setBusy('cart');
@@ -144,6 +156,7 @@ export const ShopProductPage: React.FC = () => {
 
   return (
     <div>
+      <div className="pdp__top">
       <div className="pdp__media">
         <img src={product.primary_image_url || ''} alt={product.name} onError={(e) => handleProductImageError(e, product.category)} />
         <div className="pdp__media-actions">
@@ -239,6 +252,7 @@ export const ShopProductPage: React.FC = () => {
           <Sparkles size={16} color="#C85A28" /> Ask M63 AI about this product
         </button>
       </section>
+      </div>
 
       <div className="pdp__tabs" role="tablist">
         <button className="pdp__tab" role="tab" aria-selected={tab === 'details'} onClick={() => setTab('details')}>
@@ -270,10 +284,10 @@ export const ShopProductPage: React.FC = () => {
               </table>
             </section>
           )}
-          {product.care_instructions && (
+          {careText && (
             <section className="pdp__card">
               <h2 className="pdp__h">Care</h2>
-              <p className="pdp__text">{product.care_instructions}</p>
+              <p className="pdp__text">{careText}</p>
             </section>
           )}
           <section className="pdp__card">
@@ -319,6 +333,21 @@ export const ShopProductPage: React.FC = () => {
                     })}
                   </div>
                 </div>
+                {(() => {
+                  const photos = reviews.recent_reviews.flatMap((r) => r.photo_urls || []);
+                  return photos.length > 0 ? (
+                    <div style={{ marginBottom: 12 }}>
+                      <h3 className="pdp__h" style={{ fontSize: '0.92rem' }}>Customer photos ({photos.length})</h3>
+                      <div className="shop-rail" style={{ gridAutoColumns: '96px', padding: '0 0 6px' }}>
+                        {photos.map((u) => (
+                          <a key={u} href={u} target="_blank" rel="noreferrer" style={{ width: 96, height: 96, borderRadius: 10, overflow: 'hidden', background: '#f1ece4' }}>
+                            <img src={u} alt="Photo from a verified buyer" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
                 {reviews.recent_reviews.map((r) => (
                   <article key={r.id} className="rv">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -328,6 +357,15 @@ export const ShopProductPage: React.FC = () => {
                       </span>
                     </div>
                     {r.review_text && <p className="pdp__text" style={{ marginTop: 6 }}>{r.review_text}</p>}
+                    {(r.photo_urls || []).length > 0 && (
+                      <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                        {r.photo_urls!.map((u) => (
+                          <a key={u} href={u} target="_blank" rel="noreferrer">
+                            <img src={u} alt="Buyer photo" loading="lazy" style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8 }} />
+                          </a>
+                        ))}
+                      </div>
+                    )}
                     <p className="pcard__meta" style={{ marginTop: 4 }}>
                       {r.customer_name} · {new Date(r.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>

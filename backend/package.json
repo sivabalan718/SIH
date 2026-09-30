@@ -4,12 +4,16 @@
   "description": "M63 Artisan Platform Backend API",
   "main": "dist/app.js",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
     "dev": "tsx watch src/app.ts",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles --forceExit",
-    "catalogue:backfill": "tsx src/scripts/backfillCatalogues.ts"
+    "catalogue:backfill": "tsx src/scripts/backfillCatalogues.ts",
+    "catalogue:fill": "tsx src/scripts/fillMarketplaceCatalogues.ts"
   },
   "dependencies": {
     "@imgly/background-removal-node": "^1.4.5",

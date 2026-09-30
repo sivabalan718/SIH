@@ -1,5 +1,6 @@
 import { getSupabaseAdmin } from '../config/supabase.js';
 import { logger } from '../utils/logger.js';
+import { notifyNewProduct, notifyPriceDrop } from './notification.service.js';
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -23,6 +24,8 @@ export interface ProductRecord {
   enhanced_image_url?: string | null;
   selected_background?: string | null;
   enhanced_at?: string | null;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -39,6 +42,8 @@ export interface CreateProductInput {
   features?: string[];
   price: number;
   stock_quantity: number;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
 }
 
 export interface UpdateProductInput {
@@ -52,6 +57,8 @@ export interface UpdateProductInput {
   features?: string[];
   price?: number;
   stock_quantity?: number;
+  mrp?: number | null;
+  attributes?: Record<string, string>;
 }
 
 export interface ProductStats {
@@ -87,6 +94,8 @@ export async function createProduct(
     features: input.features || [],
     price: input.price,
     stock_quantity: input.stock_quantity,
+    mrp: input.mrp ?? null,
+    attributes: input.attributes || {},
     status: 'DRAFT',
     creation_source: 'MANUAL',
     primary_image_url: null,
@@ -111,6 +120,8 @@ export async function createProduct(
         features: input.features || [],
         price: input.price,
         stock_quantity: input.stock_quantity,
+        mrp: input.mrp ?? null,
+        attributes: input.attributes || {},
         status: 'DRAFT',
         creation_source: 'MANUAL',
       })
@@ -122,18 +133,7 @@ export async function createProduct(
       logger.info(`Product created: ${data.id} by artisan ${artisanId}`);
 
       // Automatically trigger background Smart Catalogue preparation
-      triggerAutoCatalogueGeneration(data.id, artisanId, {
-        name: data.name,
-        description: data.description || undefined,
-        category: data.category || undefined,
-        subcategory: data.subcategory || undefined,
-        material: data.material || undefined,
-        color: data.color || undefined,
-        craft_type: data.craft_type || undefined,
-        features: data.features || [],
-        price: data.price,
-        stock_quantity: data.stock_quantity,
-      }).catch((e: any) => logger.warn(`[AutoCatalogue] Background generation notice for ${data.id}: ${e.message}`));
+      triggerAutoCatalogueGeneration(data.id, artisanId, data).catch((e: any) => logger.warn(`[AutoCatalogue] Background generation notice for ${data.id}: ${e.message}`));
 
       return data as ProductRecord;
     }
@@ -143,18 +143,7 @@ export async function createProduct(
   logger.info(`Product created (memory fallback): ${memoryFallbackProd.id} by artisan ${artisanId}`);
 
   // Automatically trigger background Smart Catalogue preparation on fallback
-  triggerAutoCatalogueGeneration(memoryFallbackProd.id, artisanId, {
-    name: memoryFallbackProd.name,
-    description: memoryFallbackProd.description || undefined,
-    category: memoryFallbackProd.category || undefined,
-    subcategory: memoryFallbackProd.subcategory || undefined,
-    material: memoryFallbackProd.material || undefined,
-    color: memoryFallbackProd.color || undefined,
-    craft_type: memoryFallbackProd.craft_type || undefined,
-    features: memoryFallbackProd.features || [],
-    price: memoryFallbackProd.price,
-    stock_quantity: memoryFallbackProd.stock_quantity,
-  }).catch((e: any) => logger.warn(`[AutoCatalogue] Background generation notice for ${memoryFallbackProd.id}: ${e.message}`));
+  triggerAutoCatalogueGeneration(memoryFallbackProd.id, artisanId, memoryFallbackProd).catch((e: any) => logger.warn(`[AutoCatalogue] Background generation notice for ${memoryFallbackProd.id}: ${e.message}`));
 
   return memoryFallbackProd;
 }
@@ -166,22 +155,13 @@ export async function createProduct(
 export async function triggerAutoCatalogueGeneration(
   productId: string,
   artisanId: string,
-  input: {
-    name: string;
-    description?: string;
-    category?: string;
-    subcategory?: string;
-    material?: string;
-    color?: string;
-    craft_type?: string;
-    features?: string[];
-    price?: number;
-    stock_quantity?: number;
-  }
+  product: Partial<ProductRecord> & { name: string }
 ): Promise<void> {
   try {
     const { generateCatalogueContent } = await import('./ai/catalogue-generation.service.js');
     const { saveCatalogueContent, getCatalogueContent } = await import('./catalogue.service.js');
+    const { productToCatalogueInput } = await import('./catalogue-backfill.service.js');
+    const input = productToCatalogueInput(product);
 
     const languages: ('en' | 'ta' | 'hi')[] = ['en', 'ta', 'hi'];
     for (const lang of languages) {
@@ -301,6 +281,23 @@ export async function updateProduct(
   if (updates.price !== undefined) safeUpdates.price = updates.price;
   if (updates.stock_quantity !== undefined) safeUpdates.stock_quantity = updates.stock_quantity;
   if ((updates as any).primary_image_url !== undefined) safeUpdates.primary_image_url = (updates as any).primary_image_url;
+  if (updates.mrp !== undefined) safeUpdates.mrp = updates.mrp;
+  if (updates.attributes !== undefined) safeUpdates.attributes = updates.attributes;
+
+  // Keep M.R.P. valid: it can never be below the selling price
+  let previousPrice: number | null = null;
+  if (safeUpdates.price !== undefined || safeUpdates.mrp !== undefined) {
+    const current = await getProductById(productId, artisanId).catch(() => null);
+    previousPrice = current ? Number(current.price) : null;
+    const price = safeUpdates.price ?? current?.price;
+    const mrp = safeUpdates.mrp !== undefined ? safeUpdates.mrp : current?.mrp;
+    if (mrp != null && price != null && Number(mrp) < Number(price)) {
+      if (safeUpdates.mrp !== undefined) {
+        throw Object.assign(new Error('M.R.P. must be equal to or higher than the selling price.'), { code: 'INVALID_MRP', statusCode: 400 });
+      }
+      safeUpdates.mrp = null; // price raised above the old M.R.P.: that discount no longer exists
+    }
+  }
 
   if (Object.keys(safeUpdates).length === 0) {
     throw Object.assign(new Error('No valid updates provided.'), { code: 'NO_UPDATES', statusCode: 400 });
@@ -317,6 +314,10 @@ export async function updateProduct(
 
     if (!error && data) {
       localMemoryProductStore.set(productId, data as ProductRecord);
+      refreshCatalogueIfContentChanged(data as ProductRecord, safeUpdates);
+      if (data.status === 'PUBLISHED' && previousPrice !== null && safeUpdates.price !== undefined) {
+        notifyPriceDrop(data as ProductRecord, previousPrice, Number(safeUpdates.price));
+      }
       return data as ProductRecord;
     }
   } catch (e) {}
@@ -330,6 +331,16 @@ export async function updateProduct(
   }
 
   throw Object.assign(new Error('Product not found or access denied.'), { code: 'NOT_FOUND', statusCode: 404 });
+}
+
+const CATALOGUE_FIELDS = ['name', 'description', 'category', 'subcategory', 'material', 'color', 'craft_type', 'features', 'attributes'];
+
+/** When the artisan edits product facts, refresh the M63-generated catalogue (artisan-edited ones are kept). */
+function refreshCatalogueIfContentChanged(product: ProductRecord, changed: Record<string, any>) {
+  if (product.status !== 'PUBLISHED' || !CATALOGUE_FIELDS.some((f) => f in changed)) return;
+  triggerAutoCatalogueGeneration(product.id, product.artisan_id, product).catch((e: any) =>
+    logger.warn(`[AutoCatalogue] Refresh after edit failed for ${product.id}: ${e?.message}`)
+  );
 }
 
 // ─── Publish Product (ownership enforced + validation) ───────────────
@@ -370,18 +381,7 @@ export async function publishProduct(
   let catalogue = await getCatalogueContent(productId, 'en', artisanId);
   if (!catalogue || !isCatalogueComplete(catalogue)) {
     logger.info(`[PublishGate] Product ${productId} missing complete catalogue; preparing before publication...`);
-    await triggerAutoCatalogueGeneration(productId, artisanId, {
-      name: product.name,
-      description: product.description || undefined,
-      category: product.category || undefined,
-      subcategory: product.subcategory || undefined,
-      material: product.material || undefined,
-      color: product.color || undefined,
-      craft_type: product.craft_type || undefined,
-      features: product.features,
-      price: product.price,
-      stock_quantity: product.stock_quantity,
-    });
+    await triggerAutoCatalogueGeneration(productId, artisanId, product);
   }
 
   const supabase = getSupabaseAdmin();
@@ -409,6 +409,15 @@ export async function publishProduct(
 
   localMemoryProductStore.set(productId, product);
   logger.info(`Product published: ${productId} by artisan ${artisanId}`);
+
+  // Tell interested customers (past buyers / wishlisters of this artisan) about the new product
+  getSupabaseAdmin()
+    .from('artisans')
+    .select('name')
+    .eq('id', artisanId)
+    .maybeSingle()
+    .then(({ data }) => notifyNewProduct(product, data?.name))
+    .then(undefined, (e: any) => logger.warn(`[Notify] new product lookup failed: ${e?.message}`));
   return product;
 }
 

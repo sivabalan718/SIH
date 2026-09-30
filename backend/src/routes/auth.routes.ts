@@ -11,7 +11,7 @@ import {
   updateCustomerProfileHandler,
 } from '../controllers/auth.controller.js';
 import { validateBody } from '../middleware/validate.middleware.js';
-import { registerSchema, loginSchema } from '../validators/auth.validators.js';
+import { registerSchema, loginSchema, customerRegisterSchema, customerProfileUpdateSchema } from '../validators/auth.validators.js';
 import { requireAuth, requireCustomerAuth, requireAnyAuth } from '../middleware/auth.middleware.js';
 
 const router = Router();
@@ -24,11 +24,11 @@ router.post('/logout', requireAnyAuth, logout);
 router.get('/me', requireAnyAuth, getMe);
 
 // Dedicated Customer Auth Routes
-router.post('/customer/register', registerCustomerHandler);
+router.post('/customer/register', validateBody(customerRegisterSchema), registerCustomerHandler);
 router.post('/customer/login', loginCustomerHandler);
 
 // Customer Profile Routes
 router.get('/customer/profile', requireCustomerAuth, getCustomerProfileHandler);
-router.put('/customer/profile', requireCustomerAuth, updateCustomerProfileHandler);
+router.put('/customer/profile', requireCustomerAuth, validateBody(customerProfileUpdateSchema), updateCustomerProfileHandler);
 
 export default router;
